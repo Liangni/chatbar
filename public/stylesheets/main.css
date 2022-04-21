@@ -321,10 +321,10 @@ a {
     align-items: center;
     height: 16%;
 }
-.top-section .left-part,
+/* .top-section .left-part,
 .top-section .right-part {
-    /* outline: 1px solid green; */
-}
+    outline: 1px solid green;
+} */
 .top-section .left-part {
     width: 80%;
 }
@@ -390,11 +390,11 @@ a {
 .right-part .right-part-bottom {
     top: 50%;
 }
-.right-part .right-part-top ,
+/* .right-part .right-part-top ,
 .right-part hr,
 .right-part .right-part-bottom {
-    /* outline: 1px solid red; */
-}
+    outline: 1px solid red;
+} */
 .right-part .right-part-top,
 .right-part .right-part-bottom {
     width: 80%;
