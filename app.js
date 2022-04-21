@@ -8,6 +8,9 @@ const routes = require('./routes')
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs', helpers: require('./helpers/handlebars-helpers') }))
 app.set('view engine', 'hbs')
 
+app.use(express.urlencoded({ extended: true}))
+app.use(express.static('public'))
+
 // 掛載總路由器
 app.use(routes)
 
