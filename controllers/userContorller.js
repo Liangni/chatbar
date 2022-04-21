@@ -4,6 +4,9 @@ const userController = {
     },
     registerPage: (req, res) => {
         res.render('users/register')
+    },
+    getUserMessages: (req, res) => {
+        res.render('userMessages')
     }
 }
 
