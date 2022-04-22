@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = function(models) {
     // associations can be defined here
     User.belongsTo(models.Gender)
+    User.belongsTo(models.District)
   };
   return User;
 };
