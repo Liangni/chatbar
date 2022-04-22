@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   District.associate = function(models) {
     // associations can be defined here
     District.hasMany(models.User)
+    District.belongsTo(models.Area)
   };
   return District;
 };
