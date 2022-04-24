@@ -10,8 +10,8 @@
             </li>
         </ul>
     </div>
-    <form action="/users/register" method="POST" class="register-form d-flex flex-column align-items-center justify-content-center"
-        data-currentstep="1">
+    <form action="/users/register" method="POST"
+        class="register-form d-flex flex-column align-items-center justify-content-center" data-currentstep="1">
         <div class="showStep d-flex flex-row justify-content-around mb-3">
             <div class="step-icon text-center nowStep">Step 1</div>
             <div class="step-icon text-center">Step 2</div>
@@ -57,9 +57,26 @@
                 </div>
                 <div class="step-two-right d-flex flex-column align-items-start justify-content-start">
                     <div class="form-floating district-input-box mb-1">
-                        <input type="text" class="form-control" name="district" id="district" placeholder="..."
+                        {{!-- <input type="text" class="form-control" name="district" id="district" placeholder="..."
                             style="padding-left: 12px;">
-                        <label for="district" style="font-size: 14px; padding-left: 12px;">設定常出沒地</label>
+                        <label for="district" style="font-size: 14px; padding-left: 12px;">設定常出沒地</label> --}}
+                        <select name="area" id="area" class="form-select" style="">
+                            <option selected>設定Area</option>
+                            <option value="">台灣北部</option>
+                            <option value="">台灣中部</option>
+                            <option value="">台灣南部</option>
+                            <option value="">台灣東部</option>
+                        </select>
+                        <select name="district" id="district" class="form-select" style="">
+                            <option selected>設定district</option>
+                            {{!-- <option value="">台北市</option>
+                            <option value="">新北市</option>
+                            <option value="">桃園市</option>
+                            <option value="">新竹市</option>
+                            <option value="">新竹縣</option>
+                            <option value="">宜蘭縣</option>
+                            <option value="">基隆市</option> --}}
+                        </select>
                     </div>
                     <div class="form-floating occupation-input-box mb-1">
                         <input type="text" class="form-control" name="occupation" id="occupation" placeholder="..."
@@ -117,6 +134,28 @@
     let interest = ''
     let birthday = ''
 
+    const areaData = [{
+        name: '台灣北部',
+        district: [
+            '台北市', '新北市', '桃園市', '新竹市', '新竹縣', '宜蘭市', '基隆市'
+        ]
+    }, {
+        name: '台灣中部',
+        district: [
+            '台中市', '彰化縣', '雲林縣', '苗栗縣', '南投縣'
+        ]
+    }, {
+        name: '台灣南部',
+        district: [
+            '高雄市', '台南市', '嘉義市', '嘉義縣', '屏東縣'
+        ]
+    }, {
+        name: '台灣東部',
+        district: [
+            '台東縣', '花蓮縣', '澎湖縣', '金門縣', '連江縣'
+        ]
+    }]
+    console.log(areaData)
     registerForm.addEventListener('keydown', e => {
         if (e.code === 'Enter' && registerForm.dataset.currentstep === '1' || e.code === 'Enter' && registerForm.dataset.currentstep === '2') {
             e.preventDefault()
@@ -255,7 +294,7 @@
             e.target.classList.add('fa-eye-slash')
         }
     })
-    
+
     function invalid(element, msg) {
         message.innerText = msg
         element.classList.add('invalid')
