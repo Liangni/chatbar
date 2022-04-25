@@ -1,12 +1,17 @@
 const bcrypt = require('bcryptjs')
+<<<<<<< HEAD
 // 若採用JWT驗證，要加入如下
 // const jwt = require('jsonwebtoken')
 const { Gender, District, User, Interest, Owned_interest } = require('../models')
+=======
+const { Gender, District, User, Interest, Owned_interest, Area } = require('../models')
+>>>>>>> a8b85a9 (Modify register page area & district select input)
 
 const userController = {
-    loginPage: (req, res) => {    
+    loginPage: (req, res) => {
         res.render('users/login')
     },
+<<<<<<< HEAD
     registerPage: async (req, res, next) => {
         try {
             const genders = await Gender.findAll({ raw: true })
@@ -72,9 +77,80 @@ const userController = {
         // req.logout() 是 Passport.js 提供的函式，這個方法會把 user id 對應的 session 清除掉
         req.logout()
         res.redirect('/users/login')
+=======
+    registerPage: (req, res, next) => {
+        Promise.all([
+            Gender.findAll({ raw: true }),
+            Area.findAll({ include: District })
+        ])
+            .then(([genders, areas]) => {
+                const areasData = areas.map(a => { 
+                    a.Districts = a.Districts.map(d => ( d.toJSON()))
+                    return { 
+                    id: a.id ,
+                    name: a.name,
+                    districts: a.Districts        
+                }})
+                res.render('users/register', { genders, areas: areasData}
+                )
+            })
+            .catch(err => next(err))
+    },
+    register: (req, res, next) => {
+        const { account, password, confirmPassword, genderId, birthday, occupation, districtId, interest } = req.body
+        if (!account || !password || !confirmPassword || !genderId || !birthday || !occupation || !districtId || !interest) throw new Error('所有欄位皆為必填!')
+        if (password !== confirmPassword) throw new Error('密碼與確認密碼不一致!')
+
+        return User.findOne({ where: { account } })
+            .then((userData) => {
+                if (userData) throw new Error('重複註冊帳號！')
+
+                return Promise.all([
+                    bcrypt.hash(password, 10),
+                    Interest.findOne({ where: { name: interest } })
+                ])
+            })
+            .then(([hash, interestData]) => {
+                if (!interestData) {
+                    return Promise.all([
+                        User.create({
+                            account,
+                            password: hash,
+                            genderId,
+                            birthday,
+                            occupation,
+                            districtId
+                        }),
+                        Interest.create({ name: interest })
+                    ])
+                }
+                return Promise.all([
+                    User.create({
+                        account,
+                        password: hash,
+                        genderId,
+                        birthday,
+                        occupation,
+                        districtId
+                    }),
+                    interestData
+                ])
+            })
+            .then(([newUser, interestData]) => {
+                return Owned_interest.create({
+                    userId: newUser.id,
+                    interestId: interestData.id
+                })
+            })
+            .then(() => {
+                req.flash('success_messages', '註冊成功!')
+                res.redirect('/users/login')
+            })
+            .catch(err => next(err))
+>>>>>>> a8b85a9 (Modify register page area & district select input)
     },
     getUserMessages: (req, res) => {
-        res.render('userMessages')
+        res.render('users/userMessages')
     }
 }
 

@@ -41,10 +41,10 @@
             <div class="step-two-wrapper d-flex flex-row justify-content-between align-items-center">
                 <div class="step-two-left me-5 d-flex flex-column align-items-start justify-content-start">
                     <div class="gender-input-box mb-1">
-                        <select name="genderId" id="gender" class="form-select" style="height: 58px;font-size: 14px;">
+                        <select name="genderId" id="genderId" class="form-select" style="height: 58px;font-size: 14px;">
                             <option selected>設定性別</option>
                             {{#each genders}}
-                            <option value="{{this.id}}">{{this.name}}</option>
+                            <option value="{{this.id}}" data-gender="{{this.name}}">{{this.name}}</option>
                             {{/each}}
                         </select>
                     </div>
@@ -56,32 +56,30 @@
                     </div>
                 </div>
                 <div class="step-two-right d-flex flex-column align-items-start justify-content-start">
-                    <div class="form-floating district-input-box mb-1">
-                        {{!-- <input type="text" class="form-control" name="district" id="district" placeholder="..."
-                            style="padding-left: 12px;">
-                        <label for="district" style="font-size: 14px; padding-left: 12px;">設定常出沒地</label> --}}
-                        <select name="area" id="area" class="form-select" style="">
-                            <option selected>設定Area</option>
-                            <option value="">台灣北部</option>
-                            <option value="">台灣中部</option>
-                            <option value="">台灣南部</option>
-                            <option value="">台灣東部</option>
-                        </select>
-                        <select name="district" id="district" class="form-select" style="">
-                            <option selected>設定district</option>
-                            {{!-- <option value="">台北市</option>
-                            <option value="">新北市</option>
-                            <option value="">桃園市</option>
-                            <option value="">新竹市</option>
-                            <option value="">新竹縣</option>
-                            <option value="">宜蘭縣</option>
-                            <option value="">基隆市</option> --}}
-                        <select name="districtId" id="district" class="form-select" style="height: 58px;font-size: 14px;">
-                            <option selected>常出沒地</option>
-                            {{#each districts}}
-                            <option value="{{this.id}}">{{this.name}}</option>
+                    <div class="form-floating district-input-box mb-1 d-flex flex-row ">
+                        <select name="area" id="area" class="form-select me-1" style="padding-left: 20px;
+    padding-top: 12px;width:170px;
+    font-size: 14px;">
+                            <option selected>設定常出沒地</option>
+                            {{#each areas}}
+                            <option value="{{this.id}}" data-id="{{this.id}}" class="area-option">{{this.name}}
+                            </option>
                             {{/each}}
                         </select>
+
+
+                        <select name="districtId" id="districtId" class="form-select" style="padding-left: 20px;
+    padding-top: 12px;
+    font-size: 14px;">
+                            <option selected>選擇一個縣市</option>
+                            {{#each areas}}
+                            {{#each this.districts}}
+                            <option value="{{this.id}}" data-areaid="{{ this.areaId }}" data-districtid="{{this.id}}" style="display:none">{{this.name}}
+                            </option>
+                            {{/each}}
+                            {{/each}}
+                        </select>
+
                     </div>
                     <div class="form-floating occupation-input-box mb-1">
                         <input type="text" class="form-control" name="occupation" id="occupation" placeholder="..."
@@ -126,8 +124,9 @@
     const accountInput = document.querySelector('#account')
     const passwordInput = document.querySelector('#password')
     const confirmPasswordInput = document.querySelector('#confirmPassword')
-    const genderInput = document.querySelector('#gender')
-    const districtInput = document.querySelector('#district')
+    const genderInput = document.querySelector('#genderId')
+    const areaInput = document.querySelector('#area')
+    const districtInput = document.querySelector('#districtId')
     const occupationInput = document.querySelector('#occupation')
     const interestInput = document.querySelector('#interest')
     const birthdayInput = document.querySelector('#birthday')
@@ -139,32 +138,16 @@
     let interest = ''
     let birthday = ''
 
-    const areaData = [{
-        name: '台灣北部',
-        district: [
-            '台北市', '新北市', '桃園市', '新竹市', '新竹縣', '宜蘭市', '基隆市'
-        ]
-    }, {
-        name: '台灣中部',
-        district: [
-            '台中市', '彰化縣', '雲林縣', '苗栗縣', '南投縣'
-        ]
-    }, {
-        name: '台灣南部',
-        district: [
-            '高雄市', '台南市', '嘉義市', '嘉義縣', '屏東縣'
-        ]
-    }, {
-        name: '台灣東部',
-        district: [
-            '台東縣', '花蓮縣', '澎湖縣', '金門縣', '連江縣'
-        ]
-    }]
-    console.log(areaData)
     registerForm.addEventListener('keydown', e => {
         if (e.code === 'Enter' && registerForm.dataset.currentstep === '1' || e.code === 'Enter' && registerForm.dataset.currentstep === '2') {
             e.preventDefault()
         }
+    })
+
+    areaInput.addEventListener('change', e => {
+        const allDistrictsOp = document.querySelectorAll('option[data-areaid]')
+        allDistrictsOp.forEach( d => d.style.display = 'none')
+        changeDistrictInput(e)
     })
 
     wrapper.addEventListener('click', e => {
@@ -189,8 +172,8 @@
             }
 
             if (passwordInput.value !== confirmPasswordInput.value) {
-                invalid(passwordInput, '密碼與確認密碼不正確 , 北七')
-                invalid(confirmPasswordInput, '密碼與確認密碼不正確 , 北七')
+                invalid(passwordInput, '密碼與確認密碼不正確')
+                invalid(confirmPasswordInput, '密碼與確認密碼不正確')
                 return
             }
 
@@ -220,9 +203,26 @@
                 return
             }
             if (!birthdayInput.value) {
-                invalid(birthdayInput, '你沒有生日嗎?')
+                invalid(birthdayInput, '請選擇你的生日')
                 return
             }
+            if (areaInput.value === '設定常出沒地') {
+                invalid(areaInput, '請選擇常出沒地')
+                return
+            }
+            if (districtInput.value === '選擇一個縣市') {
+                invalid(districtInput, '請選擇一個縣市')
+                return
+            }
+            if (!occupationInput.value) {
+                invalid(occupationInput, '尚未輸入職稱')
+                return
+            }
+            if (!interestInput.value) {
+                invalid(interestInput, '至少填寫一個興趣')
+                return
+            }
+
             stepTwo.classList.remove('nowStep')
             stepTwo.classList.add('done')
             stepThree.classList.add('nowStep')
@@ -232,8 +232,9 @@
             registerForm.dataset.currentstep = '3'
             formButtonsBox.style.display = 'block'
             nextButton.style.display = 'none'
-            gender = genderInput.value
-            district = districtInput.value
+            gender = switchGender(genderInput)
+            area = switchArea(areaInput)
+            district = switchDistrict(districtInput)
             interest = interestInput.value
             birthday = birthdayInput.value
             occupation = occupationInput.value
@@ -262,7 +263,7 @@
                 <div class="step-three-right d-flex flex-column">
                     <div class="check-district-input-box d-flex flex-column mb-1">
                         <span>常出沒:</span>
-                        <span class="check check-district">${district}</span>
+                        <span class="check check-district" style="width:140px;">${area} ${district}</span>
                     </div>
                     <div class="check-occupation-input-box d-flex flex-column mb-1">
                         <span>職稱:</span>
@@ -308,4 +309,29 @@
             message.innerText = ''
         }, 1500)
     }
+
+    function switchGender(element) {
+        const value = element.value
+        const op = document.querySelector(`option[value='${value}']`)
+        return op.innerText
+    }
+
+    function switchArea(element) {
+        const value = element.value
+        const op = document.querySelector(`option[data-id='${value}']`)
+        return op.innerText
+    }
+
+    function switchDistrict(element) {
+        const value = element.value
+        const op = document.querySelector(`option[data-districtid='${value}']`)
+        return op.innerText
+    }
+
+    function changeDistrictInput(e) {
+        const areaId = e.target.value
+        const displayDistricts = document.querySelectorAll(`option[data-areaid='${areaId}']`)
+        displayDistricts.forEach( d => d.style.display = 'block')
+    }
+
 </script>
