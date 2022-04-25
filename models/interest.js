@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Interest.belongsTomMany(models.User, {
-        through: models.OwnedInterest, // 透過 OwnedInterest 表來建立關聯
-        foreignKey: 'interestId', // 對 OwnedInterest 表設定 FK
+      Interest.belongsToMany(models.User, {
+        through: models.Owned_interest, // 透過 Owned_interest 表來建立關聯
+        foreignKey: 'interestId', // 對 Owned_interest 表設定 FK
         as: 'InterestOwners' // 幫這個關聯取個名稱
       })
     }

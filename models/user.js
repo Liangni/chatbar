@@ -13,9 +13,9 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       User.belongsTo(models.Gender, { foreignKey:'genderId' })
       User.belongsTo(models.District, { foreignKey: 'districtId' })
-      User.belongsTomMany(models.Interest, {
-        through: models.OwnedInterest, // 透過 OwnedInterest 表來建立關聯
-        foreignKey: 'userId', // 對 OwnedInterest 表設定 FK
+      User.belongsToMany(models.Interest, {
+        through: models.Owned_interest, // 透過 Owned_interest 表來建立關聯
+        foreignKey: 'userId', // 對 Owned_interest 表設定 FK
         as: 'CurrentInterests' // 幫這個關聯取個名稱
       })
     }
