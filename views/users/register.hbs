@@ -41,11 +41,11 @@
             <div class="step-two-wrapper d-flex flex-row justify-content-between align-items-center">
                 <div class="step-two-left me-5 d-flex flex-column align-items-start justify-content-start">
                     <div class="gender-input-box mb-1">
-                        <select name="gender" id="gender" class="form-select" style="height: 58px;font-size: 14px;">
+                        <select name="genderId" id="gender" class="form-select" style="height: 58px;font-size: 14px;">
                             <option selected>設定性別</option>
-                            <option value="男">男</option>
-                            <option value="女">女</option>
-                            <option value="其他">其他</option>
+                            {{#each genders}}
+                            <option value="{{this.id}}">{{this.name}}</option>
+                            {{/each}}
                         </select>
                     </div>
                     <div class="birthday-input-box" style="position: relative;">
@@ -76,6 +76,11 @@
                             <option value="">新竹縣</option>
                             <option value="">宜蘭縣</option>
                             <option value="">基隆市</option> --}}
+                        <select name="districtId" id="district" class="form-select" style="height: 58px;font-size: 14px;">
+                            <option selected>常出沒地</option>
+                            {{#each districts}}
+                            <option value="{{this.id}}">{{this.name}}</option>
+                            {{/each}}
                         </select>
                     </div>
                     <div class="form-floating occupation-input-box mb-1">

@@ -1,11 +1,26 @@
 'use strict';
+const {
+  Model
+} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  const Area = sequelize.define('Area', {
-    name: DataTypes.STRING
-  }, {});
-  Area.associate = function(models) {
-    // associations can be defined here
-    Area.hasMany(models.District)
+  class Area extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+      Area.hasMany(models.District, { foreignKey: 'areaId'})
+    }
   };
+  Area.init({
+    name: DataTypes.STRING
+  }, {
+    sequelize,
+    modelName: 'Area',
+    tableName: 'Areas',
+    underscored: true,
+  });
   return Area;
 };

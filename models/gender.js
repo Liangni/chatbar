@@ -1,11 +1,26 @@
 'use strict';
+const {
+  Model
+} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  const Gender = sequelize.define('Gender', {
-    name: DataTypes.STRING
-  }, {});
-  Gender.associate = function(models) {
-    // associations can be defined here
-    Gender.hasMany(models.User)
+  class Gender extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+      Gender.hasMany(models.User, { foreignKey: 'genderId' })
+    }
   };
+  Gender.init({
+    name: DataTypes.STRING
+  }, {
+    sequelize,
+    modelName: 'Gender',
+    tableName: 'Genders',
+    underscored: true,
+  });
   return Gender;
 };
