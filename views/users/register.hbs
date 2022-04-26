@@ -57,9 +57,12 @@
                 </div>
                 <div class="step-two-right d-flex flex-column align-items-start justify-content-start">
                     <div class="form-floating district-input-box mb-1">
-                        <input type="text" class="form-control" name="district" id="district" placeholder="..."
-                            style="padding-left: 12px;">
-                        <label for="district" style="font-size: 14px; padding-left: 12px;">設定常出沒地</label>
+                        <select name="districtId" id="district" class="form-select" style="height: 58px;font-size: 14px;">
+                            <option selected>常出沒地</option>
+                            {{#each districts}}
+                            <option value="{{this.id}}">{{this.name}}</option>
+                            {{/each}}
+                        </select>
                     </div>
                     <div class="form-floating occupation-input-box mb-1">
                         <input type="text" class="form-control" name="occupation" id="occupation" placeholder="..."

@@ -7,5 +7,6 @@ router.get('/1/messages', userController.getUserMessages)
 
 router.get('/login', userController.loginPage)
 router.get('/register', userController.registerPage)
+router.post('/register', userController.register)
 
 module.exports = router
