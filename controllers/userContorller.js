@@ -4,7 +4,7 @@ const userController = {
     loginPage: (req, res) => {    
         res.render('users/login')
     },
-    registerPage: (req, res) => {
+    registerPage: (req, res, next) => {
         Promise.all([
             Gender.findAll({ raw: true }),
             District.findAll({ raw: true })
@@ -13,7 +13,7 @@ const userController = {
             res.render('users/register', { genders, districts }
             )
         })
-        .catch(error => console.log(error))  
+        .catch(err => next(err))  
     },
     getUserMessages: (req, res) => {
         res.render('userMessages')
