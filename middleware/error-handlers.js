@@ -1,10 +1,12 @@
 module.exports = {
   generalErrorHandler(err, req, res, next) {
     if (err instanceof Error) {
-      res.send(`${err.name}: ${err.message}`)
+      req.flash('error_messages', `${err.name}: ${err.message}`)
     } else {
-      res.send(`${err.name}`)
+      req.flash('error_messages', `${err.name}`)
     }
+    const url = req.headers.referer ? 'back' : '/groupChats'
+    res.redirect(url) 
     next(err)
   }
 }
