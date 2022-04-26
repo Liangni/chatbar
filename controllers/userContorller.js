@@ -5,16 +5,14 @@ const userController = {
     loginPage: (req, res) => {    
         res.render('users/login')
     },
-    registerPage: (req, res, next) => {
-        Promise.all([
-            Gender.findAll({ raw: true }),
-            District.findAll({ raw: true })
-        ])
-        .then(([genders, districts]) => {
-            res.render('users/register', { genders, districts }
-            )
-        })
-        .catch(err => next(err))  
+    registerPage: async (req, res, next) => {
+        try {
+            const genders = await Gender.findAll({ raw: true })
+            const districts = await District.findAll({ raw: true })
+            res.render('users/register', { genders, districts })
+        } catch(err) {
+            next(err)
+        }
     },
     register: async (req, res, next) => {
         try {
