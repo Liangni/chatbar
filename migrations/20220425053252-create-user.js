@@ -16,7 +16,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      birthdate: {
+      birthday: {
         allowNull: false,
         type: Sequelize.DATE
       },
@@ -31,13 +31,13 @@ module.exports = {
       },
       is_admin: {  // 設定資料庫欄位用snake_case
         type: Sequelize.BOOLEAN,
-        defaulValue: false
+        defaultValue: false
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
