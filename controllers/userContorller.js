@@ -1,4 +1,6 @@
 const bcrypt = require('bcryptjs')
+// 若採用JWT驗證，要加入如下
+// const jwt = require('jsonwebtoken')
 const { Gender, District, User, Interest, Owned_interest } = require('../models')
 
 const userController = {
@@ -41,6 +43,27 @@ const userController = {
             req.flash('success_messages', '註冊成功!')
             res.redirect('/users/login')
         } catch(err) {
+            next(err)
+        }
+    },
+    logIn: (req, res, next) => {
+        try {
+            req.flash('success_messages', '成功登入!')
+            res.redirect('/groupChats')
+            //如採用JWT，要取代成如下程式碼
+                // 因為設定了{ session: false }，不會進入反序列化的程序，因此物件未被整理成JS的簡單物件
+                // const userData = req.user.toJSON()
+                // delete userData.password
+                // 第一個參數必須是簡單物件
+                // const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d'})
+                // res.json({
+                //     status: 'success',
+                //     data: {
+                //         token,
+                //         user: userData
+                //     }
+                // })
+        } catch (err) {
             next(err)
         }
     },
