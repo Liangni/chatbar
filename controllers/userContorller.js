@@ -67,6 +67,12 @@ const userController = {
             next(err)
         }
     },
+    logOut: (req, res) => {
+        req.flash('success_messages', '成功登出!')
+        // req.logout() 是 Passport.js 提供的函式，這個方法會把 user id 對應的 session 清除掉
+        req.logout()
+        res.redirect('/users/login')
+    },
     getUserMessages: (req, res) => {
         res.render('userMessages')
     }
