@@ -1,9 +1,32 @@
-const { Group_chat, Group_register } = require('../models')
+const { Group_chat, Group_register, User } = require('../models')
 const { getUser } = require('../helpers/auth-helpers')
 
 const groupChatController = {
-    getGroupChats: (req, res) => {
-        res.render('groupChats')
+    getGroupChats: async (req, res, next) => {
+        try {
+            const groupChats = await Group_chat.findAll({
+                include: [
+                    User,
+                    { model: User, as:'RegisteredUsers' }
+                ],
+            })
+            const loginUser = getUser(req)
+            const RegisteredGroupIds = loginUser.RegisteredGroups?.map(g => g.id) || null
+            const groupChatData = groupChats.map(groupChat => {
+                const { id, name, User, createdAt, RegisteredUsers } = groupChat
+                return {
+                    id,
+                    name,
+                    user: User.toJSON(),
+                    createdAt,
+                    numOfRegisters: RegisteredUsers.length,
+                    isRegistered: RegisteredGroupIds?.includes(groupChat.id) || false
+                }
+            })
+            res.render('groupChats', { groupChats: groupChatData, loginUser })
+        } catch(err) {
+            next(err)
+        }
     },
     postGroupChats: async (req, res, next) => {
         try {

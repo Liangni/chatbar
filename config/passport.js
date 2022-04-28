@@ -1,7 +1,7 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
 const bcrypt = require('bcryptjs')
-const { User } = require('../models')
+const { User, Group_chat } = require('../models')
 
 
 // 設定用帳號密碼做登入驗證
@@ -63,7 +63,9 @@ passport.serializeUser((user, cb) => {
 })
 passport.deserializeUser(async (id, cb) => {
   try {
-    let user = await User.findByPk(id)
+    let user = await User.findByPk(id, {
+      include: { model: Group_chat, as:'RegisteredGroups'}
+    })
     user = user.toJSON()
     return cb(null, user)
   } catch(err) {

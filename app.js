@@ -10,6 +10,7 @@ const app = express()
 const PORT = 3000
 const SESSION_SECRET = 'secret'
 const passport = require('./config/passport')
+const handlebarsHelpers = require('./helpers/handlebars-helpers')
 const { getUser } = require('./helpers/auth-helpers')
 const routes = require('./routes')
 
