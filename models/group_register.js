@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Group_chat extends Model {
+  class Group_register extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,21 +11,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Group_chat.hasMany(models.User, { foreignKey: 'userId' })
-      Group_chat.belongsToMany(models.User, {
-        through: models.Group_register,
-        foreignKey: 'groupId',
-        as: 'RegisteredUsers'
-      })
     }
   };
-  Group_chat.init({
-    name: DataTypes.STRING
+  Group_register.init({
+    groupId: DataTypes.INTEGER,
+    userId: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'Group_chat',
-    tableName: 'Group_chats',
+    modelName: 'Group_register',
+    tableName: 'Group_registers',
     underscored: true,
   });
-  return Group_chat;
+  return Group_register;
 };
