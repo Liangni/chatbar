@@ -6,6 +6,7 @@ const express = require('express')
 const exphbs = require('express-handlebars')
 const session = require('express-session')
 const flash = require('connect-flash')
+const methodOverride = require('method-override')
 const app = express()
 const PORT = 3000
 const SESSION_SECRET = 'secret'
@@ -40,7 +41,8 @@ app.use((req, res, next) => {
   next()
 })
 
-
+// 設定 GET 和 POST 以外的路由
+app.use(methodOverride('_method'))
 // 掛載總路由器
 app.use(routes)
 

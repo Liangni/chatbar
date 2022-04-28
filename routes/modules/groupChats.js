@@ -6,5 +6,6 @@ const { authenticated } = require('../../middleware/auth')
 router.get('/', authenticated, groupChatController.getGroupChats)
 router.post('/', authenticated, groupChatController.postGroupChats)
 router.post('/groupRegisters/:groupId', authenticated, groupChatController.postGroupRegisters)
+router.delete('/:groupId/groupRegisters', authenticated, groupChatController.deleteGroupRegisters)
 
 module.exports = router

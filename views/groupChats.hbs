@@ -41,7 +41,7 @@
                     <a href="/users/{{../loginUser.id}}/registered-groupChats/{{this.id}}groupMessages" class="btn btn-info go-chat ms-2">Chat</a>
                     <ul class="dropdown-menu">
                         <li>
-                            <form action="/groupChats/groupRegisters/{{this.id}}" method="DELETE" style="display: inline;">
+                            <form action="/groupChats/{{this.id}}/groupRegisters?_method=DELETE" method="POST" style="display: inline;">
                                 <button class="ms-2" type="submit">退出話題</button>
                             </form>
                         </li>

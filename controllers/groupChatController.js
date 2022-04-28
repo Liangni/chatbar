@@ -60,6 +60,30 @@ const groupChatController = {
             next(err)
         }
     },
+    deleteGroupRegisters: async (req, res, next) => {
+        try {
+            console.log('進入deleteGroupRegisters')
+            const { groupId } = req.params
+            const groupRegister =  await Group_register.findOne({
+                where: {
+                    groupId,
+                    userId: getUser(req).id
+                }
+            })
+            if (!groupRegister) throw new Error('你未加入話題或話題不存在!')
+            await groupRegister.destroy()
+            const groupRegisterCount = await Group_register.count({ where: {groupId} })
+            // 如已沒有使用者加入話題，刪除話題
+            if (groupRegisterCount === 0) {
+                const groupChat = await Group_chat.findByPk(groupId)
+                if (groupChat) { groupChat.destroy()}
+            }
+            req.flash('success_messages', '你已退出話題!')
+            res.redirect('back')
+        } catch (err) {
+            next(err)
+        }
+    },
 }
 
 module.exports = groupChatController
