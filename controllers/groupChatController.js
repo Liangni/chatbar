@@ -50,9 +50,17 @@ const groupChatController = {
     postGroupRegisters: async (req, res, next) => {
         try {
             const { groupId } = req.params
+            const loginUser = getUser(req)
+            const groupRegister = await Group_register.findOne({ 
+                where: {
+                    groupId,
+                    userId: loginUser.id
+                }
+            })
+            if (groupRegister) throw new Error('使用者已經加入話題!')
             await Group_register.create({
                 groupId,
-                userId: getUser(req).id
+                userId: loginUser.id
             })
             req.flash('success_messages', '成功加入話題!')
             res.redirect('/groupChats')
