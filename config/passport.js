@@ -16,7 +16,7 @@ passport.use(new LocalStrategy(
   // 因為上面有註明 passReqToCallback: true，所以第一個參數會是 req
   async (req, account, password, done) => {
     try {
-      const user = await User.findOne({ account })
+      const user = await User.findOne({ where: { account } })
       if (!user) { 
         return done(
           null,
