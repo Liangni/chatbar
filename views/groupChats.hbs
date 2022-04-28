@@ -41,13 +41,13 @@
                     <a href="/users/{{../loginUser.id}}/registered-groupChats/{{this.id}}groupMessages" class="btn btn-info go-chat ms-2">Chat</a>
                     <ul class="dropdown-menu">
                         <li>
-                            <form action="/groupRegisters/{{this.id}}" method="DELETE" style="display: inline;">
+                            <form action="/groupChats/groupRegisters/{{this.id}}" method="DELETE" style="display: inline;">
                                 <button class="ms-2" type="submit">退出話題</button>
                             </form>
                         </li>
                     </ul>
                     {{else}}
-                    <form action="/groupRegisters/{{this.id}}" method="POST" style="display: inline;">
+                    <form action="/groupChats/groupRegisters/{{this.id}}" method="POST" style="display: inline;">
                         <button type="submit" class="btn btn-primary join-room">+加入話題</button>
                     </form>
                     {{/if}}

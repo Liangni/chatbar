@@ -47,6 +47,19 @@ const groupChatController = {
             next(err)
         }
     },
+    postGroupRegisters: async (req, res, next) => {
+        try {
+            const { groupId } = req.params
+            await Group_register.create({
+                groupId,
+                userId: getUser(req).id
+            })
+            req.flash('success_messages', '成功加入話題!')
+            res.redirect('/groupChats')
+        } catch (err) {
+            next(err)
+        }
+    },
 }
 
 module.exports = groupChatController
