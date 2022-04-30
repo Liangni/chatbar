@@ -8,8 +8,16 @@ const userController = {
     registerPage: async (req, res, next) => {
         try {
             const genders = await Gender.findAll({ raw: true })
-            const districts = await District.findAll({ raw: true })
-            res.render('users/register', { genders, districts })
+            const areas = await Area.findAll({ include: District})
+            const areasData = areas.map(a => {
+                a.Districts = a.Districts.map( d => (d.toJSON()))
+                return {
+                    id: a.id,
+                    name: a.name,
+                    districts: a.Districts
+                }
+            })
+            res.render('users/register', { genders, areas: areasData })
         } catch(err) {
             next(err)
         }
