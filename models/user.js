@@ -18,6 +18,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId', // 對 Owned_interest 表設定 FK
         as: 'CurrentInterests' // 幫這個關聯取個名稱
       })
+      User.hasMany(models.Group_chat, { foreignKey:'userId' })
+      User.belongsToMany(models.Group_chat, {
+        through: models.Group_register,
+        foreignKey: 'userId',
+        as: 'RegisteredGroups'
+      })
     }
   };
   User.init({

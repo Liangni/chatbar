@@ -10,8 +10,8 @@
                 <input type="text" name="keyword" id="keyword" placeholder="請輸入話題名稱">
             </div>
         </div>
-        <form action="#" method="GET" class="create-chat-room-box">
-            <input type="text" class="me-2" placeholder="今天想聊什麼?">
+        <form action="/groupChats" method="POST" class="create-chat-room-box">
+            <input name="name" type="text" class="me-2" placeholder="今天想聊什麼?">
             <button class="btn btn-primary" type="submit">開新話題</button>
         </form>
     </div>
@@ -26,39 +26,34 @@
             <span>動作</span>
         </div>
         <div class="table-body" id="roomsPanel">
+            {{#each groupChats}}
             <div class="room-items">
-                <span>11最喜歡的漫威系列</span>
-                <span>sin_1201</span>
-                <span>4</span>
-                <span>4</span>
-                <span>2022/12/01</span>
+                <span>{{this.name}}</span>
+                <span>{{this.user.account}}</span>
+                <span>4(假資料)</span>
+                <span>{{this.numOfRegisters}}</span>
+                <span>{{#dateFormator}}{{../this.createdAt}}{{/dateFormator}}</span>
                 <span class="action">
-                    <form action="#" method="POST" style="display: inline;">
-                        <button type="submit" class="btn btn-primary join-room">+加入話題</button>
-                    </form>
-                </span>
-            </div>
-            <div class="room-items">
-                <span>最喜歡的漫威系列</span>
-                <span>sin_1201</span>
-                <span>4</span>
-                <span>4</span>
-                <span>2022/12/01</span>
-                <span class="action">
-                    <button type="button" class="btn btn-success dropdown-toggle out-room" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                    {{#if this.isRegistered}}
+                    <button type="button" class="btn btn-success dropdown-toggle out-room" data-bs-toggle="dropdown" aria-expanded="false">
                         已加入
                     </button>
-                    <a href="#" class="btn btn-info go-chat ms-2">Chat</a>
+                    <a href="/users/{{../loginUser.id}}/registered-groupChats/{{this.id}}groupMessages" class="btn btn-info go-chat ms-2">Chat</a>
                     <ul class="dropdown-menu">
                         <li>
-                            <form action="#" method="POST" style="display: inline;">
+                            <form action="/groupChats/{{this.id}}/groupRegisters?_method=DELETE" method="POST" style="display: inline;">
                                 <button class="ms-2" type="submit">退出話題</button>
                             </form>
                         </li>
                     </ul>
+                    {{else}}
+                    <form action="/groupChats/{{this.id}}/groupRegisters" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-primary join-room">+加入話題</button>
+                    </form>
+                    {{/if}}
                 </span>
             </div>
+            {{/each}}
         </div>
     </div>
 </div>

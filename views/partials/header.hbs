@@ -1,5 +1,8 @@
 <nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="/">ChatBar 聊一下 !</a>
-    </div>
+    {{#if user}}
+    <a href="/users/logout"><button class="btn btn-outline-success my-sm-0 my-2">Logout</button></a>
+    {{/if}}
+  </div>
 </nav>
