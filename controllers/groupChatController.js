@@ -2,7 +2,6 @@ const { Group_chat, Group_register, User } = require('../models')
 const { getUser } = require('../helpers/auth-helpers')
 
 const groupChatController = {
-<<<<<<< HEAD
     getGroupChats: async (req, res, next) => {
         try {
             const groupChats = await Group_chat.findAll({
@@ -92,12 +91,7 @@ const groupChatController = {
         } catch (err) {
             next(err)
         }
-    },
-=======
-    getGroupChats: (req, res) => {
-        res.render('users/groupChats')
     }
->>>>>>> a8b85a9 (Modify register page area & district select input)
 }
 
 module.exports = groupChatController
