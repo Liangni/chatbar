@@ -75,6 +75,9 @@ const userController = {
     },
     getUserMessages: (req, res) => {
         res.render('userMessages')
+    },
+    getUserGroupMessages: (req, res, next) => {
+        res.render('userMessages', { path: 'getUserGroupMessages' })
     }
 }
 

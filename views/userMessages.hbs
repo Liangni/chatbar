@@ -1,10 +1,5 @@
 <div class="chat-wrapper">
-    <div class="chat-nav bg-dark d-flex flex-column align-items-center justify-content-start">
-        <a href="#" class="all-messages mt-3 choose">所有話題</a>
-        <a href="#" class="group-messages mt-3">話題</a>
-        <a href="#" class="private-messages mt-3">個人</a>
-        <a href="#" class="public-messages mt-3">公告</a>
-    </div>
+    {{>sideNav path=path}}
     <div class="chat-room bg-light">
         <div class="search-box text-center mt-1 mb-1">
             <input type="text" name="searchRoom" id="searchRoom" placeholder="輸入話題名稱或使用者名稱">
