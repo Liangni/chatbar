@@ -82,7 +82,7 @@ const userController = {
         res.redirect('/users/login')
     },
     getUserMessages: (req, res) => {
-        res.render('users/userMessages')
+        res.render('users/userMessages', { path: 'getUserMessages' })
     },
     getUserGroupMessages: (req, res, next) => {
         res.render('users/userMessages', { path: 'getUserGroupMessages' })

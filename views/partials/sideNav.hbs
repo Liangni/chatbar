@@ -1,5 +1,5 @@
 <div class="chat-nav bg-dark d-flex flex-column align-items-center justify-content-start">
-  <a href="#" class="all-messages mt-3">所有話題</a>
+  <a href="/users/{{user.id}}/messages" class="all-messages mt-3 {{#ifCond path 'getUserMessages'}}choose{{/ifCond}}">所有話題</a>
   <a href="/users/{{user.id}}/groupChats/groupMessages" class="group-messages mt-3 {{#ifCond path 'getUserGroupMessages'}}choose{{/ifCond}}">話題</a>
   <a href="#" class="private-messages mt-3">個人</a>
   <a href="#" class="public-messages mt-3">公告</a>
