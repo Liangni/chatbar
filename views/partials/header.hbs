@@ -12,7 +12,7 @@
           <a class="nav-link {{#ifCond path 'getGroupChats'}}active{{/ifCond}}" aria-current="page" href="/groupChats">最新話題</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {{#ifCond path (mkArr 'userMessages' 'getUserGroupMessages') }}active{{/ifCond}}" href="/users/{{user.id}}/messages">正在進行的聊天</a>
+          <a class="nav-link {{#some path (makeArray 'userMessages' 'getUserGroupMessages') }}active{{/some}}" href="/users/{{user.id}}/messages">正在進行的聊天</a>
         </li>
       </ul>
       <a href="/users/logout"><button class="btn btn-outline-success my-sm-0 my-2">Logout</button></a>
