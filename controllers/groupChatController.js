@@ -90,7 +90,7 @@ const groupChatController = {
         } catch (err) {
             next(err)
         }
-    },
+    }
 }
 
 module.exports = groupChatController

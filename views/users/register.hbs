@@ -10,8 +10,8 @@
             </li>
         </ul>
     </div>
-    <form action="/users/register" method="POST" class="register-form d-flex flex-column align-items-center justify-content-center"
-        data-currentstep="1">
+    <form action="/users/register" method="POST"
+        class="register-form d-flex flex-column align-items-center justify-content-center" data-currentstep="1">
         <div class="showStep d-flex flex-row justify-content-around mb-3">
             <div class="step-icon text-center nowStep">Step 1</div>
             <div class="step-icon text-center">Step 2</div>
@@ -41,10 +41,10 @@
             <div class="step-two-wrapper d-flex flex-row justify-content-between align-items-center">
                 <div class="step-two-left me-5 d-flex flex-column align-items-start justify-content-start">
                     <div class="gender-input-box mb-1">
-                        <select name="genderId" id="gender" class="form-select" style="height: 58px;font-size: 14px;">
+                        <select name="genderId" id="genderId" class="form-select" style="height: 58px;font-size: 14px;">
                             <option selected>設定性別</option>
                             {{#each genders}}
-                            <option value="{{this.id}}">{{this.name}}</option>
+                            <option value="{{this.id}}" data-gender="{{this.name}}">{{this.name}}</option>
                             {{/each}}
                         </select>
                     </div>
@@ -56,13 +56,30 @@
                     </div>
                 </div>
                 <div class="step-two-right d-flex flex-column align-items-start justify-content-start">
-                    <div class="form-floating district-input-box mb-1">
-                        <select name="districtId" id="district" class="form-select" style="height: 58px;font-size: 14px;">
-                            <option selected>常出沒地</option>
-                            {{#each districts}}
-                            <option value="{{this.id}}">{{this.name}}</option>
+                    <div class="form-floating district-input-box mb-1 d-flex flex-row ">
+                        <select name="area" id="area" class="form-select me-1" style="padding-left: 20px;
+    padding-top: 12px;width:170px;
+    font-size: 14px;">
+                            <option selected>設定常出沒地</option>
+                            {{#each areas}}
+                            <option value="{{this.id}}" data-id="{{this.id}}" class="area-option">{{this.name}}
+                            </option>
                             {{/each}}
                         </select>
+
+
+                        <select name="districtId" id="districtId" class="form-select" style="padding-left: 20px;
+    padding-top: 12px;
+    font-size: 14px;">
+                            <option selected>選擇一個縣市</option>
+                            {{#each areas}}
+                            {{#each this.districts}}
+                            <option value="{{this.id}}" data-areaid="{{ this.areaId }}" data-districtid="{{this.id}}" style="display:none">{{this.name}}
+                            </option>
+                            {{/each}}
+                            {{/each}}
+                        </select>
+
                     </div>
                     <div class="form-floating occupation-input-box mb-1">
                         <input type="text" class="form-control" name="occupation" id="occupation" placeholder="..."
@@ -107,8 +124,9 @@
     const accountInput = document.querySelector('#account')
     const passwordInput = document.querySelector('#password')
     const confirmPasswordInput = document.querySelector('#confirmPassword')
-    const genderInput = document.querySelector('#gender')
-    const districtInput = document.querySelector('#district')
+    const genderInput = document.querySelector('#genderId')
+    const areaInput = document.querySelector('#area')
+    const districtInput = document.querySelector('#districtId')
     const occupationInput = document.querySelector('#occupation')
     const interestInput = document.querySelector('#interest')
     const birthdayInput = document.querySelector('#birthday')
@@ -124,6 +142,12 @@
         if (e.code === 'Enter' && registerForm.dataset.currentstep === '1' || e.code === 'Enter' && registerForm.dataset.currentstep === '2') {
             e.preventDefault()
         }
+    })
+
+    areaInput.addEventListener('change', e => {
+        const allDistrictsOp = document.querySelectorAll('option[data-areaid]')
+        allDistrictsOp.forEach( d => d.style.display = 'none')
+        changeDistrictInput(e)
     })
 
     wrapper.addEventListener('click', e => {
@@ -148,8 +172,8 @@
             }
 
             if (passwordInput.value !== confirmPasswordInput.value) {
-                invalid(passwordInput, '密碼與確認密碼不正確 , 北七')
-                invalid(confirmPasswordInput, '密碼與確認密碼不正確 , 北七')
+                invalid(passwordInput, '密碼與確認密碼不正確')
+                invalid(confirmPasswordInput, '密碼與確認密碼不正確')
                 return
             }
 
@@ -179,9 +203,26 @@
                 return
             }
             if (!birthdayInput.value) {
-                invalid(birthdayInput, '你沒有生日嗎?')
+                invalid(birthdayInput, '請選擇你的生日')
                 return
             }
+            if (areaInput.value === '設定常出沒地') {
+                invalid(areaInput, '請選擇常出沒地')
+                return
+            }
+            if (districtInput.value === '選擇一個縣市') {
+                invalid(districtInput, '請選擇一個縣市')
+                return
+            }
+            if (!occupationInput.value) {
+                invalid(occupationInput, '尚未輸入職稱')
+                return
+            }
+            if (!interestInput.value) {
+                invalid(interestInput, '至少填寫一個興趣')
+                return
+            }
+
             stepTwo.classList.remove('nowStep')
             stepTwo.classList.add('done')
             stepThree.classList.add('nowStep')
@@ -191,8 +232,9 @@
             registerForm.dataset.currentstep = '3'
             formButtonsBox.style.display = 'block'
             nextButton.style.display = 'none'
-            gender = genderInput.value
-            district = districtInput.value
+            gender = switchGender(genderInput)
+            area = switchArea(areaInput)
+            district = switchDistrict(districtInput)
             interest = interestInput.value
             birthday = birthdayInput.value
             occupation = occupationInput.value
@@ -221,7 +263,7 @@
                 <div class="step-three-right d-flex flex-column">
                     <div class="check-district-input-box d-flex flex-column mb-1">
                         <span>常出沒:</span>
-                        <span class="check check-district">${district}</span>
+                        <span class="check check-district" style="width:140px;">${area} ${district}</span>
                     </div>
                     <div class="check-occupation-input-box d-flex flex-column mb-1">
                         <span>職稱:</span>
@@ -258,7 +300,7 @@
             e.target.classList.add('fa-eye-slash')
         }
     })
-    
+
     function invalid(element, msg) {
         message.innerText = msg
         element.classList.add('invalid')
@@ -267,4 +309,29 @@
             message.innerText = ''
         }, 1500)
     }
+
+    function switchGender(element) {
+        const value = element.value
+        const op = document.querySelector(`option[value='${value}']`)
+        return op.innerText
+    }
+
+    function switchArea(element) {
+        const value = element.value
+        const op = document.querySelector(`option[data-id='${value}']`)
+        return op.innerText
+    }
+
+    function switchDistrict(element) {
+        const value = element.value
+        const op = document.querySelector(`option[data-districtid='${value}']`)
+        return op.innerText
+    }
+
+    function changeDistrictInput(e) {
+        const areaId = e.target.value
+        const displayDistricts = document.querySelectorAll(`option[data-areaid='${areaId}']`)
+        displayDistricts.forEach( d => d.style.display = 'block')
+    }
+
 </script>
