@@ -23,7 +23,7 @@ const groupChatController = {
                     isRegistered: RegisteredGroupIds?.includes(groupChat.id) || false
                 }
             })
-            res.render('groupChats', { groupChats: groupChatData, loginUser, path:'getGroupChats' })
+            res.render('users/groupChats', { groupChats: groupChatData, loginUser, path:'getGroupChats' })
         } catch(err) {
             next(err)
         }
@@ -70,7 +70,6 @@ const groupChatController = {
     },
     deleteGroupRegisters: async (req, res, next) => {
         try {
-            console.log('進入deleteGroupRegisters')
             const { groupId } = req.params
             const groupRegister =  await Group_register.findOne({
                 where: {
