@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'groupId',
         as: 'RegisteredUsers'
       })
+      Group_chat.hasMany(models.Group_messsage, { foreignKey: 'groupId' })
     }
   };
   Group_chat.init({
