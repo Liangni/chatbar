@@ -2,6 +2,7 @@ const express = require('express')
 const passport = require('../../config/passport')
 const router = express.Router()
 const userController = require('../../controllers/userContorller')
+const { authenticated } = require('../../middleware/auth')
 
 // 註冊登入登出
 router.get('/login', userController.loginPage)
@@ -21,6 +22,6 @@ router.get('/logout', userController.logOut)
 
 // 使用者訊息
 router.get('/:userId/messages', userController.getUserMessages)
-router.get('/:userId/groupChats/groupMessages', userController.getUserGroupMessages)
+router.get('/:userId/groupChats/groupMessages', authenticated, userController.getUserGroupMessages)
 
 module.exports = router
