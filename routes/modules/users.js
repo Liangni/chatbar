@@ -21,7 +21,7 @@ router.post('/login', passport.authenticate('local',
 router.get('/logout', userController.logOut)
 
 // 使用者訊息
-router.get('/:userId/messages', userController.getUserMessages)
-router.get('/:userId/groupChats/groupMessages', authenticated, userController.getUserGroupMessages)
+router.get('/loginUser/messages', userController.getUserMessages)
+router.get('/loginUser/groupChats/groupMessages', authenticated, userController.getUserGroupMessages)
 
 module.exports = router

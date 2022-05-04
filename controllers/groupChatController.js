@@ -23,7 +23,7 @@ const groupChatController = {
                     isRegistered: RegisteredGroupIds?.includes(groupChat.id) || false
                 }
             })
-            res.render('users/groupChats', { groupChats: groupChatData, loginUser, path:'getGroupChats' })
+            res.render('users/groupChats', { groupChats: groupChatData, path:'getGroupChats' })
         } catch(err) {
             next(err)
         }

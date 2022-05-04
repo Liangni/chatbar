@@ -38,7 +38,7 @@
                     <button type="button" class="btn btn-success dropdown-toggle out-room" data-bs-toggle="dropdown" aria-expanded="false">
                         已加入
                     </button>
-                    <a href="/users/{{../loginUser.id}}/groupChats/groupMessages?groupId={{this.id}}" class="btn btn-info go-chat ms-2">Chat</a>
+                    <a href="/users/loginUser/groupChats/groupMessages?groupId={{this.id}}" class="btn btn-info go-chat ms-2">Chat</a>
                     <ul class="dropdown-menu">
                         <li>
                             <form action="/groupChats/{{this.id}}/groupRegisters?_method=DELETE" method="POST" style="display: inline;">
