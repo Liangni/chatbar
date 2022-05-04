@@ -6,6 +6,35 @@
             <i class="fa fa-search"></i>
         </div>
         <div class="room-box d-flex flex-column align-items-center ">
+            {{#ifCond path 'getUserGroupMessages'}}
+            {{#if ../groupChats}}
+            {{#each ../groupChats}}
+            <div class="room-item">
+                <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
+                <div class="chat-nameAndNew">
+                    <span class="name fs-14-bold">{{this.name}}</span>
+                    {{#if this.Group_messages }}
+                    <span class="new fs-12">{{#if this.Group_messages.isLoginUser }}你{{else}}{{this.Group_messages.User.account}}{{/if}}: {{this.Group_messages.content}}</span>
+                    {{else}}
+                    <span class="new fs-12">目前沒有任何訊息!</span>
+                    {{/if}}
+                </div>
+                <div class="chat-timeAndRead">
+                    {{#if this.Group_messages }}
+                    <span class="time fs-12">{{this.Group_messages.createdAt}}</span>
+                    <div class=""></div>
+                    {{/if}}
+                </div>
+            </div>
+            {{/each}}
+            {{else}}
+            <div class="mt-4">
+            你尚未參與任何群組話題!
+            </div>
+            {{/if}}
+            {{/ifCond}}
+
+            {{#ifCond path 'getUserMessages'}}
             {{!-- 假資料1 --}}
             <div class="room-item">
                 <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
@@ -44,6 +73,7 @@
                     <div class="unread"></div>
                 </div>
             </div>
+            {{/ifCond}}
         </div>
     </div>
     <div class="chatting">

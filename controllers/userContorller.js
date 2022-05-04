@@ -1,7 +1,11 @@
 const bcrypt = require('bcryptjs')
+const dayjs = require('dayjs')
+const dayOfYear = require('dayjs/plugin/dayOfYear')
+dayjs.extend(dayOfYear)
 // 若採用JWT驗證，要加入如下
 // const jwt = require('jsonwebtoken')
-const { Gender, District, User, Interest, Owned_interest, Area } = require('../models')
+const { Gender, District, User, Interest, Owned_interest, Area, Group_message, Group_chat } = require('../models')
+const { getUser } = require('../helpers/auth-helpers')
 
 const userController = {
     loginPage: (req, res) => {
@@ -84,8 +88,59 @@ const userController = {
     getUserMessages: (req, res) => {
         res.render('users/userMessages', { path: 'getUserMessages' })
     },
-    getUserGroupMessages: (req, res, next) => {
-        res.render('users/userMessages', { path: 'getUserGroupMessages' })
+    getUserGroupMessages: async (req, res, next) => {
+        try {
+            const loginUser = getUser(req)
+            const RegisteredGroupIds = loginUser?.RegisteredGroups?.map(g => g.id) || null
+            let groupChats
+            // 如登入使用者有加入話題，找出相關groupChat資料
+            if (RegisteredGroupIds) {
+                groupChats = await Promise.all(RegisteredGroupIds.map(async id => {
+                    const groupChat = await Group_chat.findOne({
+                        where: { id },
+                        include: [{ model: Group_message, include: [User] }],
+                        order: [[Group_message, 'createdAt', 'DESC']],
+                    })
+                    const groupChatData = groupChat.toJSON()
+                    // 取出最新訊息
+                    const groupMessageData = groupChatData.Group_messages?.[0] || null
+                    if (groupMessageData) {
+                        // 刪減過長的訊息文字
+                        if (groupMessageData.content.length > 15) {
+                            groupMessageData.content = groupMessageData.content.substring(0, 14) + '...'
+                        }
+                        // 調整日期格式
+                        const today = dayjs(new Date())
+                        const yesterday = dayjs(new Date()).subtract(1, 'day')
+                        const msgCreatedDay = dayjs(groupMessageData.createdAt)
+
+                        switch (msgCreatedDay.dayOfYear()) {
+                            case today.dayOfYear():
+                                groupMessageData.createdAt = msgCreatedDay.format('HH:mm')
+                                break
+                            case yesterday.dayOfYear():
+                                groupMessageData.createdAt = '昨天'
+                                break
+                            default:
+                                groupMessageData.createdAt = createdDay.format('MM/DD/YYYY')
+                        }
+                        // 判斷發送訊息者是否為登入使用者
+                        groupMessageData.isLoginUser = (loginUser.id === groupMessageData.User.id)
+                    }
+                    // 返回groupChat名稱與相關的訊息資料
+                    return  {
+                        name: groupChatData.name,
+                        Group_messages: groupMessageData
+                    }
+                }))
+            }
+            res.render('users/userMessages', { 
+                path: 'getUserGroupMessages', 
+                groupChats: groupChats || null
+            })
+        } catch(err) {
+            next(err)
+        }
     }
 }
 
