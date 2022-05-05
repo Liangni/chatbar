@@ -9,19 +9,19 @@
             {{#ifCond path 'getUserGroupMessages'}}
             {{#if ../groupChats}}
             {{#each ../groupChats}}
-            <div class="room-item">
+            <div class="room-item" {{#ifCond this.id ../../unfoldedGroupChat.id }}style="background: rgb(16, 16, 253); color: #fff;"{{/ifCond}}>
                 <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
                 <div class="chat-nameAndNew">
                     <span class="name fs-14-bold">{{this.name}}</span>
-                    {{#if this.Group_messages }}
-                    <span class="new fs-12">{{#if this.Group_messages.isLoginUser }}你{{else}}{{this.Group_messages.User.account}}{{/if}}: {{this.Group_messages.content}}</span>
+                    {{#if this.latestMessage }}
+                    <span class="new fs-12">{{#if this.latestMessage.isLoginUser }}你{{else}}{{this.latestMessage.User.account}}{{/if}}: {{this.latestMessage.content}}</span>
                     {{else}}
                     <span class="new fs-12">目前沒有任何訊息!</span>
                     {{/if}}
                 </div>
                 <div class="chat-timeAndRead">
-                    {{#if this.Group_messages }}
-                    <span class="time fs-12">{{this.Group_messages.createdAt}}</span>
+                    {{#if this.latestMessage }}
+                    <span class="time fs-12">{{this.latestMessage.formattedCreatedAt}}</span>
                     <div class=""></div>
                     {{/if}}
                 </div>
@@ -83,16 +83,47 @@
                     <div class="room-info d-flex flex-row align-items-center">
                         <img src="/image/users.webp" alt="" class="avatar">
                         <div class="nameAndTime-box d-flex flex-column align-items-start">
-                            <span class="room-name fs-14-bold">最喜歡的漫威系列</span>
-                            <span class="room-createBy fs-12">Group chat initialized by sin_1201</span>
+                            <span class="room-name fs-14-bold">{{unfoldedGroupChat.name}}</span>
+                            <span class="room-createBy fs-12">Group chat initialized by {{unfoldedGroupChat.User.account}}</span>
                         </div>
                     </div>
                     <form action="" method="POST" class="out-room">
                         <button class="btn btn-danger" type="submit">退出話題</button>
                     </form>
                 </div>
-                <div class="left-part-bottom bg-light">
+                <div class="left-part-bottom bg-light" style="overflow: scroll;">
                     {{!-- display chat here --}}
+                    {{#if unfoldedGroupChat.Group_messages}}
+                    {{#each unfoldedGroupChat.Group_messages}}
+                    {{#if this.isLoginUser}}
+                    <div class="d-flex flex-row-reverse">
+                        <div class="d-flex flex-column align-items-start">
+                            <div class="room-item mt-2" style="background: rgb(16, 16, 253); color: #fff;">
+                                <div>
+                                    <div class="new fs-12">{{this.content}}</div>
+                                    <div class="time fs-12 text-end">{{this.formattedCreatedAt}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="d-flex align-items-center" style="flex-flow:row wrap; width: 96%; height: 120px;">
+                        <img src="/image/users.webp" class="avatar"style="width: 60px; height: 60px;">
+                        <div class="d-flex flex-column align-items-start">
+                            <div class="fs-14-bold">{{this.User.account}}</div>
+                            <div class="room-item">
+                                <div>   
+                                    <div class="new fs-12">{{this.content}}</div>
+                                    <div class="time fs-12 text-end">{{this.formattedCreatedAt}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
+                    {{/each}}
+                    {{else}}
+                    <span class="new fs-12">目前沒有任何訊息!</span>
+                    {{/if}}
                 </div>
             </div>
             <div class="right-part bg-light">

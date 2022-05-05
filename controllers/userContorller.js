@@ -6,6 +6,7 @@ dayjs.extend(dayOfYear)
 // const jwt = require('jsonwebtoken')
 const { Gender, District, User, Interest, Owned_interest, Area, Group_message, Group_chat } = require('../models')
 const { getUser } = require('../helpers/auth-helpers')
+const { formatMessageTime } = require('../helpers/time-helpers')
 
 const userController = {
     loginPage: (req, res) => {
@@ -14,9 +15,9 @@ const userController = {
     registerPage: async (req, res, next) => {
         try {
             const genders = await Gender.findAll({ raw: true })
-            const areas = await Area.findAll({ include: District})
+            const areas = await Area.findAll({ include: District })
             const areasData = areas.map(a => {
-                a.Districts = a.Districts.map( d => (d.toJSON()))
+                a.Districts = a.Districts.map(d => (d.toJSON()))
                 return {
                     id: a.id,
                     name: a.name,
@@ -24,7 +25,7 @@ const userController = {
                 }
             })
             res.render('users/register', { genders, areas: areasData })
-        } catch(err) {
+        } catch (err) {
             next(err)
         }
     },
@@ -54,7 +55,7 @@ const userController = {
             })
             req.flash('success_messages', '註冊成功!')
             res.redirect('/users/login')
-        } catch(err) {
+        } catch (err) {
             next(err)
         }
     },
@@ -63,18 +64,18 @@ const userController = {
             req.flash('success_messages', '成功登入!')
             res.redirect('/groupChats')
             //如採用JWT，要取代成如下程式碼
-                // 因為設定了{ session: false }，不會進入反序列化的程序，因此物件未被整理成JS的簡單物件
-                // const userData = req.user.toJSON()
-                // delete userData.password
-                // 第一個參數必須是簡單物件
-                // const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d'})
-                // res.json({
-                //     status: 'success',
-                //     data: {
-                //         token,
-                //         user: userData
-                //     }
-                // })
+            // 因為設定了{ session: false }，不會進入反序列化的程序，因此物件未被整理成JS的簡單物件
+            // const userData = req.user.toJSON()
+            // delete userData.password
+            // 第一個參數必須是簡單物件
+            // const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d'})
+            // res.json({
+            //     status: 'success',
+            //     data: {
+            //         token,
+            //         user: userData
+            //     }
+            // })
         } catch (err) {
             next(err)
         }
@@ -92,53 +93,63 @@ const userController = {
         try {
             const loginUser = getUser(req)
             const RegisteredGroupIds = loginUser?.RegisteredGroups?.map(g => g.id) || null
+            const groupId = req.query ? Number(req.query.groupId) : null
             let groupChats
+            
+            if (groupId) {
+                if (!RegisteredGroupIds || !RegisteredGroupIds.includes(groupId)) throw new Error('你沒有加入此話題')
+            }
+
             // 如登入使用者有加入話題，找出相關groupChat資料
             if (RegisteredGroupIds) {
-                groupChats = await Promise.all(RegisteredGroupIds.map(async id => {
-                    const groupChat = await Group_chat.findOne({
-                        where: { id },
-                        include: [{ model: Group_message, include: [User] }],
-                        order: [[Group_message, 'createdAt', 'DESC']],
+                groupChats = await Promise.all(RegisteredGroupIds.map(async rgid => {
+                    const groupChat = await Group_chat.findByPk(rgid, {
+                        include: [{ model: Group_message, include: [User] }, User],
                     })
                     const groupChatData = groupChat.toJSON()
-                    // 取出最新訊息
-                    const groupMessageData = groupChatData.Group_messages?.[0] || null
-                    if (groupMessageData) {
+                    // 為每條訊息加入是否為登入使用者的判斷、調整時間格式
+                    groupChatData.Group_messages = groupChatData.Group_messages ? groupChatData.Group_messages.map(m => ({
+                        ...m,
+                        isLoginUser: (loginUser.id === m.User.id),
+                        formattedCreatedAt: formatMessageTime(m.createdAt)
+                    })) : null
+                    
+                    
+                    // 取出最近一則訊息，取出前先拷貝groupMessages的值，避免更動groupMessages
+                    const groupMessageData = groupChatData.Group_messages ? JSON.parse(JSON.stringify(groupChatData.Group_messages)) : null
+                    const latestMessage = groupMessageData?.[groupMessageData.length - 1] || null
+                    if (latestMessage) {
                         // 刪減過長的訊息文字
-                        if (groupMessageData.content.length > 15) {
-                            groupMessageData.content = groupMessageData.content.substring(0, 14) + '...'
+                        if (latestMessage.content.length > 15) {
+                            latestMessage.content = latestMessage.content.substring(0, 14) + '...'
                         }
-                        // 調整日期格式
-                        const today = dayjs(new Date())
-                        const yesterday = dayjs(new Date()).subtract(1, 'day')
-                        const msgCreatedDay = dayjs(groupMessageData.createdAt)
-
-                        switch (msgCreatedDay.dayOfYear()) {
-                            case today.dayOfYear():
-                                groupMessageData.createdAt = msgCreatedDay.format('HH:mm')
-                                break
-                            case yesterday.dayOfYear():
-                                groupMessageData.createdAt = '昨天'
-                                break
-                            default:
-                                groupMessageData.createdAt = createdDay.format('MM/DD/YYYY')
-                        }
-                        // 判斷發送訊息者是否為登入使用者
-                        groupMessageData.isLoginUser = (loginUser.id === groupMessageData.User.id)
                     }
-                    // 返回groupChat名稱與相關的訊息資料
-                    return  {
+                    
+                    // 返回前端需要的groupChat資訊, 與相關的最近一則訊息
+                    return {
                         name: groupChatData.name,
-                        Group_messages: groupMessageData
+                        id: groupChatData.id,
+                        User: groupChatData.User,
+                        Group_messages: groupChatData.Group_messages,
+                        latestMessage,
                     }
                 }))
             }
-            res.render('users/userMessages', { 
-                path: 'getUserGroupMessages', 
-                groupChats: groupChats || null
+
+            // 選擇要顯示所有訊息的groupChat
+            let unfoldedGroupChat
+            if(groupId) {
+                unfoldedGroupChat = groupChats.find( i => i.id === groupId)
+            } else {
+                unfoldedGroupChat = groupChats[0]
+            }
+
+            res.render('users/userMessages', {
+                path: 'getUserGroupMessages',
+                groupChats: groupChats || null,
+                unfoldedGroupChat: unfoldedGroupChat || null
             })
-        } catch(err) {
+        } catch (err) {
             next(err)
         }
     }
