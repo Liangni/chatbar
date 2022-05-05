@@ -1,7 +1,5 @@
 const bcrypt = require('bcryptjs')
-const dayjs = require('dayjs')
-const dayOfYear = require('dayjs/plugin/dayOfYear')
-dayjs.extend(dayOfYear)
+
 // 若採用JWT驗證，要加入如下
 // const jwt = require('jsonwebtoken')
 const { Gender, District, User, Interest, Owned_interest, Area, Group_message, Group_chat } = require('../models')
