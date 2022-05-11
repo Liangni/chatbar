@@ -278,10 +278,11 @@
     // 監聽來自伺服器的chatMessage事件
     socket.on("chatMessage", (ioRoom, Sender, message, createdAt) => {
         const loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
+        const msgDisplayer = document.querySelector('#msg-displayer')
         const currenChatNameAndNew = document.querySelector(`.chat-nameAndNew[data-io-room=${ioRoom}]`)
         
         // 在對話框加入訊息
-        addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId)
+        addMsgToMsgDisplayer(msgDisplayer, ioRoom, Sender, message, createdAt, loginUserId)
         addMsgToChatNameAndNew(currenChatNameAndNew, Sender, loginUserId, message)
     })
 
@@ -318,8 +319,7 @@
             })
     })
 
-    function addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId) {
-        const msgDisplayer = document.querySelector('#msg-displayer')
+    function addMsgToMsgDisplayer(msgDisplayer, ioRoom, Sender, message, createdAt, loginUserId) {
         const newMessage = document.createElement('div')
 
         if (Sender.id === loginUserId) {
