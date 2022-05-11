@@ -283,6 +283,12 @@ a {
     background: rgb(235, 235, 235);
     border-radius: 6px;
 }
+/* Add by Penny */
+.room-item.active {
+    background: rgb(16, 16, 253);
+    color: #fff;
+}
+
 .room-item img {
     /* outline: 1px solid blue; */
     width: 60px;

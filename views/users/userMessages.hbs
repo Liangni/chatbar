@@ -9,10 +9,8 @@
             {{#ifCond path 'getUserGroupMessages'}}
             {{#if ../groupChats}}
             {{#each ../groupChats}}
-            <div class="room-item" {{#ifCond this.id ../../unfoldedGroupChat.id
-                }}style="background: rgb(16, 16, 253); color: #fff;" {{/ifCond}}>
+            <div class="room-item {{#ifCond this.id ../../unfoldedGroupChat.id}}active{{/ifCond}}">
                 <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
-                <div class="chat-nameAndNew">
                 <div class="chat-nameAndNew" data-io-room="groupChat{{this.id}}">
                     <span class="name fs-14-bold">{{this.name}}</span>
                     {{#if this.latestMessage }}
@@ -356,5 +354,13 @@
         }
         // 在對話框加入訊息
         msgDisplayer.appendChild(newMessage)
+    }
+
+    function addMsgToChatNameAndNew(currenChatNameAndNew, Sender, loginUserId, message) {
+        const isLoginUser = Sender.id === loginUserId
+        const senderAlias = isLoginUser? '你': Sender.account
+        const messageCut = message.substring(0, 14) + '...'
+        
+        currenChatNameAndNew.children[1].innerText = `${senderAlias}:${messageCut}`
     }
 </script>
