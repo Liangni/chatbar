@@ -102,9 +102,14 @@ const userController = {
             if (RegisteredGroupIds) {
                 groupChats = await Promise.all(RegisteredGroupIds.map(async rgid => {
                     const groupChat = await Group_chat.findByPk(rgid, {
-                        include: [{ model: Group_message, include: [User] }, User],
+                        include: [
+                            { model: Group_message, include: [User]},
+                            User,
+                        ],
+                        order: [[Group_message, 'createdAt', 'ASC']]
                     })
                     const groupChatData = groupChat.toJSON()
+                    console.log(groupChatData)
                     // 為每條訊息加入是否為登入使用者的判斷、調整時間格式
                     groupChatData.Group_messages = groupChatData.Group_messages ? groupChatData.Group_messages.map(m => ({
                         ...m,
@@ -148,6 +153,32 @@ const userController = {
                 unfoldedGroupChat: unfoldedGroupChat || null
             })
         } catch (err) {
+            next(err)
+        }
+    },
+    postUserGroupMessages: async (req, res, next) => {
+        try {
+            const loginUser = getUser(req)
+            const RegisteredGroupIds = loginUser?.RegisteredGroups?.map(g => g.id) || null
+            const groupId = Number(req.params.groupId)
+            const { message } = req.body
+            
+            
+            if (!RegisteredGroupIds || !RegisteredGroupIds.includes(groupId)) throw new Error('你沒有加入此話題')
+            if ( !message.trim()) throw new Error('未輸入任何訊息!')
+
+            const messageData = await Group_message.create({
+                groupId,
+                userId: loginUser.id,
+                content: message
+            })
+            newMessage = messageData.toJSON()
+            newMessage.formattedCreatedAt = formatMessageTime(newMessage.createdAt)
+            newMessage.User = { id:loginUser.id, account: loginUser.account}
+            res.json({status:'success', message: newMessage })
+
+        } catch(err) {
+            console.log(err)
             next(err)
         }
     }
