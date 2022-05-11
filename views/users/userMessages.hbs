@@ -13,6 +13,7 @@
                 }}style="background: rgb(16, 16, 253); color: #fff;" {{/ifCond}}>
                 <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
                 <div class="chat-nameAndNew">
+                <div class="chat-nameAndNew" data-io-room="groupChat{{this.id}}">
                     <span class="name fs-14-bold">{{this.name}}</span>
                     {{#if this.latestMessage }}
                     <span class="new fs-12">{{#if this.latestMessage.isLoginUser
@@ -279,8 +280,11 @@
     // 監聽來自伺服器的chatMessage事件
     socket.on("chatMessage", (ioRoom, Sender, message, createdAt) => {
         const loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
+        const currenChatNameAndNew = document.querySelector(`.chat-nameAndNew[data-io-room=${ioRoom}]`)
+        
         // 在對話框加入訊息
         addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId)
+        addMsgToChatNameAndNew(currenChatNameAndNew, Sender, loginUserId, message)
     })
 
 
