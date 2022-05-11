@@ -214,7 +214,7 @@ a {
 }
 /* chat page layout */
 .chat-wrapper {
-    outline: 2px solid #000;
+    /* outline: 2px solid #000; */
     display: grid;
     /* 用hight無法正確設定grid的高度，故註解掉 by Penny */
     /* height: 676px; */

@@ -108,7 +108,7 @@
                         </div>
                     </div>
                     {{else}}
-                    <div class="message-by-others">
+                    <div class="message-by-others m-2">
                         <img src="/image/users.webp" class="avatar" style="width: 60px; height: 60px;">
                         <div class="d-flex flex-column align-items-start">
                             <div class="fs-14-bold">{{this.User.account}}</div>
@@ -278,11 +278,9 @@
     // 監聽來自伺服器的chatMessage事件
     socket.on("chatMessage", (ioRoom, Sender, message, createdAt) => {
         const loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
-        const msgDisplayer = document.querySelector('#msg-displayer')
-        
         
         // 在對話框加入訊息
-        addMsgToMsgDisplayer(msgDisplayer, ioRoom, Sender, message, createdAt, loginUserId)
+        addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId)
         // 在左列指定的chat item加入訊息
         addMsgToChatList(ioRoom, Sender, message, createdAt, loginUserId)
     })
@@ -320,7 +318,8 @@
             })
     })
 
-    function addMsgToMsgDisplayer(msgDisplayer, ioRoom, Sender, message, createdAt, loginUserId) {
+    function addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId) {
+        const msgDisplayer = document.querySelector('#msg-displayer')
         const newMessage = document.createElement('div')
 
         if (Sender.id === loginUserId) {
@@ -339,7 +338,7 @@
                     `
         } else {
             // 製作他人發送的訊息樣式
-            newMessage.classList.add('message-by-others')
+            newMessage.classList.add('message-by-others m-2')
             newMessage.innerHTML = `
             <img src="/image/users.webp" class="avatar" style="width: 60px; height: 60px;">
             <div class="d-flex flex-column align-items-start">
@@ -355,6 +354,8 @@
         }
         // 在對話框加入訊息
         msgDisplayer.appendChild(newMessage)
+        // 下滑scrollbar到底
+        msgDisplayer.scrollTop = msgDisplayer.scrollHeight
     }
 
     function addMsgToChatList(ioRoom, Sender, message, createdAt, loginUserId) {
