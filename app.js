@@ -2,7 +2,10 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 
+
 const express = require('express')
+const http = require('http')
+const { Server } = require("socket.io")
 const exphbs = require('express-handlebars')
 const session = require('express-session')
 const flash = require('connect-flash')
@@ -14,19 +17,20 @@ const passport = require('./config/passport')
 const handlebarsHelpers = require('./helpers/handlebars-helpers')
 const { getUser } = require('./helpers/auth-helpers')
 const routes = require('./routes')
+const sessionMiddleware = session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+})
 
 // 設定樣板引擎
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs', helpers: require('./helpers/handlebars-helpers') }))
 app.set('view engine', 'hbs')
 
-app.use(express.urlencoded({ extended: true}))
+app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
-app.use(session({ 
-  secret: SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false
-}))
+app.use(sessionMiddleware)
 
 // 初始化passport模組
 app.use(passport.initialize())
@@ -46,6 +50,42 @@ app.use(methodOverride('_method'))
 // 掛載總路由器
 app.use(routes)
 
-app.listen(PORT, () => {
+// 設定socketIO
+const server = http.createServer(app)
+const io = new Server(server)
+const wrap = middleware => (socket, next) => middleware(socket.request, {}, next)
+
+io.use(wrap(sessionMiddleware))
+io.use(wrap(passport.initialize()));
+io.use(wrap(passport.session()));
+
+io.use((socket, next) => {
+  if (socket.request.user) {
+    next();
+  } else {
+    next(new Error('unauthorized'))
+  }
+});
+
+io.on("connection", (socket) => {
+  
+  console.log(`new connection from socketId: ${socket.id}`)
+
+  const registeredGroups = socket.request.user.RegisteredGroups
+  registeredGroups.forEach(g => {socket.join(`groupChat${g.id}`)})
+  
+  // 監聽來自客戶端的chatMessage事件
+  socket.on("chatMessage", (ioRoom, senderAccount, message, createdAt) => {
+    // 發送chatMessage給特定Room的客戶端
+    io.to(ioRoom).emit("chatMessage", ioRoom, senderAccount, message, createdAt);
+  });
+  
+  
+  socket.on('disconnect', () => {
+    console.log(`socketId:${socket.id} disconnected`)
+  })
+});
+
+server.listen(PORT, () => {
   console.log(`App is running on port ${PORT}!`)
 })

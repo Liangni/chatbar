@@ -668,3 +668,13 @@ a {
 .action .dropdown-menu button:hover {
     background: rgb(230, 83, 83);
 }
+
+
+/* Add by Penny */
+.message-by-others {
+    display: flex;
+    align-items: center;
+    flex-flow:row wrap;
+    width: 96%;
+    height: 120px;
+}

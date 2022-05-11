@@ -9,12 +9,14 @@
             {{#ifCond path 'getUserGroupMessages'}}
             {{#if ../groupChats}}
             {{#each ../groupChats}}
-            <div class="room-item" {{#ifCond this.id ../../unfoldedGroupChat.id }}style="background: rgb(16, 16, 253); color: #fff;"{{/ifCond}}>
+            <div class="room-item" {{#ifCond this.id ../../unfoldedGroupChat.id
+                }}style="background: rgb(16, 16, 253); color: #fff;" {{/ifCond}}>
                 <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
                 <div class="chat-nameAndNew">
                     <span class="name fs-14-bold">{{this.name}}</span>
                     {{#if this.latestMessage }}
-                    <span class="new fs-12">{{#if this.latestMessage.isLoginUser }}你{{else}}{{this.latestMessage.User.account}}{{/if}}: {{this.latestMessage.content}}</span>
+                    <span class="new fs-12">{{#if this.latestMessage.isLoginUser
+                        }}你{{else}}{{this.latestMessage.User.account}}{{/if}}: {{this.latestMessage.content}}</span>
                     {{else}}
                     <span class="new fs-12">目前沒有任何訊息!</span>
                     {{/if}}
@@ -22,14 +24,14 @@
                 <div class="chat-timeAndRead">
                     {{#if this.latestMessage }}
                     <span class="time fs-12">{{this.latestMessage.formattedCreatedAt}}</span>
-                    <div class=""></div>
+                    <div class="unread"></div>
                     {{/if}}
                 </div>
             </div>
             {{/each}}
             {{else}}
             <div class="mt-4">
-            你尚未參與任何群組話題!
+                你尚未參與任何群組話題!
             </div>
             {{/if}}
             {{/ifCond}}
@@ -84,21 +86,21 @@
                         <img src="/image/users.webp" alt="" class="avatar">
                         <div class="nameAndTime-box d-flex flex-column align-items-start">
                             <span class="room-name fs-14-bold">{{unfoldedGroupChat.name}}</span>
-                            <span class="room-createBy fs-12">Group chat initialized by {{unfoldedGroupChat.User.account}}</span>
+                            <span class="room-createBy fs-12">Group chat initialized by
+                                {{unfoldedGroupChat.User.account}}</span>
                         </div>
                     </div>
                     <form action="" method="POST" class="out-room">
                         <button class="btn btn-danger" type="submit">退出話題</button>
                     </form>
                 </div>
-                <div class="left-part-bottom bg-light" style="overflow: scroll;">
-                    {{!-- display chat here --}}
+                <div class="left-part-bottom bg-light" id="msg-displayer">
                     {{#if unfoldedGroupChat.Group_messages}}
                     {{#each unfoldedGroupChat.Group_messages}}
                     {{#if this.isLoginUser}}
                     <div class="d-flex flex-row-reverse">
                         <div class="d-flex flex-column align-items-start">
-                            <div class="room-item mt-2" style="background: rgb(16, 16, 253); color: #fff;">
+                            <div class="m-2 p-2" style="background: rgb(16, 16, 253); color: #fff; border-radius: 6px;">
                                 <div>
                                     <div class="new fs-12">{{this.content}}</div>
                                     <div class="time fs-12 text-end">{{this.formattedCreatedAt}}</div>
@@ -107,12 +109,12 @@
                         </div>
                     </div>
                     {{else}}
-                    <div class="d-flex align-items-center" style="flex-flow:row wrap; width: 96%; height: 120px;">
-                        <img src="/image/users.webp" class="avatar"style="width: 60px; height: 60px;">
+                    <div class="message-by-others">
+                        <img src="/image/users.webp" class="avatar" style="width: 60px; height: 60px;">
                         <div class="d-flex flex-column align-items-start">
                             <div class="fs-14-bold">{{this.User.account}}</div>
-                            <div class="room-item">
-                                <div>   
+                            <div class="my-1 p-2" style="background: rgb(235, 235, 235);border-radius: 6px;">
+                                <div>
                                     <div class="new fs-12">{{this.content}}</div>
                                     <div class="time fs-12 text-end">{{this.formattedCreatedAt}}</div>
                                 </div>
@@ -184,42 +186,42 @@
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
                         <span class="user-account fs-12 fw-bold">penny_111</span>
                     </div>
-                     {{!-- 假資料 --}}
+                    {{!-- 假資料 --}}
                     <div class="outline-user">
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
                         <span class="user-account fs-12 fw-bold">penny_111</span>
                     </div>
-                     {{!-- 假資料 --}}
+                    {{!-- 假資料 --}}
                     <div class="outline-user">
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
                         <span class="user-account fs-12 fw-bold">penny_111</span>
                     </div>
-                     {{!-- 假資料 --}}
+                    {{!-- 假資料 --}}
                     <div class="outline-user">
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
                         <span class="user-account fs-12 fw-bold">penny_111</span>
                     </div>
-                     {{!-- 假資料 --}}
+                    {{!-- 假資料 --}}
                     <div class="outline-user">
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
                         <span class="user-account fs-12 fw-bold">penny_111</span>
                     </div>
-                     {{!-- 假資料 --}}
+                    {{!-- 假資料 --}}
                     <div class="outline-user">
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
                         <span class="user-account fs-12 fw-bold">penny_111</span>
                     </div>
-                     {{!-- 假資料 --}}
+                    {{!-- 假資料 --}}
                     <div class="outline-user">
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
                         <span class="user-account fs-12 fw-bold">penny_111</span>
                     </div>
-                     {{!-- 假資料 --}}
+                    {{!-- 假資料 --}}
                     <div class="outline-user">
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
                         <span class="user-account fs-12 fw-bold">penny_111</span>
                     </div>
-                     {{!-- 假資料 --}}
+                    {{!-- 假資料 --}}
                     <div class="outline-user">
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
                         <span class="user-account fs-12 fw-bold">penny_111</span>
@@ -227,7 +229,10 @@
                 </div>
             </div>
         </div>
-        <form action="#" method="GET" class="bottom-section send-message-wrapper bg-light">
+        <form class="bottom-section send-message-wrapper bg-light" enctype='multipart/form-data'
+            data-chat-type="groupChat"
+            data-post-url="/users/loginUser/groupChats/{{unfoldedGroupChat.id}}/groupMessages"
+            data-login-user-id="{{user.id}}">
             <div class="if-file-box d-flex flex-row justify-content-start align-items-center">
                 <div class="file-item">
                     <i class="fa fa-times"></i>
@@ -252,12 +257,12 @@
                         <input type="file" name="file" id="file" style="display:none;">
                     </div>
                     <div class="icon-box-camera">
-                         <i class="fa fa-camera"></i>
+                        <i class="fa fa-camera"></i>
                     </div>
                 </div>
                 <div class="send-message">
                     <textarea name="message" id="message" class="message"></textarea>
-                    <button type="submit" class="btn btn-outline-primary">送出</button>
+                    <button type="submit" class="btn btn-outline-primary" id="submitBtn">送出</button>
                 </div>
             </div>
         </form>
@@ -265,11 +270,88 @@
 </div>
 
 <script>
-    const msgWrapper = document.querySelector('.send-message-wrapper')
+    const socket = io()
+    const sendMsgWrapper = document.querySelector('.send-message-wrapper')
     const messageInput = document.querySelector('#message')
     const fileInput = document.querySelector('#file')
 
-    msgWrapper.addEventListener('submit', e => {
-        e.preventDefault()
+
+    // 監聽來自伺服器的chatMessage事件
+    socket.on("chatMessage", (ioRoom, Sender, message, createdAt) => {
+        const loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
+        // 在對話框加入訊息
+        addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId)
     })
+
+
+    sendMsgWrapper.addEventListener('submit', e => {
+        e.preventDefault()
+        const submitBtn = document.querySelector('#submitBtn')
+        const postURL = sendMsgWrapper.dataset.postUrl
+        const formData = new FormData(sendMsgWrapper)
+
+        // disable送出按紐
+        submitBtn.disabled = true
+        submitBtn.innerText = '發送中'
+
+        axios
+            .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+            .then((response) => {
+                if (response.data.status === 'success') {
+                    const chatType = sendMsgWrapper.dataset.chatType
+                    const { User, groupId, content, formattedCreatedAt } = response.data.message
+                    const ioRoom = `${chatType}${groupId}`
+                    const message = messageInput.value
+
+                    // 發送chatMessage事件給伺服器
+                    socket.emit("chatMessage", ioRoom, User, content, formattedCreatedAt)
+
+                    // 清空input的值、恢復送出按紐功能
+                    messageInput.value = ''
+                    submitBtn.disabled = false
+                    submitBtn.innerText = '送出'
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    })
+
+    function addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId) {
+        const msgDisplayer = document.querySelector('#msg-displayer')
+        const newMessage = document.createElement('div')
+
+        if (Sender.id === loginUserId) {
+            // 製作自己發送的訊息樣式
+            newMessage.classList.add('d-flex', 'flex-row-reverse')
+            newMessage.innerHTML = `
+                        <div class="d-flex flex-column align-items-start">
+                            <div class="m-2 p-2"
+                                style="background: rgb(16, 16, 253); color: #fff; border-radius: 6px;">
+                                <div>
+                                    <div class="new fs-12">${message}</div>
+                                    <div class="time fs-12 text-end">${createdAt}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+        } else {
+            // 製作他人發送的訊息樣式
+            newMessage.classList.add('message-by-others')
+            newMessage.innerHTML = `
+            <img src="/image/users.webp" class="avatar" style="width: 60px; height: 60px;">
+            <div class="d-flex flex-column align-items-start">
+            <div class="fs-14-bold">${Sender.account}</div>
+                <div class="m-1 p-2" style="background: rgb(235, 235, 235);border-radius: 6px;">
+                    <div>
+                        <div class="new fs-12">${message}</div>
+                        <div class="time fs-12 text-end">${createdAt}</div>
+                    </div>
+                 </div>
+            </div>
+        `
+        }
+        // 在對話框加入訊息
+        msgDisplayer.appendChild(newMessage)
+    }
 </script>
