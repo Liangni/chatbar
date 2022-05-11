@@ -11,7 +11,7 @@
             {{#each ../groupChats}}
             <div class="room-item {{#ifCond this.id ../../unfoldedGroupChat.id}}active{{/ifCond}}" data-io-room="groupChat{{this.id}}">
                 <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
-                <div class="chat-nameAndNew" data-io-room="groupChat{{this.id}}">
+                <div class="chat-nameAndNew">
                     <span class="name fs-14-bold">{{this.name}}</span>
                     {{#if this.latestMessage }}
                     <span class="new fs-12">{{#if this.latestMessage.isLoginUser
