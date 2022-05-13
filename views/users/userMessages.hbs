@@ -192,10 +192,13 @@
 </div>
 
 <script>
+    const msgDisplayer = document.querySelector('#msg-displayer')
     const sendMsgWrapper = document.querySelector('.send-message-wrapper')
     const messageInput = document.querySelector('#message')
     const fileInput = document.querySelector('#file')
 
+    // 將卷軸置底
+    msgDisplayer.scrollTop = msgDisplayer.scrollHeight
 
     // 監聽來自伺服器的chatMessage事件
     socket.on("chatMessage", (ioRoom, Sender, message, createdAt) => {
