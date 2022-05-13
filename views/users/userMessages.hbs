@@ -9,7 +9,8 @@
             {{#ifCond path 'getUserGroupMessages'}}
             {{#if ../groupChats}}
             {{#each ../groupChats}}
-            <div class="room-item {{#ifCond this.id ../../unfoldedGroupChat.id}}active{{/ifCond}}" data-io-room="groupChat{{this.id}}">
+            <div class="room-item {{#ifCond this.id ../../unfoldedGroupChat.id}}active{{/ifCond}}"
+                data-io-room="groupChat{{this.id}}">
                 <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
                 <div class="chat-nameAndNew">
                     <span class="name fs-14-bold">{{this.name}}</span>
@@ -133,46 +134,13 @@
                         <span class="fs-14-bold">上線</span>
                         <span class="online-icon"></span>
                     </div>
-                    {{!-- 假資料 --}}
-                    <div class="online-user">
+                    {{!-- 上線使用者清單，預設為所有加入groupChat的使用者，由socket事件控制減少項目 --}}
+                    {{#each unfoldedGroupChat.RegisteredUsers}}
+                    <div class="online-user" data-user-id="{{this.id}}">
                         <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">sin_1201</span>
+                        <span class="user-account fs-12 fw-bold">{{this.account}}</span>
                     </div>
-                    {{!-- 假資料 --}}
-                    <div class="online-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">sin_1201</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="online-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">sin_1201</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="online-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">sin_1201</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="online-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">sin_1201</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="online-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">sin_1201</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="online-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">sin_1201</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="online-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">sin_1201</span>
-                    </div>
+                    {{/each}}
                 </div>
                 <hr>
                 <div class="right-part-bottom">
@@ -180,58 +148,13 @@
                         <span class="fs-14-bold">離線</span>
                         <span class="outline-icon"></span>
                     </div>
-                    {{!-- 假資料 --}}
-                    <div class="outline-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">penny_111</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="outline-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">penny_111</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="outline-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">penny_111</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="outline-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">penny_111</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="outline-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">penny_111</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="outline-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">penny_111</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="outline-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">penny_111</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="outline-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">penny_111</span>
-                    </div>
-                    {{!-- 假資料 --}}
-                    <div class="outline-user">
-                        <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
-                        <span class="user-account fs-12 fw-bold">penny_111</span>
-                    </div>
+                    {{!-- 離線使用者清單，由socket事件控制增加項目 --}}
                 </div>
             </div>
         </div>
         <form class="bottom-section send-message-wrapper bg-light" enctype='multipart/form-data'
             data-post-url="/users/loginUser/groupChats/{{unfoldedGroupChat.id}}/groupMessages"
-            data-io-room="groupChat{{unfoldedGroupChat.id}}"
-            data-login-user-id="{{user.id}}">
+            data-io-room="groupChat{{unfoldedGroupChat.id}}" data-login-user-id="{{user.id}}">
             <div class="if-file-box d-flex flex-row justify-content-start align-items-center">
                 <div class="file-item">
                     <i class="fa fa-times"></i>
@@ -269,7 +192,6 @@
 </div>
 
 <script>
-    const socket = io()
     const sendMsgWrapper = document.querySelector('.send-message-wrapper')
     const messageInput = document.querySelector('#message')
     const fileInput = document.querySelector('#file')
@@ -278,11 +200,57 @@
     // 監聽來自伺服器的chatMessage事件
     socket.on("chatMessage", (ioRoom, Sender, message, createdAt) => {
         const loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
-        
+
         // 在對話框加入訊息
         addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId)
         // 在左列指定的chat item加入訊息
         addMsgToChatList(ioRoom, Sender, message, createdAt, loginUserId)
+    })
+
+    // 監聽來自伺服器的「上線使用者名單」事件
+    socket.on('getOnlineUsers', (ioRoom, onlineRoomateIds) => {
+        const activeChat = document.querySelector('.room-item.active')
+        // 在所展開的groupMessage右側顯示登入使用者清單
+        if (activeChat.dataset.ioRoom === ioRoom) {
+            const defaultOnlineRoomates = document.querySelectorAll('.online-user')
+            defaultOnlineRoomates.forEach(r => {
+                if (!onlineRoomateIds.includes(Number(r.dataset.userId))){
+                    const offlineUserBox = document.querySelector('.right-part-bottom')
+                    offlineUserBox.appendChild(r)
+                }
+            })
+        }
+    })
+
+    // 監聽來自伺服器的「新登入」事件
+    socket.on('newLogin', (ioRoom, userId) => {
+        const activeChat = document.querySelector('.room-item.active')
+        const offlineRoomates = document.querySelectorAll('.right-part-bottom .online-user')
+        
+        // 更新所展開的groupMessage的登入使用者名單
+        if ((activeChat.dataset.ioRoom === ioRoom) && offlineRoomates) {
+            offlineRoomates.forEach(r => {
+                if(Number(r.dataset.userId) === userId) {
+                    const onlineUserBox = document.querySelector('.right-part-top')
+                    onlineUserBox.appendChild(r)
+                }
+            })
+        }
+    })
+
+    // 監聽來自伺服器的「登出」事件
+    socket.on('newLogout', (ioRoom, userId) => {
+        const activeChat = document.querySelector('.room-item.active')
+
+        if (activeChat.dataset.ioRoom === ioRoom) {
+            const onlineRoomates = document.querySelectorAll('.online-user')
+            onlineRoomates.forEach(r => {
+                if(Number(r.dataset.userId) === userId) {
+                    const offlineUserBox = document.querySelector('.right-part-bottom')
+                    offlineUserBox.appendChild(r)
+                }
+            })
+        }
     })
 
 
@@ -363,12 +331,12 @@
         const chatNameAndNew = targetChatItem.children[1]
         const chatTimeAndRead = targetChatItem.children[2]
         const isLoginUser = Sender.id === loginUserId
-        const senderAlias = isLoginUser? '你': Sender.account
+        const senderAlias = isLoginUser ? '你' : Sender.account
         const messageCut = message.substring(0, 14) + '...'
 
         // 在左列指定的chat item加入最新訊息
-       chatNameAndNew.children[1].innerText = `${senderAlias}: ${messageCut}`
-       // 顯示訊息時間
-       chatTimeAndRead.children[0].innerText = createdAt
+        chatNameAndNew.children[1].innerText = `${senderAlias}: ${messageCut}`
+        // 顯示訊息時間
+        chatTimeAndRead.children[0].innerText = createdAt
     }
 </script>

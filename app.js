@@ -54,6 +54,7 @@ app.use(routes)
 const server = http.createServer(app)
 const io = new Server(server)
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next)
+const onlineUsers = []
 
 io.use(wrap(sessionMiddleware))
 io.use(wrap(passport.initialize()));
@@ -69,20 +70,59 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
   
-  console.log(`new connection from socketId: ${socket.id}`)
-
-  const registeredGroups = socket.request.user.RegisteredGroups
-  registeredGroups.forEach(g => {socket.join(`groupChat${g.id}`)})
+  console.log(`new connection from userId:${socket.request.user.id} socketId: ${socket.id}`)
   
+  const onlineUserIds = onlineUsers?.map(u => u.id) || []
+  const { user } = socket.request
+  const isNewLogin = !onlineUserIds.includes(user.id)
+  user.groupChatIds = user.RegisteredGroups?.map(g => g.id) || []
+
+  // 將新連線加入連線使用者所屬groupChat的Room
+  if (user.groupChatIds) user.groupChatIds.forEach(id => {socket.join(`groupChat${id}`)})
   // 監聽來自客戶端的chatMessage事件
-  socket.on("chatMessage", (ioRoom, senderAccount, message, createdAt) => {
+  socket.on("chatMessage", (ioRoom, Sender, message, createdAt) => {
     // 發送chatMessage給特定Room的客戶端
-    io.to(ioRoom).emit("chatMessage", ioRoom, senderAccount, message, createdAt);
-  });
+    io.to(ioRoom).emit("chatMessage", ioRoom, Sender, message, createdAt);
+  })
+  
+  console.log(`onlineUserIds before userId${user.id} connecting:`, onlineUserIds)
+  if (isNewLogin) { // 連線來自新登入使用者
+    // 更新線上使用者名單
+    onlineUsers.push({ id: user.id, groupChatIds: user.groupChatIds })
+    // 向連線加入的Room發送「新登入」事件，送出連線使用者id
+    user.groupChatIds.forEach(id => { io.to(`groupChat${id}`).emit("newLogin", `groupChat${id}`, user.id ) })
+  } else { // 連線來自(在不同頁面轉換的)已登入使用者
+    // 對該連線的客戶端發送「取得線上使用者」事件
+    user.groupChatIds.forEach(id => { 
+      const onlineRoomates = onlineUsers.filter(u => u.groupChatIds.includes(id))
+      const onlineRoomateIds = onlineRoomates.map(u => u.id)
+      console.log(`onlineUser in Room:groupChat${id}`, onlineRoomateIds )
+      io.in(`groupChat${id}`).to(socket.id).emit("getOnlineUsers", `groupChat${id}`,onlineRoomateIds)
+    })
+  }
+  console.log(`onlineUserIds after userId${user.id} connecting(updated):`, onlineUsers.map(u => u.id))
   
   
   socket.on('disconnect', () => {
-    console.log(`socketId:${socket.id} disconnected`)
+    console.log(`userId:${socket.request.user.id} socketId:${socket.id} disconnected`)
+  
+    setTimeout( async () => {
+      console.log("Delayed for 2 second.")
+      const connectedSockets = await io.of('/').fetchSockets()
+      const connectedSocketIds = connectedSockets.map(s => s.request.user.id )
+      console.log('connectedSocketIds: ', connectedSocketIds)
+      // 如namespace已不含剛才disconnect的使用者，表示沒有再次connect，判斷為登出
+      const isLogout = !connectedSocketIds.includes(user.id)
+      
+      if (isLogout) {
+        // 更新線上使用者名單
+        userIndex = onlineUsers.indexOf({ id: user.id, groupChatIds: user.groupChatIds })
+        onlineUsers.splice(userIndex, 1)
+        // 向連線加入的Room發送「新登出」事件，送出連線使用者id
+        user.groupChatIds.forEach(id => { io.to(`groupChat${id}`).emit("newLogout", `groupChat${id}`, user.id) })
+      } 
+      console.log('onlineUserIds when a user disconnected:', onlineUsers.map(u => u.id))
+    }, 2000)
   })
 });
 

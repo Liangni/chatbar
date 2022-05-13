@@ -105,11 +105,11 @@ const userController = {
                         include: [
                             { model: Group_message, include: [User]},
                             User,
+                            { model: User, as: 'RegisteredUsers' }
                         ],
                         order: [[Group_message, 'createdAt', 'ASC']]
                     })
                     const groupChatData = groupChat.toJSON()
-                    console.log(groupChatData)
                     // 為每條訊息加入是否為登入使用者的判斷、調整時間格式
                     groupChatData.Group_messages = groupChatData.Group_messages ? groupChatData.Group_messages.map(m => ({
                         ...m,
@@ -133,6 +133,7 @@ const userController = {
                         name: groupChatData.name,
                         id: groupChatData.id,
                         User: groupChatData.User,
+                        RegisteredUsers: groupChatData.RegisteredUsers,
                         Group_messages: groupChatData.Group_messages,
                         latestMessage,
                     }
