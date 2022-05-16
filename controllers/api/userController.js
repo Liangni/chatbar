@@ -8,7 +8,7 @@ const userController = {
       const loginUser = getUser(req)
       const RegisteredGroupIds = loginUser?.RegisteredGroups?.map(g => g.id) || null
       const groupId = req.query ? Number(req.query.groupId) : null
-      let groupChats
+      
 
       if (groupId) {
         if (!RegisteredGroupIds || !RegisteredGroupIds.includes(groupId)) throw new Error('使用者沒有加入此話題')

@@ -138,6 +138,10 @@ const userController = {
                         latestMessage,
                     }
                 }))
+                
+                // 將groupChat按日期新->舊排序
+                groupChats = groupChats.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt))
+
             }
 
             // 選擇要顯示所有訊息的groupChat
