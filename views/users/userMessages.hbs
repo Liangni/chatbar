@@ -5,12 +5,13 @@
             <input type="text" name="searchRoom" id="searchRoom" placeholder="輸入話題名稱或使用者名稱">
             <i class="fa fa-search"></i>
         </div>
-        <div class="room-box d-flex flex-column align-items-center ">
+        <div class="room-box d-flex flex-column align-items-center" id="chatList">
             {{#ifCond path 'getUserGroupMessages'}}
             {{#if ../groupChats}}
             {{#each ../groupChats}}
-            <div class="room-item {{#ifCond this.id ../../unfoldedGroupChat.id}}active{{/ifCond}}"
-                data-io-room="groupChat{{this.id}}">
+            <div class="room-item {{#ifCond this.id ../../unfoldedGroupChat.id}}active{{/ifCond}} btn"
+                data-io-room="groupChat{{this.id}}"
+                data-url="/api/users/loginUser/groupChats/groupMessages?groupId={{this.id}}">
                 <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
                 <div class="chat-nameAndNew">
                     <span class="name fs-14-bold">{{this.name}}</span>
@@ -24,7 +25,7 @@
                 <div class="chat-timeAndRead">
                     {{#if this.latestMessage }}
                     <span class="time fs-12">{{this.latestMessage.formattedCreatedAt}}</span>
-                    <div class="unread"></div>
+                    <div class=""></div>
                     {{/if}}
                 </div>
             </div>
@@ -79,9 +80,9 @@
         </div>
     </div>
     <div class="chatting">
-        <div class="top-section d-flex flex-row justify-content-between">
+        <div class="top-section d-flex flex-row justify-content-between" id="chat-details">
             <div class="left-part">
-                <div class="left-part-top bg-light">
+                <div class="left-part-top bg-light" id="room-info-wrapper">
                     <div class="room-info d-flex flex-row align-items-center">
                         <img src="/image/users.webp" alt="" class="avatar">
                         <div class="nameAndTime-box d-flex flex-column align-items-start">
@@ -124,12 +125,12 @@
                     {{/if}}
                     {{/each}}
                     {{else}}
-                    <span class="new fs-12">目前沒有任何訊息!</span>
+                    <span class="new fs-12" id="no-message-text">目前沒有任何訊息!</span>
                     {{/if}}
                 </div>
             </div>
             <div class="right-part bg-light">
-                <div class="right-part-top">
+                <div class="right-part-top" id="online-user-box">
                     <div class="online-box d-flex flex-row">
                         <span class="fs-14-bold">上線</span>
                         <span class="online-icon"></span>
@@ -143,7 +144,7 @@
                     {{/each}}
                 </div>
                 <hr>
-                <div class="right-part-bottom">
+                <div class="right-part-bottom" id="offline-user-box">
                     <div class="outline-box d-flex flex-row">
                         <span class="fs-14-bold">離線</span>
                         <span class="outline-icon"></span>
@@ -212,29 +213,19 @@
 
     // 監聽來自伺服器的「上線使用者名單」事件
     socket.on('getOnlineUsers', (ioRoom, onlineRoomateIds) => {
-        const activeChat = document.querySelector('.room-item.active')
-        // 在所展開的groupMessage右側顯示登入使用者清單
-        if (activeChat.dataset.ioRoom === ioRoom) {
-            const defaultOnlineRoomates = document.querySelectorAll('.online-user')
-            defaultOnlineRoomates.forEach(r => {
-                if (!onlineRoomateIds.includes(Number(r.dataset.userId))){
-                    const offlineUserBox = document.querySelector('.right-part-bottom')
-                    offlineUserBox.appendChild(r)
-                }
-            })
-        }
+        classifyOnlineAndOfflineUsers(ioRoom, onlineRoomateIds)
     })
 
     // 監聽來自伺服器的「新登入」事件
     socket.on('newLogin', (ioRoom, userId) => {
         const activeChat = document.querySelector('.room-item.active')
         const offlineRoomates = document.querySelectorAll('.right-part-bottom .online-user')
-        
+
         // 更新所展開的groupMessage的登入使用者名單
         if ((activeChat.dataset.ioRoom === ioRoom) && offlineRoomates) {
             offlineRoomates.forEach(r => {
-                if(Number(r.dataset.userId) === userId) {
-                    const onlineUserBox = document.querySelector('.right-part-top')
+                if (Number(r.dataset.userId) === userId) {
+                    const onlineUserBox = document.querySelector('#online-user-box')
                     onlineUserBox.appendChild(r)
                 }
             })
@@ -248,15 +239,15 @@
         if (activeChat.dataset.ioRoom === ioRoom) {
             const onlineRoomates = document.querySelectorAll('.online-user')
             onlineRoomates.forEach(r => {
-                if(Number(r.dataset.userId) === userId) {
-                    const offlineUserBox = document.querySelector('.right-part-bottom')
+                if (Number(r.dataset.userId) === userId) {
+                    const offlineUserBox = document.querySelector('#offline-user-box')
                     offlineUserBox.appendChild(r)
                 }
             })
         }
     })
 
-
+    // 訊息表單掛載監聽器，點擊送出事件
     sendMsgWrapper.addEventListener('submit', e => {
         e.preventDefault()
         const submitBtn = document.querySelector('#submitBtn')
@@ -289,42 +280,50 @@
             })
     })
 
+    // 左側聊天項目掛載監聽器，監聽點擊事件
+    const chats = document.querySelectorAll('.room-item')
+    chats.forEach(c => {
+        c.addEventListener('click', e => {
+            const roomItem = e.currentTarget
+            if (!roomItem.classList.contains('active')) {
+                const ioRoom = roomItem.dataset.ioRoom
+                const URL = roomItem.dataset.url
+                roomItem.disabled = true
+
+                updateChatActiveStatus(ioRoom)
+                axios.get(URL)
+                    .then((response) => {
+                        if (response.data.status === 'success') {
+                            buildChatDetails(response.data)
+                        }
+                        roomItem.disabled = false
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                        roomItem.disabled = false
+                    })
+            }
+        })
+    })
+
+
     function addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId) {
         const msgDisplayer = document.querySelector('#msg-displayer')
-        const newMessage = document.createElement('div')
+        const noMessageText = document.querySelector('#no-message-text')
+        let newMessageDiv
+        
+
+        if (noMessageText) noMessageText.parentNode.removeChild(noMessageText)
 
         if (Sender.id === loginUserId) {
-            // 製作自己發送的訊息樣式
-            newMessage.classList.add('d-flex', 'flex-row-reverse')
-            newMessage.innerHTML = `
-                        <div class="d-flex flex-column align-items-start">
-                            <div class="m-2 p-2"
-                                style="background: rgb(16, 16, 253); color: #fff; border-radius: 6px;">
-                                <div>
-                                    <div class="new fs-12">${message}</div>
-                                    <div class="time fs-12 text-end">${createdAt}</div>
-                                </div>
-                            </div>
-                        </div>
-                    `
+            // 製作自己發送的訊息節點
+            newMessageDiv = buildMessageFromUser(message, createdAt)
         } else {
-            // 製作他人發送的訊息樣式
-            newMessage.classList.add('message-by-others m-2')
-            newMessage.innerHTML = `
-            <img src="/image/users.webp" class="avatar" style="width: 60px; height: 60px;">
-            <div class="d-flex flex-column align-items-start">
-            <div class="fs-14-bold">${Sender.account}</div>
-                <div class="m-1 p-2" style="background: rgb(235, 235, 235);border-radius: 6px;">
-                    <div>
-                        <div class="new fs-12">${message}</div>
-                        <div class="time fs-12 text-end">${createdAt}</div>
-                    </div>
-                 </div>
-            </div>
-        `
+            // 製作他人發送的訊息節點
+            newMessageDiv = buildMessageFromOther(message, createdAt, Sender.account)
         }
         // 在對話框加入訊息
-        msgDisplayer.appendChild(newMessage)
+        msgDisplayer.appendChild(newMessageDiv)
         // 下滑scrollbar到底
         msgDisplayer.scrollTop = msgDisplayer.scrollHeight
     }
@@ -341,5 +340,141 @@
         chatNameAndNew.children[1].innerText = `${senderAlias}: ${messageCut}`
         // 顯示訊息時間
         chatTimeAndRead.children[0].innerText = createdAt
+    }
+
+    function updateChatActiveStatus(ioRoom) {
+        const roomItems = document.querySelectorAll('.room-item')
+        roomItems.forEach(r => {
+            if (r.classList.contains('active')) { r.classList.remove('active') }
+             else {
+                if (r.dataset.ioRoom === ioRoom) { r.classList.add('active') }
+            }
+        })
+    }
+
+    function buildChatDetails(data) {
+        if (data.unfoldedGroupChat) {
+            const roomInfoWrapper = document.querySelector('#room-info-wrapper')
+            const msgDisplayer = document.querySelector('#msg-displayer')
+            roomInfoWrapper.innerHTML = buildRoomInfo(data.unfoldedGroupChat.name, data.unfoldedGroupChat.User.account)
+            msgDisplayer.innerHTML = buildMessags(data.unfoldedGroupChat.Group_messages)
+            cleanOnlineAndOfflineUserBox()
+            appendUsersToOnlineUserBox(data.unfoldedGroupChat.RegisteredUsers)
+            emitFetchOnlineUsersEvent(data.unfoldedGroupChat.id)
+            updateFormUrlAndIoRoom(data.unfoldedGroupChat.id)
+            msgDisplayer.scrollTop = msgDisplayer.scrollHeight
+
+        }
+    }
+
+    function buildRoomInfo(name, userAccount) {
+        return newTemplate = `
+            <div class="room-info d-flex flex-row align-items-center">
+                <img src="/image/users.webp" alt="" class="avatar">
+                <div class="nameAndTime-box d-flex flex-column align-items-start">
+                    <span class="room-name fs-14-bold">${name}</span>
+                    <span class="room-createBy fs-12">Group chat initialized by ${userAccount}</span>
+                </div>
+            </div>
+            <form action="" method="POST" class="out-room">
+                <button class="btn btn-danger" type="submit">退出話題</button>
+            </form>
+        `
+    }
+
+    function buildMessags(messages) {
+        const tempDiv = document.createElement('div')
+        
+        if (messages.length === 0) {
+            tempDiv.innerHTML = '<span class="new fs-12" id="no-message-text">目前沒有任何訊息!</span>'
+        } else {
+            messages.forEach(m => {
+                if (m.isLoginUser) {
+                    tempDiv.appendChild(buildMessageFromUser(m.content, m.formattedCreatedAt))
+                }
+                else {
+                    tempDiv.appendChild(buildMessageFromOther(m.content, m.formattedCreatedAt, m.User.account))
+                }
+            })
+        }
+
+        return tempDiv.innerHTML
+    }
+    function cleanOnlineAndOfflineUserBox() {
+        const previousRoomUsers = document.querySelectorAll('.online-user')
+        previousRoomUsers.forEach(u=> u.parentNode.removeChild(u))
+    }
+    function appendUsersToOnlineUserBox(users) {
+        users.forEach(u => {
+            const onlineUserBox =document.querySelector('#online-user-box')
+            const userItem = document.createElement('div')
+            
+            userItem.classList.add('online-user')
+            userItem.dataset.userId = u.id
+            userItem.innerHTML = `
+                <img src="/image/users.webp" alt="user-avatar" class="user-avatar">
+                <span class="user-account fs-12 fw-bold">${u.account}</span>
+            `
+            onlineUserBox.appendChild(userItem)
+        })
+    }
+    
+    function emitFetchOnlineUsersEvent(groupId) {
+        // 發送fetchOnlineUsers事件給伺服器，預期收到getOnlineUsers事件
+        socket.emit("fetchOnlineUsers", groupId)
+    }
+
+    function classifyOnlineAndOfflineUsers(ioRoom, onlineRoomateIds) {
+        const activeChat = document.querySelector('.room-item.active')
+            // 在所展開的groupMessage右側顯示登入使用者清單
+            if (activeChat.dataset.ioRoom === ioRoom) {
+                const defaultOnlineRoomates = document.querySelectorAll('.online-user')
+                defaultOnlineRoomates.forEach(r => {
+                    if (!onlineRoomateIds.includes(Number(r.dataset.userId))) {
+                        const offlineUserBox = document.querySelector('#offline-user-box')
+                        offlineUserBox.appendChild(r)
+                    }
+                })
+            }
+    }
+    function updateFormUrlAndIoRoom(groupId) {
+        const sendMessageWrapper = document.querySelector('.send-message-wrapper')
+        sendMessageWrapper.dataset.postUrl = `/users/loginUser/groupChats/${groupId}/groupMessages`
+        sendMessageWrapper.dataset.ioRoom = `groupChat${groupId}` 
+    }
+
+    function buildMessageFromUser(message, createdAt) {
+        const messageContainer = document.createElement('div')
+        messageContainer.classList.add('d-flex', 'flex-row-reverse')
+        messageContainer.innerHTML = `
+                        <div class="d-flex flex-column align-items-start">
+                            <div class="m-2 p-2"
+                                style="background: rgb(16, 16, 253); color: #fff; border-radius: 6px;">
+                                <div>
+                                    <div class="new fs-12">${message}</div>
+                                    <div class="time fs-12 text-end">${createdAt}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+        return messageContainer
+    }
+
+    function buildMessageFromOther(message, createdAt, SenderAccount) {
+        const messageContainer = document.createElement('div')
+        messageContainer.classList.add('message-by-others', 'm-2')
+        messageContainer.innerHTML = `
+            <img src="/image/users.webp" class="avatar" style="width: 60px; height: 60px;">
+            <div class="d-flex flex-column align-items-start">
+            <div class="fs-14-bold">${SenderAccount}</div>
+                <div class="m-1 p-2" style="background: rgb(235, 235, 235);border-radius: 6px;">
+                    <div>
+                        <div class="new fs-12">${message}</div>
+                        <div class="time fs-12 text-end">${createdAt}</div>
+                    </div>
+                 </div>
+            </div>
+        `
+        return messageContainer
     }
 </script>

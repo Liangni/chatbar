@@ -124,6 +124,13 @@ io.on("connection", (socket) => {
       console.log('onlineUserIds when a user disconnected:', onlineUsers.map(u => u.id))
     }, 2000)
   })
+
+  socket.on('fetchOnlineUsers', (groupId) => {
+    const onlineRoomates = onlineUsers.filter(u => u.groupChatIds.includes(groupId))
+    const onlineRoomateIds = onlineRoomates.map(u => u.id)
+    console.log(`onlineUser in Room:groupChat${groupId}`, onlineRoomateIds)
+    io.in(`groupChat${groupId}`).to(socket.id).emit("getOnlineUsers", `groupChat${groupId}`,onlineRoomateIds)
+  })
 });
 
 server.listen(PORT, () => {
