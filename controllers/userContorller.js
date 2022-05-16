@@ -161,32 +161,7 @@ const userController = {
             next(err)
         }
     },
-    postUserGroupMessages: async (req, res, next) => {
-        try {
-            const loginUser = getUser(req)
-            const RegisteredGroupIds = loginUser?.RegisteredGroups?.map(g => g.id) || null
-            const groupId = Number(req.params.groupId)
-            const { message } = req.body
-            
-            
-            if (!RegisteredGroupIds || !RegisteredGroupIds.includes(groupId)) throw new Error('你沒有加入此話題')
-            if ( !message.trim()) throw new Error('未輸入任何訊息!')
-
-            const messageData = await Group_message.create({
-                groupId,
-                userId: loginUser.id,
-                content: message
-            })
-            newMessage = messageData.toJSON()
-            newMessage.formattedCreatedAt = formatMessageTime(newMessage.createdAt)
-            newMessage.User = { id:loginUser.id, account: loginUser.account}
-            res.json({status:'success', message: newMessage })
-
-        } catch(err) {
-            console.log(err)
-            next(err)
-        }
-    }
+    
 }
 
 module.exports = userController

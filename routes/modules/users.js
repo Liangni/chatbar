@@ -3,7 +3,7 @@ const passport = require('../../config/passport')
 const router = express.Router()
 const userController = require('../../controllers/userContorller')
 const { authenticated } = require('../../middleware/auth')
-const { upload } = require('../../middleware/multer')
+
 
 // 註冊登入登出
 router.get('/login', userController.loginPage)
@@ -24,6 +24,5 @@ router.get('/logout', userController.logOut)
 // 使用者訊息
 router.get('/loginUser/messages', userController.getUserMessages)
 router.get('/loginUser/groupChats/groupMessages', authenticated, userController.getUserGroupMessages)
-router.post('/loginUser/groupChats/:groupId/groupMessages', authenticated, upload.none(), userController.postUserGroupMessages)
 
 module.exports = router
