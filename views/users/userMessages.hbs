@@ -91,7 +91,7 @@
                                 {{unfoldedGroupChat.User.account}}</span>
                         </div>
                     </div>
-                    <form action="" method="POST" class="out-room">
+                    <form action="/groupChats/{{unfoldedGroupChat.id}}/groupRegisters?_method=DELETE" method="POST" class="out-room">
                         <button class="btn btn-danger" type="submit">退出話題</button>
                     </form>
                 </div>
@@ -356,7 +356,7 @@
         if (data.unfoldedGroupChat) {
             const roomInfoWrapper = document.querySelector('#room-info-wrapper')
             const msgDisplayer = document.querySelector('#msg-displayer')
-            roomInfoWrapper.innerHTML = buildRoomInfo(data.unfoldedGroupChat.name, data.unfoldedGroupChat.User.account)
+            roomInfoWrapper.innerHTML = buildRoomInfo(data.unfoldedGroupChat.id, data.unfoldedGroupChat.name, data.unfoldedGroupChat.User.account)
             msgDisplayer.innerHTML = buildMessags(data.unfoldedGroupChat.Group_messages)
             cleanOnlineAndOfflineUserBox()
             appendUsersToOnlineUserBox(data.unfoldedGroupChat.RegisteredUsers)
@@ -367,7 +367,7 @@
         }
     }
 
-    function buildRoomInfo(name, userAccount) {
+    function buildRoomInfo(id, name, userAccount) {
         return newTemplate = `
             <div class="room-info d-flex flex-row align-items-center">
                 <img src="/image/users.webp" alt="" class="avatar">
@@ -376,7 +376,7 @@
                     <span class="room-createBy fs-12">Group chat initialized by ${userAccount}</span>
                 </div>
             </div>
-            <form action="" method="POST" class="out-room">
+            <form action="/groupChats/${id}/groupRegisters?_method=DELETE" method="POST" class="out-room">
                 <button class="btn btn-danger" type="submit">退出話題</button>
             </form>
         `

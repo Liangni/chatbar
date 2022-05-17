@@ -1,4 +1,4 @@
-const { Group_chat, Group_register, User } = require('../models')
+const { Group_chat, Group_register, User, Group_message } = require('../models')
 const { getUser } = require('../helpers/auth-helpers')
 
 const groupChatController = {
@@ -70,6 +70,7 @@ const groupChatController = {
     },
     deleteGroupRegisters: async (req, res, next) => {
         try {
+            const currentUrl = req.headers.referer
             const { groupId } = req.params
             const groupRegister =  await Group_register.findOne({
                 where: {
@@ -80,12 +81,18 @@ const groupChatController = {
             if (!groupRegister) throw new Error('你未加入話題或話題不存在!')
             await groupRegister.destroy()
             const groupRegisterCount = await Group_register.count({ where: {groupId} })
-            // 如已沒有使用者加入話題，刪除話題
+            // 如已沒有使用者加入話題，刪除話題(groupChat)
             if (groupRegisterCount === 0) {
+                // 先刪除相關的Group_message，否則因外鍵限制無法刪除該groupChat
+                const groupMessages = await Group_message.findAll({where: {groupId}})
+                if (groupMessages) groupMessages.forEach(m=> m.destroy())
                 const groupChat = await Group_chat.findByPk(groupId)
                 if (groupChat) { groupChat.destroy()}
             }
             req.flash('success_messages', '你已退出話題!')
+            if (currentUrl.indexOf('/users/loginUser/groupChats/groupMessages') !== -1) {
+                res.redirect('/users/loginUser/groupChats/groupMessages')
+            } 
             res.redirect('back')
         } catch (err) {
             next(err)
