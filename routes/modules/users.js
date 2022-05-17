@@ -9,6 +9,7 @@ router.get('/1/messages', userController.getUserMessages)
 router.get('/login', userController.loginPage)
 router.get('/register', userController.registerPage)
 router.post('/register', userController.register)
+router.get('/userList', userController.getUserList)
 router.post('/login', passport.authenticate('local', 
   {
     // 以下兩行前後分離可拿掉

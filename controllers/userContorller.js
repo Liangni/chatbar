@@ -81,6 +81,9 @@ const userController = {
     },
     getUserMessages: (req, res) => {
         res.render('users/userMessages')
+    },
+    getUserList: (req, res) => {
+        res.render('users/userList')
     }
 }
 
