@@ -139,9 +139,16 @@ const userController = {
                     }
                 }))
                 
-                // 將groupChat按日期新->舊排序
-                groupChats = groupChats.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt))
-
+                // 將groupChat按日期新->舊排序，沒有訊息的chat置頂
+                let chatsWithNoMessage = []
+                for (let i = groupChats.length - 1; i >= 0; i = i - 1 ) {
+                    if (groupChats[i].Group_messages.length === 0) {
+                        const removed = groupChats.splice(i, 1)
+                        chatsWithNoMessage.unshift(...removed)
+                    }
+                }
+                groupChats = chatsWithNoMessage.concat(groupChats.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt))) 
+                
             }
 
             // 選擇要顯示所有訊息的groupChat
