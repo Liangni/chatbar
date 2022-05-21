@@ -684,3 +684,14 @@ a {
     width: 96%;
     height: 120px;
 }
+/* Add by Penny */
+.download-item {
+    margin-right: 6px;
+    font-size: 8px;
+    color: #000;
+    border: 1px solid gray;
+    background: #dee2e6;
+    border-radius: 6px;
+    padding: 2px 4px;
+    cursor: pointer;
+}

@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Group_message.init({
-    content: DataTypes.TEXT
+    content: DataTypes.TEXT,
+    file: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Group_message',

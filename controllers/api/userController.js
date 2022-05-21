@@ -45,16 +45,17 @@ const userController = {
       const loginUser = getUser(req)
       const RegisteredGroupIds = loginUser?.RegisteredGroups?.map(g => g.id) || null
       const groupId = Number(req.params.groupId)
-      const { message } = req.body
-
+      const { content, fileUrl } = req.body
+      const { files } = req  
 
       if (!RegisteredGroupIds || !RegisteredGroupIds.includes(groupId)) throw new Error('你沒有加入此話題')
-      if (!message.trim()) throw new Error('未輸入任何訊息!')
+      if (!content.trim() && !files.file.length ) throw new Error('未輸入任何訊息!')
 
       const messageData = await Group_message.create({
         groupId,
         userId: loginUser.id,
-        content: message
+        content: content ? content : null,
+        file: fileUrl? fileUrl : null 
       })
       newMessage = messageData.toJSON()
       newMessage.formattedCreatedAt = formatMessageTime(newMessage.createdAt)

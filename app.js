@@ -80,9 +80,9 @@ io.on("connection", (socket) => {
   // 將新連線加入連線使用者所屬groupChat的Room
   if (user.groupChatIds) user.groupChatIds.forEach(id => {socket.join(`groupChat${id}`)})
   // 監聽來自客戶端的chatMessage事件
-  socket.on("chatMessage", (ioRoom, Sender, message, createdAt) => {
+  socket.on("chatMessage", (ioRoom, Sender, content, createdAt, file) => {
     // 發送chatMessage給特定Room的客戶端
-    io.to(ioRoom).emit("chatMessage", ioRoom, Sender, message, createdAt);
+    io.to(ioRoom).emit("chatMessage", ioRoom, Sender, content, createdAt, file);
   })
   
   console.log(`onlineUserIds before userId${user.id} connecting:`, onlineUserIds)

@@ -123,7 +123,7 @@ const userController = {
                     const latestMessage = groupMessageData?.[groupMessageData.length - 1] || null
                     if (latestMessage) {
                         // 刪減過長的訊息文字
-                        if (latestMessage.content.length > 15) {
+                        if (latestMessage.content && latestMessage.content.length > 15) {
                             latestMessage.content = latestMessage.content.substring(0, 14) + '...'
                         }
                     }

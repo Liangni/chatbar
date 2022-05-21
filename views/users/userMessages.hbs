@@ -16,8 +16,16 @@
                 <div class="chat-nameAndNew">
                     <span class="name fs-14-bold">{{this.name}}</span>
                     {{#if this.latestMessage }}
-                    <span class="new fs-12">{{#if this.latestMessage.isLoginUser
-                        }}你{{else}}{{this.latestMessage.User.account}}{{/if}}: {{this.latestMessage.content}}</span>
+                    <span class="new fs-12">
+                        {{#if this.latestMessage.isLoginUser}}你{{else}}{{this.latestMessage.User.account}}{{/if}}:
+                        {{#if this.latestMessage.content}}
+                        {{this.latestMessage.content}}
+                        {{else}}
+                        {{#if this.latestMessage.file}}
+                        {{#getFileNameFromUrl}}傳送一個附件{{/getFileNameFromUrl}}
+                        {{/if}}
+                        {{/if}}
+                    </span>
                     {{else}}
                     <span class="new fs-12">目前沒有任何訊息!</span>
                     {{/if}}
@@ -91,7 +99,8 @@
                                 {{unfoldedGroupChat.User.account}}</span>
                         </div>
                     </div>
-                    <form action="/groupChats/{{unfoldedGroupChat.id}}/groupRegisters?_method=DELETE" method="POST" class="out-room">
+                    <form action="/groupChats/{{unfoldedGroupChat.id}}/groupRegisters?_method=DELETE" method="POST"
+                        class="out-room">
                         <button class="btn btn-danger" type="submit">退出話題</button>
                     </form>
                 </div>
@@ -104,6 +113,12 @@
                             <div class="m-2 p-2" style="background: rgb(16, 16, 253); color: #fff; border-radius: 6px;">
                                 <div>
                                     <div class="new fs-12">{{this.content}}</div>
+                                    {{#if this.file}}
+                                    <div class="download-item" data-url="{{this.file}}">
+                                        <i class="fa fa-download"data-url="{{this.file}}"></i>
+                                        <span data-url="{{this.file}}">{{#getFileNameFromUrl}}{{../this.file}}{{/getFileNameFromUrl}}</span>
+                                    </div>
+                                    {{/if}}
                                     <div class="time fs-12 text-end">{{this.formattedCreatedAt}}</div>
                                 </div>
                             </div>
@@ -117,6 +132,12 @@
                             <div class="my-1 p-2" style="background: rgb(235, 235, 235);border-radius: 6px;">
                                 <div>
                                     <div class="new fs-12">{{this.content}}</div>
+                                    {{#if this.file}}
+                                    <div class="download-item" data-url="{{this.file}}">
+                                        <i class="fa fa-download" data-url="{{this.file}}"></i>
+                                        <span data-url="{{this.file}}">{{#getFileNameFromUrl}}{{../this.file}}{{/getFileNameFromUrl}}</span>
+                                    </div>
+                                    {{/if}}
                                     <div class="time fs-12 text-end">{{this.formattedCreatedAt}}</div>
                                 </div>
                             </div>
@@ -157,19 +178,10 @@
             data-post-url="/api/users/loginUser/groupChats/{{unfoldedGroupChat.id}}/groupMessages"
             data-io-room="groupChat{{unfoldedGroupChat.id}}" data-login-user-id="{{user.id}}">
             <div class="if-file-box d-flex flex-row justify-content-start align-items-center">
-                <div class="file-item">
-                    <i class="fa fa-times"></i>
-                    <span>有關漫威的神秘檔案.docs</span>
+                <div class="file-item" style="display:none;" id="file-item">
+                    <i class="fa fa-times remove-btn"></i>
+                    <span>Insert text by DOM</span>
                 </div>
-                <div class="file-item">
-                    <i class="fa fa-times"></i>
-                    <span>有關漫威的神秘檔案.docs</span>
-                </div>
-                <div class="file-item">
-                    <i class="fa fa-times"></i>
-                    <span>有關漫威的神秘檔案.docs</span>
-                </div>
-
             </div>
             <div class="send-message-box d-flex flex-row justify-content-between align-items-center">
                 <div class="send-file-icon-box d-flex flex-row justify-content-around align-items-center">
@@ -184,31 +196,33 @@
                     </div>
                 </div>
                 <div class="send-message">
-                    <textarea name="message" id="message" class="message"></textarea>
+                    <textarea name="content" id="text-message" class="message"></textarea>
                     <button type="submit" class="btn btn-outline-primary" id="submitBtn">送出</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
-
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 <script>
     const msgDisplayer = document.querySelector('#msg-displayer')
     const sendMsgWrapper = document.querySelector('.send-message-wrapper')
-    const messageInput = document.querySelector('#message')
-    const fileInput = document.querySelector('#file')
+
+    // 初始化firebase
+    initializeFirebase()
 
     // 將卷軸置底
     msgDisplayer.scrollTop = msgDisplayer.scrollHeight
 
     // 監聽來自伺服器的chatMessage事件
-    socket.on("chatMessage", (ioRoom, Sender, message, createdAt) => {
+    socket.on("chatMessage", (ioRoom, Sender, content, createdAt, file) => {
         const loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
 
         // 在對話框加入訊息
-        addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId)
+        addMsgToMsgDisplayer(ioRoom, Sender, content, createdAt, file, loginUserId)
         // 在左列指定的chat item加入訊息
-        addMsgToChatList(ioRoom, Sender, message, createdAt, loginUserId)
+        addMsgToChatList(ioRoom, Sender, content, createdAt, file, loginUserId)
     })
 
     // 監聽來自伺服器的「上線使用者名單」事件
@@ -247,43 +261,10 @@
         }
     })
 
-    // 訊息表單掛載監聽器，點擊送出事件
-    sendMsgWrapper.addEventListener('submit', e => {
-        e.preventDefault()
-        const submitBtn = document.querySelector('#submitBtn')
-        const postURL = sendMsgWrapper.dataset.postUrl
-        const formData = new FormData(sendMsgWrapper)
-
-        // disable送出按紐
-        submitBtn.disabled = true
-        submitBtn.innerText = '發送中'
-
-        axios
-            .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-            .then((response) => {
-                if (response.data.status === 'success') {
-                    const ioRoom = sendMsgWrapper.dataset.ioRoom
-                    const { User, content, formattedCreatedAt } = response.data.message
-                    const message = messageInput.value
-
-                    // 發送chatMessage事件給伺服器
-                    socket.emit("chatMessage", ioRoom, User, content, formattedCreatedAt)
-
-                    // 清空input的值、恢復送出按紐功能
-                    messageInput.value = ''
-                    submitBtn.disabled = false
-                    submitBtn.innerText = '送出'
-                }
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-    })
-
     // 左側聊天項目掛載監聽器，監聽點擊事件
     const chats = document.querySelectorAll('.room-item')
     chats.forEach(c => {
-        c.addEventListener('click', e => {
+        c.addEventListener('click', (e) => {
             const roomItem = e.currentTarget
             if (!roomItem.classList.contains('active')) {
                 const ioRoom = roomItem.dataset.ioRoom
@@ -306,21 +287,100 @@
         })
     })
 
+    // 檔案選擇按鈕監聽change事件，事件引發時啟動檔案預覽
+    sendMsgWrapper.addEventListener('change', function onFileChanged(e) {
+        // 如果event target是text area，則結束處理
+        if (!e.target.files) return
 
-    function addMsgToMsgDisplayer(ioRoom, Sender, message, createdAt, loginUserId) {
+        if (e.target.matches('#file')) displayFile(e.target.files[0].name)
+    })
+
+    // 檔案預覽「ｘ」按鈕監聽點擊事件，事件引發時關閉檔案預覽
+    sendMsgWrapper.addEventListener('click', function onFileRemovedIconClicked(e) {
+        if (!e.target.matches('.remove-btn')) return
+
+        if (e.target.parentNode.matches('#file-item')) {
+            const fileItem = e.target.parentNode
+            const fileInput = document.querySelector('#file')
+
+            // 隱藏檔案名稱標籤
+            fileItem.style.display = "none"
+            // 清空檔案input
+            fileInput.value = ''
+        }
+    })
+
+    // 訊息表單掛載監聽器，監聽點擊送出事件
+    sendMsgWrapper.addEventListener('submit', async function onMessageSubmitted(e) {
+        const textInput = document.querySelector('#text-message')
+        const fileInput = document.querySelector('#file')
+        const submitBtn = document.querySelector('#submitBtn')
+        const postURL = sendMsgWrapper.dataset.postUrl
+        const formData = new FormData(sendMsgWrapper)
+
+        e.preventDefault()
+
+        // 如果沒有輸入任何訊息、也沒有選擇檔案，則結束處理
+        if (!textInput.value.trim() && !fileInput.files.length) return
+
+        // disable送出按紐
+        submitBtn.disabled = true
+        submitBtn.innerText = '發送中'
+
+        // 將檔案上傳至firebase，並在formData加上檔案連結
+        if (fileInput.files[0]) formData.append('fileUrl', await uploadAndgetFirebaseRef('files', fileInput.files[0]))
+
+
+        axios
+            .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+            .then((response) => {
+                if (response.data.status === 'error') throw new Error(response.data.message)
+
+                const ioRoom = sendMsgWrapper.dataset.ioRoom
+                const { User, content, formattedCreatedAt, file } = response.data.message
+                const fileItem = document.querySelector('#file-item')
+
+
+                // 發送chatMessage事件給伺服器
+                socket.emit("chatMessage", ioRoom, User, content, formattedCreatedAt, file)
+
+                // 清空input的值
+                textInput.value = ''
+                fileInput.value = ''
+                // 隱藏檔案名稱標籤
+                fileItem.style.display = "none"
+                // 恢復送出按紐功能
+                submitBtn.disabled = false
+                submitBtn.innerText = '送出'
+            })
+            .catch((err) => {
+                alert(`有地方出錯了！請截圖彈跳視窗給開發人員，我們會盡快排除故障${err}`)
+
+            })
+    })
+
+    msgDisplayer.addEventListener('click', function onMessageClicked(e) {
+        if (e.target.matches('.download-item') || e.target.parentNode.matches('.download-item')) {
+            console.log('event taget matches download-item!')
+            downloadFile(e.target.dataset.url)
+        }
+    })
+
+    // 此行之後至檔案結束為函式定義
+    function addMsgToMsgDisplayer(ioRoom, Sender, content, createdAt, file, loginUserId) {
         const msgDisplayer = document.querySelector('#msg-displayer')
         const noMessageText = document.querySelector('#no-message-text')
         let newMessageDiv
-        
+
 
         if (noMessageText) noMessageText.parentNode.removeChild(noMessageText)
 
         if (Sender.id === loginUserId) {
             // 製作自己發送的訊息節點
-            newMessageDiv = buildMessageFromUser(message, createdAt)
+            newMessageDiv = buildMessageFromUser(content, createdAt, file)
         } else {
             // 製作他人發送的訊息節點
-            newMessageDiv = buildMessageFromOther(message, createdAt, Sender.account)
+            newMessageDiv = buildMessageFromOther(content, createdAt, file, Sender.account)
         }
         // 在對話框加入訊息
         msgDisplayer.appendChild(newMessageDiv)
@@ -328,25 +388,30 @@
         msgDisplayer.scrollTop = msgDisplayer.scrollHeight
     }
 
-    function addMsgToChatList(ioRoom, Sender, message, createdAt, loginUserId) {
+    function addMsgToChatList(ioRoom, Sender, content, createdAt, file, loginUserId) {
         const targetChatItem = document.querySelector(`.room-item[data-io-room=${ioRoom}]`)
         const chatNameAndNew = targetChatItem.children[1]
         const chatTimeAndRead = targetChatItem.children[2]
         const isLoginUser = Sender.id === loginUserId
         const senderAlias = isLoginUser ? '你' : Sender.account
-        const messageCut = message.substring(0, 14) + '...'
+        const messageCut = makeMessageCut(content, file)
 
         // 在左列指定的chat item加入最新訊息
         chatNameAndNew.children[1].innerText = `${senderAlias}: ${messageCut}`
         // 顯示訊息時間
         chatTimeAndRead.children[0].innerText = createdAt
+
+        function makeMessageCut(content, file) {
+            if (content) return content.substring(0, 14) + '...'
+            if (file) return '傳送一個附件'
+        }
     }
 
     function updateChatActiveStatus(ioRoom) {
         const roomItems = document.querySelectorAll('.room-item')
         roomItems.forEach(r => {
             if (r.classList.contains('active')) { r.classList.remove('active') }
-             else {
+            else {
                 if (r.dataset.ioRoom === ioRoom) { r.classList.add('active') }
             }
         })
@@ -384,16 +449,16 @@
 
     function buildMessags(messages) {
         const tempDiv = document.createElement('div')
-        
+
         if (messages.length === 0) {
             tempDiv.innerHTML = '<span class="new fs-12" id="no-message-text">目前沒有任何訊息!</span>'
         } else {
             messages.forEach(m => {
                 if (m.isLoginUser) {
-                    tempDiv.appendChild(buildMessageFromUser(m.content, m.formattedCreatedAt))
+                    tempDiv.appendChild(buildMessageFromUser(m.content, m.formattedCreatedAt, m.file))
                 }
                 else {
-                    tempDiv.appendChild(buildMessageFromOther(m.content, m.formattedCreatedAt, m.User.account))
+                    tempDiv.appendChild(buildMessageFromOther(m.content, m.formattedCreatedAt, m.file, m.User.account))
                 }
             })
         }
@@ -402,13 +467,13 @@
     }
     function cleanOnlineAndOfflineUserBox() {
         const previousRoomUsers = document.querySelectorAll('.online-user')
-        previousRoomUsers.forEach(u=> u.parentNode.removeChild(u))
+        previousRoomUsers.forEach(u => u.parentNode.removeChild(u))
     }
     function appendUsersToOnlineUserBox(users) {
         users.forEach(u => {
-            const onlineUserBox =document.querySelector('#online-user-box')
+            const onlineUserBox = document.querySelector('#online-user-box')
             const userItem = document.createElement('div')
-            
+
             userItem.classList.add('online-user')
             userItem.dataset.userId = u.id
             userItem.innerHTML = `
@@ -418,7 +483,7 @@
             onlineUserBox.appendChild(userItem)
         })
     }
-    
+
     function emitFetchOnlineUsersEvent(groupId) {
         // 發送fetchOnlineUsers事件給伺服器，預期收到getOnlineUsers事件
         socket.emit("fetchOnlineUsers", groupId)
@@ -426,55 +491,168 @@
 
     function classifyOnlineAndOfflineUsers(ioRoom, onlineRoomateIds) {
         const activeChat = document.querySelector('.room-item.active')
-            // 在所展開的groupMessage右側顯示登入使用者清單
-            if (activeChat.dataset.ioRoom === ioRoom) {
-                const defaultOnlineRoomates = document.querySelectorAll('.online-user')
-                defaultOnlineRoomates.forEach(r => {
-                    if (!onlineRoomateIds.includes(Number(r.dataset.userId))) {
-                        const offlineUserBox = document.querySelector('#offline-user-box')
-                        offlineUserBox.appendChild(r)
-                    }
-                })
-            }
+        // 在所展開的groupMessage右側顯示登入使用者清單
+        if (activeChat.dataset.ioRoom === ioRoom) {
+            const defaultOnlineRoomates = document.querySelectorAll('.online-user')
+            defaultOnlineRoomates.forEach(r => {
+                if (!onlineRoomateIds.includes(Number(r.dataset.userId))) {
+                    const offlineUserBox = document.querySelector('#offline-user-box')
+                    offlineUserBox.appendChild(r)
+                }
+            })
+        }
     }
     function updateFormUrlAndIoRoom(groupId) {
         const sendMessageWrapper = document.querySelector('.send-message-wrapper')
         sendMessageWrapper.dataset.postUrl = `/api/users/loginUser/groupChats/${groupId}/groupMessages`
-        sendMessageWrapper.dataset.ioRoom = `groupChat${groupId}` 
+        sendMessageWrapper.dataset.ioRoom = `groupChat${groupId}`
     }
 
-    function buildMessageFromUser(message, createdAt) {
+    function buildMessageFromUser(content, createdAt, file) {
         const messageContainer = document.createElement('div')
         messageContainer.classList.add('d-flex', 'flex-row-reverse')
         messageContainer.innerHTML = `
                         <div class="d-flex flex-column align-items-start">
-                            <div class="m-2 p-2"
-                                style="background: rgb(16, 16, 253); color: #fff; border-radius: 6px;">
+                            <div class="m-2 p-2"style="background: rgb(16, 16, 253); color: #fff; border-radius: 6px;">
                                 <div>
-                                    <div class="new fs-12">${message}</div>
+                                    <div class="new fs-12"></div>
                                     <div class="time fs-12 text-end">${createdAt}</div>
                                 </div>
                             </div>
                         </div>
                     `
+
+        const messageWrapper = messageContainer.children[0].children[0].children[0]
+        if (content) {
+            const contentContainer = messageWrapper.children[0]
+            contentContainer.innerText = content
+        }
+        if (file) {
+            const timeContainer = messageWrapper.children[1]
+            messageWrapper.insertBefore(makeDownLoadItemNode(file), timeContainer)
+        }
+
         return messageContainer
     }
 
-    function buildMessageFromOther(message, createdAt, SenderAccount) {
+    function buildMessageFromOther(content, createdAt, file, SenderAccount) {
         const messageContainer = document.createElement('div')
         messageContainer.classList.add('message-by-others', 'm-2')
         messageContainer.innerHTML = `
             <img src="/image/users.webp" class="avatar" style="width: 60px; height: 60px;">
             <div class="d-flex flex-column align-items-start">
-            <div class="fs-14-bold">${SenderAccount}</div>
+                <div class="fs-14-bold">${SenderAccount}</div>
                 <div class="m-1 p-2" style="background: rgb(235, 235, 235);border-radius: 6px;">
                     <div>
-                        <div class="new fs-12">${message}</div>
+                        <div class="new fs-12"></div>
                         <div class="time fs-12 text-end">${createdAt}</div>
                     </div>
                  </div>
             </div>
         `
+
+        const messageWrapper = messageContainer.children[1].children[1].children[0]
+        if (content) {
+            const contentContainer = messageWrapper.children[0]
+            contentContainer.innerText = content
+        }
+        if (file) {
+            const timeContainer = messageWrapper.children[1]
+            messageWrapper.insertBefore(makeDownLoadItemNode(file), timeContainer)
+        }
+
         return messageContainer
+    }
+    function displayFile(name) {
+        const fileItem = document.querySelector('#file-item')
+        const textContainer = fileItem.children[1]
+
+        textContainer.innerText = name
+        fileItem.style.display = ""
+    }
+    function initializeFirebase() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7_ngNVYfX7bIlF38bbtrNuXylP3DlQbk",
+            authDomain: "chatbar-18653.firebaseapp.com",
+            projectId: "chatbar-18653",
+            storageBucket: "chatbar-18653.appspot.com",
+            messagingSenderId: "381229737588",
+            appId: "1:381229737588:web:44d6713852372c7d1d1321",
+            measurementId: "G-JKR4BJ21PR"
+        }
+        // 初始化firebase
+        firebase.initializeApp(firebaseConfig)
+    }
+    async function uploadAndgetFirebaseRef(fileType, file) {
+        const storage = firebase.storage()
+        // Points to the root reference
+        const rootRef = storage.ref()
+        // Points to 'files'
+        const parentRef = rootRef.child(fileType)
+        // Contain 'file' in a unique folder to avoid overwrite
+        const uniqueCode = uuidv4()
+        // Points to 'file'
+        const targetRef = parentRef.child(`${uniqueCode}/${file.name}`)
+        // upload file to firebase
+        try {
+            await targetRef.put(file)
+            console.log('Uploaded a file!')
+            return targetRef.fullPath
+        } catch (err) {
+            console.log('Failed to upload a file!')
+            return null
+        }
+    }
+    function uuidv4() {
+        return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    }
+    function getFileNameFromUrl(file) {
+        const indexes = []
+        let index = file.indexOf('/')
+
+        while (index !== -1) {
+            indexes.push(index)
+            index = file.indexOf('/', index + 1)
+        }
+        const fileNameIndexStart = indexes[indexes.length - 1] + 1
+        const fileName = file.slice(fileNameIndexStart, file.length)
+        return fileName
+    }
+    function makeDownLoadItemNode(file) {
+        const downLoadItem = document.createElement('div')
+        downLoadItem.classList.add('download-item')
+        downLoadItem.innerHTML = `
+            <i class="fa fa-download" data-url="${file}"></i>
+            <span data-url="${file}">Insert text by DOM</span>
+        `
+        downLoadItem.dataset.url = file
+        downLoadItem.children[1].innerText = getFileNameFromUrl(file)
+
+        return downLoadItem
+    }
+    function downloadFile(fileUrl) {
+        const storage = firebase.storage()
+        const storageRef = storage.ref()
+
+        storageRef.child(fileUrl).getDownloadURL()
+            .then((url) => {
+                // `url` is the download URL for 'file'
+
+                // This can be downloaded directly:
+                var xhr = new XMLHttpRequest()
+                xhr.responseType = 'blob'
+                xhr.onload = (event) => {
+                    var blob = xhr.response
+                };
+                xhr.open('GET', url)
+                xhr.send()
+
+                window.open(url)
+            })
+            .catch((error) => {
+                console.log(error)
+            });
     }
 </script>
