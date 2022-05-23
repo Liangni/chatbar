@@ -17,7 +17,9 @@ module.exports = (sequelize, DataTypes) => {
   };
   Group_message.init({
     content: DataTypes.TEXT,
-    file: DataTypes.STRING
+    file: DataTypes.STRING,
+    image: DataTypes.STRING,
+    imageSrc: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Group_message',

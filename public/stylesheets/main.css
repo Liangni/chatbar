@@ -682,7 +682,6 @@ a {
     align-items: center;
     flex-flow:row wrap;
     width: 96%;
-    height: 120px;
 }
 /* Add by Penny */
 .download-item {
@@ -726,4 +725,9 @@ a {
     border-radius: 10%;
     margin-top: 5%;
     margin-left: 10px;
+}
+/* Add by Penny */
+.image-message-item {
+    max-width: 20vw;
+    margin: 10px 2px;
 }

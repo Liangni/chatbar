@@ -21,8 +21,12 @@
                         {{#if this.latestMessage.content}}
                         {{this.latestMessage.content}}
                         {{else}}
+                        {{#if this.latestMessage.imageSrc}}
+                        傳送一張圖片
+                        {{else}}
                         {{#if this.latestMessage.file}}
                         {{#getFileNameFromUrl}}傳送一個附件{{/getFileNameFromUrl}}
+                        {{/if}}
                         {{/if}}
                         {{/if}}
                     </span>
@@ -113,6 +117,9 @@
                             <div class="m-2 p-2" style="background: rgb(16, 16, 253); color: #fff; border-radius: 6px;">
                                 <div>
                                     <div class="new fs-12">{{this.content}}</div>
+                                    {{#if this.imageSrc}}
+                                    <img src="{{this.imageSrc}}" class="image-message-item" alt="image sent">
+                                    {{/if}}
                                     {{#if this.file}}
                                     <div class="download-item" data-url="{{this.file}}">
                                         <i class="fa fa-download" data-url="{{this.file}}"></i>
@@ -133,6 +140,9 @@
                             <div class="my-1 p-2" style="background: rgb(235, 235, 235);border-radius: 6px;">
                                 <div>
                                     <div class="new fs-12">{{this.content}}</div>
+                                    {{#if this.imageSrc}}
+                                    <img src="{{this.imageSrc}}" class="image-message-item" alt="image sent">
+                                    {{/if}}
                                     {{#if this.file}}
                                     <div class="download-item" data-url="{{this.file}}">
                                         <i class="fa fa-download" data-url="{{this.file}}"></i>
@@ -241,13 +251,13 @@
 
     // Section 1.1 socket事件
     // 監聽來自伺服器的chatMessage事件，事件發生則在對話框&左側顯示訊息
-    socket.on("chatMessage", (ioRoom, Sender, content, createdAt, file) => {
+    socket.on("chatMessage", (ioRoom, Sender, content, createdAt, file, imageSrc) => {
         const loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
 
         // 在對話框加入訊息
-        addMsgToMsgDisplayer(ioRoom, Sender, content, createdAt, file, loginUserId)
+        addMsgToMsgDisplayer(ioRoom, Sender, content, createdAt, file, imageSrc, loginUserId)
         // 在左列指定的chat item加入訊息
-        addMsgToChatList(ioRoom, Sender, content, createdAt, file, loginUserId)
+        addMsgToChatList(ioRoom, Sender, content, createdAt, file, imageSrc, loginUserId)
     })
     // 監聽來自伺服器的「上線使用者名單」事件，事件發生則在group message右側正確顯示線上/離線使用者清單
     socket.on('getOnlineUsers', (ioRoom, onlineRoomateIds) => {
@@ -311,7 +321,6 @@
     // 訊息顯示區塊監聽點擊事件，事件發生則下載目標檔案
     msgDisplayer.addEventListener('click', function onMessageClicked(e) {
         if (e.target.matches('.download-item') || e.target.parentNode.matches('.download-item')) {
-            console.log('event taget matches download-item!')
             downloadFile(e.target.dataset.url)
         }
     })
@@ -326,7 +335,6 @@
     // 檔案預覽「ｘ」按鈕監聽點擊事件，事件發生則關閉檔案預覽
     sendMsgWrapper.addEventListener('click', function onFileRemovedIconClicked(e) {
         if (!e.target.matches('.remove-btn')) return
-        console.log(e.target)
 
         if (e.target.parentNode.matches('#file-item')) {
             const fileItem = e.target.parentNode
@@ -354,6 +362,7 @@
     sendMsgWrapper.addEventListener('submit', async function onMessageSubmitted(e) {
         const textInput = document.querySelector('#text-message')
         const fileInput = document.querySelector('#file')
+        const imageInput = document.querySelector('#image')
         const submitBtn = document.querySelector('#submitBtn')
         const postURL = sendMsgWrapper.dataset.postUrl
         const formData = new FormData(sendMsgWrapper)
@@ -361,7 +370,7 @@
         e.preventDefault()
 
         // 如果沒有輸入任何訊息、也沒有選擇檔案，則結束處理
-        if (!textInput.value.trim() && !fileInput.files.length) return
+        if (!textInput.value.trim() && !fileInput.files.length && !imageInput.files.length) return
 
         // disable送出按紐
         submitBtn.disabled = true
@@ -369,6 +378,7 @@
 
         // 將檔案上傳至firebase，並在formData加上檔案連結
         if (fileInput.files[0]) formData.append('fileUrl', await uploadAndgetFirebaseRef('files', fileInput.files[0]))
+        if (imageInput.files[0]) formData.append('imageUrl', await uploadAndgetFirebaseRef('images', imageInput.files[0]) )
 
         axios
             .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
@@ -376,18 +386,23 @@
                 if (response.data.status === 'error') throw new Error(response.data.message)
 
                 const ioRoom = sendMsgWrapper.dataset.ioRoom
-                const { User, content, formattedCreatedAt, file } = response.data.message
+                const { User, content, formattedCreatedAt, file, imageSrc } = response.data.message
                 const fileItem = document.querySelector('#file-item')
+                const imageItem = document.querySelector('#image-item')
 
 
                 // 發送chatMessage事件給伺服器
-                socket.emit("chatMessage", ioRoom, User, content, formattedCreatedAt, file)
+                socket.emit("chatMessage", ioRoom, User, content, formattedCreatedAt, file, imageSrc)
 
                 // 清空input的值
                 textInput.value = ''
                 fileInput.value = ''
-                // 隱藏檔案名稱標籤
+                imageInput.value = ''
+                // 隱藏檔案預覽、圖片預覽
                 fileItem.style.display = "none"
+                imageItem.style.display = "none"
+                // 恢復畫面高度至原來設定
+                setHeightsToOriginalSettings()
                 // 恢復送出按紐功能
                 submitBtn.disabled = false
                 submitBtn.innerText = '送出'
@@ -406,7 +421,7 @@
     // 2.4 檔案上傳/下載
 
     // Section 2.1 畫面組裝
-    function addMsgToMsgDisplayer(ioRoom, Sender, content, createdAt, file, loginUserId) {
+    function addMsgToMsgDisplayer(ioRoom, Sender, content, createdAt, file, imageSrc, loginUserId) {
         const msgDisplayer = document.querySelector('#msg-displayer')
         const noMessageText = document.querySelector('#no-message-text')
         let newMessageDiv
@@ -415,31 +430,32 @@
 
         if (Sender.id === loginUserId) {
             // 製作自己發送的訊息節點
-            newMessageDiv = buildMessageFromUser(content, createdAt, file)
+            newMessageDiv = buildMessageFromUser(content, createdAt, file, imageSrc)
         } else {
             // 製作他人發送的訊息節點
-            newMessageDiv = buildMessageFromOther(content, createdAt, file, Sender.account)
+            newMessageDiv = buildMessageFromOther(content, createdAt, file, imageSrc, Sender.account)
         }
         // 在對話框加入訊息
         msgDisplayer.appendChild(newMessageDiv)
         // 下滑scrollbar到底
         msgDisplayer.scrollTop = msgDisplayer.scrollHeight
     }
-    function addMsgToChatList(ioRoom, Sender, content, createdAt, file, loginUserId) {
+    function addMsgToChatList(ioRoom, Sender, content, createdAt, file, imageSrc, loginUserId) {
         const targetChatItem = document.querySelector(`.room-item[data-io-room=${ioRoom}]`)
         const chatNameAndNew = targetChatItem.children[1]
         const chatTimeAndRead = targetChatItem.children[2]
         const isLoginUser = Sender.id === loginUserId
         const senderAlias = isLoginUser ? '你' : Sender.account
-        const messageCut = makeMessageCut(content, file)
+        const messageCut = makeMessageCut(content, file, imageSrc)
 
         // 在左列指定的chat item加入最新訊息
         chatNameAndNew.children[1].innerText = `${senderAlias}: ${messageCut}`
         // 顯示訊息時間
         chatTimeAndRead.children[0].innerText = createdAt
 
-        function makeMessageCut(content, file) {
+        function makeMessageCut(content, file, imageSrc) {
             if (content) return content.substring(0, 14) + '...'
+            if (imageSrc)  return '傳送一張圖片'
             if (file) return '傳送一個附件'
         }
     }
@@ -473,10 +489,10 @@
         } else {
             messages.forEach(m => {
                 if (m.isLoginUser) {
-                    tempDiv.appendChild(buildMessageFromUser(m.content, m.formattedCreatedAt, m.file))
+                    tempDiv.appendChild(buildMessageFromUser(m.content, m.formattedCreatedAt, m.file, m.imageSrc))
                 }
                 else {
-                    tempDiv.appendChild(buildMessageFromOther(m.content, m.formattedCreatedAt, m.file, m.User.account))
+                    tempDiv.appendChild(buildMessageFromOther(m.content, m.formattedCreatedAt, m.file, m.imageSrc, m.User.account))
                 }
             })
         }
@@ -573,7 +589,7 @@
             </form>
         `
     }
-    function buildMessageFromUser(content, createdAt, file) {
+    function buildMessageFromUser(content, createdAt, file, imageSrc) {
         const messageContainer = document.createElement('div')
         messageContainer.classList.add('d-flex', 'flex-row-reverse')
         messageContainer.innerHTML = `
@@ -588,19 +604,22 @@
                     `
 
         const messageWrapper = messageContainer.children[0].children[0].children[0]
+        const timeContainer = messageWrapper.children[1]
         if (content) {
             const contentContainer = messageWrapper.children[0]
             contentContainer.innerText = content
         }
+        if (imageSrc) {  
+            messageWrapper.insertBefore(makeImageNode(imageSrc), timeContainer)
+        }
         if (file) {
-            const timeContainer = messageWrapper.children[1]
             messageWrapper.insertBefore(makeDownLoadItemNode(file), timeContainer)
         }
 
         return messageContainer
     }
 
-    function buildMessageFromOther(content, createdAt, file, SenderAccount) {
+    function buildMessageFromOther(content, createdAt, file, imageSrc, SenderAccount) {
         const messageContainer = document.createElement('div')
         messageContainer.classList.add('message-by-others', 'm-2')
         messageContainer.innerHTML = `
@@ -617,12 +636,17 @@
         `
 
         const messageWrapper = messageContainer.children[1].children[1].children[0]
+        const timeContainer = messageWrapper.children[1]
         if (content) {
             const contentContainer = messageWrapper.children[0]
             contentContainer.innerText = content
         }
+        if (imageSrc) {
+            
+            messageWrapper.insertBefore(makeImageNode(imageSrc), timeContainer)
+        }
         if (file) {
-            const timeContainer = messageWrapper.children[1]
+            
             messageWrapper.insertBefore(makeDownLoadItemNode(file), timeContainer)
         }
 
@@ -639,6 +663,13 @@
         downLoadItem.children[1].innerText = getFileNameFromUrl(file)
 
         return downLoadItem
+    }
+    function makeImageNode(imageSrc) {
+        const imageContainer = document.createElement('img')
+        imageContainer.classList.add('image-message-item')
+        imageContainer.src = imageSrc
+        
+        return imageContainer
     }
 
     // Section 2.3 socket 事件
@@ -708,4 +739,16 @@
                 console.log(error)
             });
     }
-</script>
+    function getImageDownloadUrlAndAddToSrc(imgElement, imageUrl) {
+        const storage = firebase.storage()
+        const storageRef = storage.ref()
+
+        storageRef.child(imageUrl).getDownloadURL()
+            .then((url) => {
+                imgElement.setAttribute('src', url)
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+    }
+</script
