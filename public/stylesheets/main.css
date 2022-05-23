@@ -695,3 +695,35 @@ a {
     padding: 2px 4px;
     cursor: pointer;
 }
+/* Add by Penny */
+.remove-btn {
+    cursor: pointer;
+}
+/* Add by Penny */
+.image-item {
+    position: relative;
+    height: 90%;
+}
+/* Add by Penny */
+.image-item .remove-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    position: absolute;
+    background: #fff;
+    border: 1px solid #000;
+    text-align:center;
+    line-height: 17px;
+}
+/* Add by Penny */
+.icon-box-camera label {
+    cursor: pointer;
+}
+/* Add by Penny */
+#image-preview {
+    height: 90%;
+    border: 8px solid #dee2e6;
+    border-radius: 10%;
+    margin-top: 5%;
+    margin-left: 10px;
+}
