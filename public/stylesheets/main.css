@@ -657,7 +657,7 @@ a {
 .action .out-room,
 .action .go-chat {
     height: 26px;
-    line-height: 0;
+    line-height: 13px;
     font-size: 10px;
     font-weight: bold;
 }
