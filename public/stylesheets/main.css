@@ -534,7 +534,7 @@ a {
     grid-column: 1;
     margin: 0 auto;
     position: relative;
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
 }
 .scrollbar::-webkit-scrollbar {
     width: 6px;
@@ -589,60 +589,57 @@ a {
     padding-left: 20px;
 }
 .bottom-box .table-head {
-    width: 92%;
+    width: 100%;
+    height: 40px;
+    margin-bottom: 1em;
     display: flex;
-    flex-direction: row;
+    flex-flow: row nowrap;
     justify-content: space-around;
     align-items: center;
     background: linear-gradient(#fff, grey);
     border-radius: 6px;
-    position: fixed;
-    top: 36%;
-}
-.bottom-box .table-body {
-    display: flex;
-    flex-direction: column;
-    width: 98%;
-    padding-top: 42px;
-}
-.bottom-box .table-body .room-items {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    margin-bottom: 6px;
-    background: #dee2e6;
-    border-radius: 6px;
-    /* border: 1px solid red; */
-}
-.bottom-box .table-head span,
-.bottom-box .table-body span {
-    /* outline: 1px solid blue; */
-    width: 15%;
-    height: 40px;
-    line-height: 40px;
-    overflow: scroll;
-}
-.table-body .room-items span {
-    padding-left: 6px;
-    font-size: 14px;
-}
-.bottom-box .table-head span {
     font-size: 16px;
     font-weight: bold;
 }
-.room-items .action {
+.table-head #sortByOnline:hover,
+.table-head #sortByJoinedTotal:hover,
+.table-head #sortByInitDate:hover {
+    cursor: pointer;
+}
+.table-head #sortByOnline i:hover,
+.table-head #sortByJoinedTotal i:hover,
+.table-head #sortByInitDate i:hover {
+    background: rgb(230, 83, 83);
+    padding: 4px;
+    border-radius: 50%;
+}
+.bottom-box .table-body {
+    width: 100%;
     display: flex;
-    flex-direction: row;
-    justify-content: start;
+    flex-direction: column;
+    font-size: 14px;
+}
+.bottom-box .table-head span,
+.bottom-box .table-body span {
+    width: 15%;
+}
+.bottom-box .table-body .room-items {
+    width: 100%;
+    height: 30px;
+    margin-bottom: 0.5em;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
     align-items: center;
+    background: #dee2e6;
+    border-radius: 6px;
 }
 .action .join-room,
 .action .out-room,
 .action .go-chat {
-    height: 30px;
-    font-size: 12px;
+    height: 26px;
+    line-height: 0;
+    font-size: 10px;
     font-weight: bold;
 }
 .action .dropdown-menu button {
@@ -654,4 +651,249 @@ a {
 }
 .action .dropdown-menu button:hover {
     background: rgb(230, 83, 83);
+}
+
+/* userList page */
+.userList-wrapper {
+    /* outline: 1px solid red; */
+    margin: 0 auto;
+    width: 100%;
+}
+
+.userList-wrapper .section-one,
+.userList-wrapper .section-two,
+.userList-wrapper .section-three {
+    /* outline: 1px solid blue; */
+    width: 100%;
+}
+
+.userList-wrapper .section-one {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.userList-wrapper .section-one .no-hidden {
+    /* outline: 1px solid orange; */
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: start;
+    padding: 1rem 2rem;
+
+}
+
+.section-one .no-hidden .search-friends,
+.section-one .no-hidden .switch-user-box,
+.section-one .no-hidden .display-filter-cond-buttons-box {
+    /* outline: 1px solid green; */
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: start;
+    width: auto;
+    margin-right: 1.5rem;
+}
+
+.no-hidden .search-friends .userId {
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    padding-left: 1rem;
+    margin-right: 0.5rem;
+    height: 2.5rem;
+}
+
+.no-hidden .switch-user-box label {
+    font-size: 12px;
+    padding-top: 4px;
+}
+
+.section-one .can-hidden {
+    /* outline: 1px solid orange; */
+    width: 96%;
+    border: 1px solid #dee2e6;
+    padding: 20px 0;
+}
+
+.section-one .can-hidden label {
+    color: grey;
+    font-size: 12px;
+}
+
+.section-one .can-hidden .part-one,
+.section-one .can-hidden .part-two,
+.section-one .can-hidden .part-three,
+.section-one .can-hidden .part-four {
+    /* outline: 1px solid green; */
+    width: 100%;
+}
+
+.section-one .can-hidden .part-one,
+.section-one .can-hidden .part-two,
+.section-one .can-hidden .part-three {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: start;
+    align-items: center;
+}
+
+.can-hidden .can-hidden-wrapper {
+    position: relative;
+}
+
+.span-title {
+    text-align: center;
+    background: #dee2e6;
+    border: none;
+    width: 60px;
+    border-radius: 6px;
+}
+
+.can-hidden .can-hidden-wrapper .clear-cond-box {
+    /* outline: 1px solid red; */
+    position: absolute;
+    top: 0;
+    right: 30px;
+    cursor: pointer;
+}
+
+.can-hidden .can-hidden-wrapper .clear-cond-box:hover {
+    background: rgb(255, 107, 107);
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.can-hidden .part-four .top,
+.can-hidden .part-four .bottom {
+    /* outline: 1px solid orange; */
+    width: 100%;
+}
+
+.part-four .top #interest {
+    height: 2rem;
+    padding-left: 1rem;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.can-hidden .part-four .bottom {
+    padding-left: 108px;
+    font-size: 12px;
+}
+
+.part-four .bottom .interest-item {
+    border: none;
+    border-radius: 12px;
+    padding: 2px 8px;
+    background: rgb(210, 210, 210);
+}
+
+.userList-wrapper .section-two .friends-invite-wrapper {
+    /* outline: 1px solid orange; */
+    width: 96%;
+    margin: 0 auto;
+    border: 1px solid #dee2e6;
+    padding: 20px;
+}
+
+.section-two .friends-invite-wrapper .friends-invite-list-box {
+    /* outline: 1px solid pink; */
+    width: 100%;
+    margin-bottom: 6px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: start;
+}
+
+.friends-invite-wrapper .friends-invite-list-box .card-item {
+    margin-right: 10px;
+    width: 200px;
+    height: 360px;
+    background: #fff;
+    opacity: 0.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.friends-invite-list-box .card-item img {
+    width: 100%;
+    height: 50%;
+    object-fit: cover;
+}
+
+.friends-invite-list-box .card-item .card-body {
+    width: 100%;
+    height: 30%;
+    font-size: 12px;
+    overflow: scroll;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.friends-invite-list-box .card-item .button-box {
+    width: 100%;
+    height: 20%;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.friends-invite-list-box .card-item:hover {
+    width: 220px;
+    height: 380px;
+    opacity: 1;
+    border: 6px solid rgb(143, 143, 254);
+}
+
+.userList-wrapper .section-three .all-users-wrapper {
+    width: 96%;
+    margin: 0 auto;
+    border: 1px solid #dee2e6;
+    padding: 20px;
+}
+
+.section-three .all-users-wrapper .card-item {
+    margin: 10px 10px;
+    width: 200px;
+    height: 360px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.all-users-wrapper .card-item img {
+    width: 100%;
+    height: 50%;
+    object-fit: cover;
+}
+
+.all-users-wrapper .card-item .card-body {
+    width: 100%;
+    height: 30%;
+    font-size: 12px;
+    overflow: scroll;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.all-users-wrapper .card-item .button-box {
+    width: 100%;
+    height: 20%;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-around;
 }

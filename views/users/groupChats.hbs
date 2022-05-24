@@ -16,18 +16,23 @@
         </form>
     </div>
     <hr>
-    <div class="bottom-box d-flex flex-column align-items-center mt-2 scrollbar">
+    <div class="bottom-box d-flex flex-column align-items-center mt-2">
         <div class="table-head">
             <span>話題名稱</span>
             <span>話題主ID</span>
-            <span>上線人數<i class="fa fa-chevron-down ms-2"></i></span>
-            <span>加入人數<i class="fa fa-chevron-down ms-2"></i></span>
-            <span>開聊日期<span>(新=>舊)</span></span>
+            <span id="sortByOnline">上線人數<i class="fa fa-chevron-up ms-2"></i><i
+                    class="fa fa-chevron-down ms-2"></i></span>
+            <span id="sortByJoinedTotal">加入人數<i class="fa fa-chevron-up ms-2"></i><i
+                    class="fa fa-chevron-down ms-2"></i></span>
+            <span id="sortByInitDate">開聊日期<i class="fa fa-chevron-up ms-2"></i><i
+                    class="fa fa-chevron-down ms-2"></i></span>
             <span>動作</span>
         </div>
-        <div class="table-body" id="roomsPanel">
+        <div class="table-body" id="roomsPanel" data-loginuserid="{{loginUser.id}}">
             {{#each groupChats}}
-            <div class="room-items">
+            <div class="room-items" data-groupchatid="{{this.id}}" data-inituseraccount="{{this.user.account}}"
+                data-roomtitle="{{this.name}}" data-total="{{this.numOfRegisters}}"
+                data-createdate="{{#dateFormator}}{{../this.createdAt}}{{/dateFormator}}">
                 <span>{{this.name}}</span>
                 <span>{{this.user.account}}</span>
                 <span>4(假資料)</span>
@@ -35,13 +40,15 @@
                 <span>{{#dateFormator}}{{../this.createdAt}}{{/dateFormator}}</span>
                 <span class="action">
                     {{#if this.isRegistered}}
-                    <button type="button" class="btn btn-success dropdown-toggle out-room" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button type="button" class="btn btn-success dropdown-toggle out-room" data-bs-toggle="dropdown"
+                        aria-expanded="false">
                         已加入
                     </button>
                     <a href="/users/loginUser/groupChats/groupMessages?groupId={{this.id}}" class="btn btn-info go-chat ms-2">Chat</a>
                     <ul class="dropdown-menu">
                         <li>
-                            <form action="/groupChats/{{this.id}}/groupRegisters?_method=DELETE" method="POST" style="display: inline;">
+                            <form action="/groupChats/{{this.id}}/groupRegisters?_method=DELETE" method="POST"
+                                style="display: inline;">
                                 <button class="ms-2" type="submit">退出話題</button>
                             </form>
                         </li>
@@ -58,86 +65,146 @@
     </div>
 </div>
 
-{{!-- <script>
-    const data = [
-        {
-            chatName: '最喜歡的漫威',
-            initiator_id: 'sin_1201',
-            online: 3,
-            outline: 6,
-            init_date: '2020/12/01',
-            inRoom: false
-        },
-        {
-            chatName: '星巴克',
-            initiator_id: 'penny_0001',
-            online: 20,
-            outline: 12,
-            init_date: '2021/12/22',
-            inRoom: true
-        },
-        {
-            chatName: '漫威鋼鐵人',
-            initiator_id: 'abc_123',
-            online: 22,
-            outline: 8,
-            init_date: '2021/08/22',
-            inRoom: true
-        }
-    ]
-
-    const groupChatsWrapper = document.querySelector('.groupChats-wrapper'),
-        searchChatRoomBox = document.querySelector('.search-chat-room-box'),
+<script>
+    const filterCondInput = document.querySelector('#filterCond'),
+        keywordInput = document.querySelector('#keyword'),
         roomsPanel = document.querySelector('#roomsPanel'),
-        filterCond = document.querySelector('#filterCond'),
-        keyword = document.querySelector('#keyword')
+        tableHead = document.querySelector('.table-head'),
+        allRooms = document.querySelectorAll(`div[data-roomtitle]`),
+        originRawHtml = roomsPanel.innerHTML
 
-    let rawHtml = ''
-    data.forEach(data => {
-        rawHtml += `
-                 <div class="room-items">
-                    <span>${data.chatName}</span>
-                    <span>${data.initiator_id}</span>
-                    <span>${data.online}</span>
-                    <span>${data.outline}</span>
-                    <span>${data.init_date}</span>
-                    <span class="action">
-                        <form action="#" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-primary join-room">+加入話題</button>
-                        </form>
-                    </span>
-                 </div>
-                `
+    let i, switching, roomOptions, shouldSwitch
+    
+    // 排序聊天室功能
+    tableHead.addEventListener('click', e => {
+        // 依聊天室加入人數多寡排序
+        if (e.target.classList.contains('fa-chevron-up') && e.target.parentElement.id === 'sortByJoinedTotal') {
+            switching = true
+            while (switching) {
+                switching = false
+                roomOptions = document.querySelectorAll('div[data-roomtitle]')
+                for (i = 0; i < (roomOptions.length - 1); i++) {
+                    shouldSwitch = false
+                    if (Number(roomOptions[i].dataset.total) > Number(roomOptions[i + 1].dataset.total)) {
+                        shouldSwitch = true
+                        break
+                    }
+                }
+                if (shouldSwitch) {
+                    roomOptions[i].parentElement.insertBefore(roomOptions[i + 1], roomOptions[i])
+                    switching = true
+                }
+            }
+        } else if (e.target.classList.contains('fa-chevron-down') && e.target.parentElement.id === 'sortByJoinedTotal') {
+            switching = true
+            while (switching) {
+                switching = false
+                roomOptions = document.querySelectorAll('div[data-roomtitle]')
+                for (i = 0; i < (roomOptions.length - 1); i++) {
+                    shouldSwitch = false
+                    if (Number(roomOptions[i].dataset.total) < Number(roomOptions[i + 1].dataset.total)) {
+                        shouldSwitch = true
+                        break
+                    }
+                }
+                if (shouldSwitch) {
+                    roomOptions[i].parentElement.insertBefore(roomOptions[i + 1], roomOptions[i])
+                    switching = true
+                }
+            }
+            // 依聊天室創建日期排序
+        } else if (e.target.classList.contains('fa-chevron-up') && e.target.parentElement.id === 'sortByInitDate') {
+            switching = true
+            while (switching) {
+                switching = false
+                roomOptions = document.querySelectorAll('div[data-roomtitle]')
+                for (i = 0; i < (roomOptions.length - 1); i++) {
+                    shouldSwitch = false
+                    if (processDate(roomOptions[i].dataset.createdate) > processDate(roomOptions[i + 1].dataset.createdate)) {
+                        shouldSwitch = true
+                        break
+                    }
+                }
+                if (shouldSwitch) {
+                    roomOptions[i].parentElement.insertBefore(roomOptions[i + 1], roomOptions[i])
+                    switching = true
+                }
+            }
+        } else if (e.target.classList.contains('fa-chevron-down') && e.target.parentElement.id === 'sortByInitDate') {
+            switching = true
+            while (switching) {
+                switching = false
+                roomOptions = document.querySelectorAll('div[data-roomtitle]')
+                for (i = 0; i < (roomOptions.length - 1); i++) {
+                    shouldSwitch = false
+                    if (processDate(roomOptions[i].dataset.createdate) < processDate(roomOptions[i + 1].dataset.createdate)) {
+                        shouldSwitch = true
+                        break
+                    }
+                }
+                if (shouldSwitch) {
+                    roomOptions[i].parentElement.insertBefore(roomOptions[i + 1], roomOptions[i])
+                    switching = true
+                }
+            }
+        }
     })
 
-    roomsPanel.innerHTML = rawHtml
+    // 依話題主ID or 話題名稱 切換 輸入關鍵字條件
+    filterCondInput.addEventListener('change', e => {
+        const value = e.target.value
+        keywordInput.value = ''
+        if (value === 'initiator_id') {
+            keywordInput.setAttribute('placeholder', '請輸入話題主ID')
+        } else if (value === 'room_title') {
+            keywordInput.setAttribute('placeholder', '請輸入話題名稱')
+        }
+    })
 
-    groupChatsWrapper.addEventListener('keyup', e => {
-        if (e.target.id === 'keyword' && e.target.value.length > 0) {
-            roomsPanel.innerHTML = ''
-            console.log(e.target.value)
-            // 拿出keyword與data比對
-            // 符合條件的 render 進 roomsPanel
-            let keyword = e.target.value
-            const filterData = data.filter(r => r.chatName.includes(keyword))
-            console.log(filterData)
-            filterData.forEach(data => {
-                rawHtml += `
-                 <div class="room-items">
-                    <span>${data.chatName}</span>
-                    <span>${data.initiator_id}</span>
-                    <span>${data.online}</span>
-                    <span>${data.outline}</span>
-                    <span>${data.init_date}</span>
-                    <span class="action">
-                        <form action="#" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-primary join-room">+加入話題</button>
-                        </form>
-                    </span>
-                 </div>
-                `
+    // 搜尋聊天室功能
+    keywordInput.addEventListener('keyup', e => {
+        const keywordValue = e.target.value.toLowerCase()
+        let rawHtml = ''
+
+        if (filterCondInput.value === 'room_title') {
+            allRooms.forEach(item => {
+                if (item.dataset.roomtitle.trim().toLowerCase().includes(keywordValue)) {
+                    rawHtml += `
+                        <div class="room-items" data-groupchatid="${item.dataset.groupchatid}" data-inituseraccount="${item.dataset.inituseraccount}"
+                        data-roomtitle="${item.dataset.roomtitle}" data-total="${item.dataset.total}" data-createdate="${item.dataset.createdate}">
+                            ${item.innerHTML}
+                        </div>
+                    `
+                }
+            })
+        } else if (filterCondInput.value === 'initiator_id') {
+            allRooms.forEach(item => {
+                if (item.dataset.inituseraccount.trim().toLowerCase().includes(keywordValue)) {
+                    rawHtml += `
+                        <div class="room-items" data-groupchatid="${item.dataset.groupchatid}" data-inituseraccount="${item.dataset.inituseraccount}"
+                        data-roomtitle="${item.dataset.roomtitle}" data-total="${item.dataset.total}" data-createdate="${item.dataset.createdate}">
+                            ${item.innerHTML}
+                        </div>
+                    `
+                }
             })
         }
         roomsPanel.innerHTML = rawHtml
     })
-</script> --}}
+
+    // 依日期排序日期時 , 整理日期使日期能比較大小而排序
+    function processDate(str) {
+        const strToArr = str.split('')
+        let years, finalDate
+        for (let i = 0; i < strToArr.length; i++) {
+            if (strToArr[i] === '/') {
+                strToArr.splice(i, 1)
+            }
+        }
+        years = strToArr.splice(-4, strToArr.length)
+        finalDate = Number(years.concat(strToArr).join(''))
+        return finalDate
+    }
+
+
+</script>

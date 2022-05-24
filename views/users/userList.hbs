@@ -1,0 +1,476 @@
+<div class="userList-wrapper bg-light d-flex flex-column align-items-center justify-content-center">
+    <form action="#" method="GET" class="section-one">
+        <div class="no-hidden">
+            <div class="search-friends">
+                <input type="text" class="userId" name="userId" id="userId" placeholder="依ID搜尋">
+                <button type="button" class="btn btn-outline-success">搜尋</button>
+            </div>
+            <div class="form-check form-switch switch-user-box">
+                <input class="form-check-input me-2" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                <label class="form-check-label" for="flexSwitchCheckChecked">僅顯示朋友</label>
+                {{!-- <span style="display: none;">顯示All</span> --}}
+            </div>
+            <div class="display-filter-cond-buttons-box">
+                <div class="display-filter-cond me-2">
+                    <button type="button" class="btn btn-primary filter-set">探索設定<i
+                            class="fa fa-chevron-up ms-2"></i></button>
+                </div>
+                <div class="friends-invited">
+                    <button type="button" class="btn btn-primary friends-set">交友邀請<i
+                            class="fa fa-chevron-up ms-2"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="can-hidden bg-white" style="display: none;">
+            <div class="can-hidden-wrapper">
+                <div class="clear-cond-box fs-6 fw-bold">
+                    <span>X</span>
+                    <span>清空條件</span>
+                </div>
+                <div class="part-one mb-3">
+                    <span class="me-4 ms-4 span-title fw-bold">狀態</span>
+                    <div class="radio-box d-flex flex-row align-items-center justify-content-between">
+                        <div class="me-4">
+                            <input type="radio" name="status" id="statusAll" value="statusAll" checked>
+                            <label for="statusAll">全部</label>
+                        </div>
+                        <div class="me-4">
+                            <input type="radio" name="status" id="online" value="online">
+                            <label for="online">上線</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="status" id="offline" value="offline">
+                            <label for="offline">下線</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-two mb-3">
+                    <span class="me-4 ms-4 span-title fw-bold">性別</span>
+                    <div class="radio-box d-flex flex-row align-items-center justify-content-between">
+                        <div class="me-4">
+                            <input type="radio" name="gender" id="genderAll" value="genderAll" checked>
+                            <label for="genderAll">全部</label>
+                        </div>
+                        <div class="me-4">
+                            <input type="radio" name="gender" id="male" value="male">
+                            <label for="male">男性</label>
+                        </div>
+                        <div class="me-4">
+                            <input type="radio" name="gender" id="female" value="female">
+                            <label for="female">女性</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="gender" id="other" value="other">
+                            <label for="other">其他</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-three d-flex flex-row align-items-start justify-content-start mb-3">
+                    <span class="me-4 ms-4 span-title fw-bold">居住地</span>
+                    <div class="radio-box me-4 d-flex flex-row align-items-center justify-content-between">
+                        <div>
+                            <input type="radio" name="area" id="areaAll" value="areaAll" checked>
+                            <label for="areaAll">全部</label>
+                        </div>
+                    </div>
+                    <div class="radio-box d-flex flex-column align-items-start justify-content-between">
+                        <div>
+                            <input type="radio" name="area" id="north" value="north">
+                            <label for="north">台灣北部（台北市、新北市、桃園市、新竹市、新竹縣、宜蘭縣、基隆市）</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="area" id="middle" value="middle">
+                            <label for="middle">台灣中部（台中市、彰化縣、雲林縣、苗栗縣、南投縣）</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="area" id="south" value="south">
+                            <label for="south">台灣南部（高雄市、台南市、嘉義市、嘉義縣、屏東縣）</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="area" id="east" value="east">
+                            <label for="east">台灣東部（台東縣、花蓮縣、澎湖縣、金門縣、連江縣）</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-four d-flex flex-column align-items-start justify-content-start">
+                    <div class="top d-flex flex-row align-items-center" id="interestForm">
+                        <span class="me-4 ms-4 span-title fw-bold">興趣</span>
+                        <input type="text" class="me-2" name="interest" id="interest" placeholder="請輸入關鍵字">
+                        <button type="button" id="addInterestButton" class="btn btn-primary"
+                            style="height: 2rem;line-height:0;font-weight:bold;">+</button>
+                    </div>
+                    <div class="bottom d-flex flex-row align-items-center pt-1 pb-1" id="renderInterestWrapper">
+                        {{!-- display interest item here --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="section-two" style="display: none;margin-bottom: 10px">
+        <div class="friends-invite-wrapper bg-white d-flex flex-column align-items-center justify-content-center">
+            <h5 class="fw-bold" style="width: 100%;">交友邀請</h5>
+            <div class="friends-invite-list-box">
+                <div class="card card-item">
+                    <img src="/image/dog.webp" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <p class="fs-14-bold">
+                            <span>Leo Wang</span>
+                            <span class="light-icon">#</span>
+                            <span>26歲</span>
+                        </p>
+                        <p class="fs-12">
+                            <span>台北市</span>
+                            <span>男性</span>
+                            <span>@Leo666</span>
+                        </p>
+                        <p class="card-text fs-12">Some quick</p>
+                    </div>
+                    <div class="button-box">
+                        <a href="#" class="btn btn-primary">接受邀請</a>
+                        <a href="#" class="btn btn-danger">忽略</a>
+                    </div>
+                </div>
+                <div class="card card-item">
+                    <img src="/image/users.webp" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <p class="fs-14-bold">
+                            <span>Leo Wang</span>
+                            <span class="light-icon">#</span>
+                            <span>26歲</span>
+                        </p>
+                        <p class="fs-12">
+                            <span>台北市</span>
+                            <span>男性</span>
+                            <span>@Leo666</span>
+                        </p>
+                        <p class="card-text fs-12">damn</p>
+                    </div>
+                    <div class="button-box">
+                        <a href="#" class="btn btn-primary">接受邀請</a>
+                        <a href="#" class="btn btn-danger">忽略</a>
+                    </div>
+                </div>
+                <div class="card card-item">
+                    <img src="https://wallpaperaccess.com/full/2181187.jpg" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <p class="fs-14-bold">
+                            <span>Leo Wang</span>
+                            <span class="light-icon">#</span>
+                            <span>26歲</span>
+                        </p>
+                        <p class="fs-12">
+                            <span>台北市</span>
+                            <span>男性</span>
+                            <span>@Leo666</span>
+                        </p>
+                        <p class="card-text fs-12">damn</p>
+                    </div>
+                    <div class="button-box">
+                        <a href="#" class="btn btn-primary">接受邀請</a>
+                        <a href="#" class="btn btn-danger">忽略</a>
+                    </div>
+                </div>
+            </div>
+            <div class="paginator-box d-flex flex-row align-items-center justify-content-center" style="width: 100%;">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <div class="section-three">
+        <div class="all-users-wrapper bg-white d-flex flex-row flex-wrap justify-content-start">
+            <div class="card card-item">
+                <img src="/image/dog.webp" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="fs-14-bold">
+                        <span>Leo Wang</span>
+                        <span class="light-icon">#</span>
+                        <span>26歲</span>
+                    </p>
+                    <p class="fs-12">
+                        <span>台北市</span>
+                        <span>男性</span>
+                        <span>@Leo666</span>
+                    </p>
+                    <p class="card-text fs-12">wfklejflk</p>
+                </div>
+                <div class="button-box">
+                    <a href="#" class="btn btn-primary">送出交友邀請</a>
+                </div>
+            </div>
+            <div class="card card-item">
+                <img src="/image/users.webp" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="fs-14-bold">
+                        <span>Leo Wang</span>
+                        <span class="light-icon">#</span>
+                        <span>26歲</span>
+                    </p>
+                    <p class="fs-12">
+                        <span>台北市</span>
+                        <span>男性</span>
+                        <span>@Leo666</span>
+                    </p>
+                    <p class="card-text fs-12">wfklejflk</p>
+                </div>
+                <div class="button-box">
+                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
+                </div>
+            </div>
+            <div class="card card-item">
+                <img src="/image/users.webp" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="fs-14-bold">
+                        <span>Leo Wang</span>
+                        <span class="light-icon">#</span>
+                        <span>26歲</span>
+                    </p>
+                    <p class="fs-12">
+                        <span>台北市</span>
+                        <span>男性</span>
+                        <span>@Leo666</span>
+                    </p>
+                    <p class="card-text fs-12">wfklejflk</p>
+                </div>
+                <div class="button-box">
+                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        朋友
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">解除朋友關係</a></li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Chat</a>
+                </div>
+            </div>
+            <div class="card card-item">
+                <img src="/image/dog.webp" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="fs-14-bold">
+                        <span>Leo Wang</span>
+                        <span class="light-icon">#</span>
+                        <span>26歲</span>
+                    </p>
+                    <p class="fs-12">
+                        <span>台北市</span>
+                        <span>男性</span>
+                        <span>@Leo666</span>
+                    </p>
+                    <p class="card-text fs-12">damn</p>
+                </div>
+                <div class="button-box">
+                    <a href="#" class="btn btn-primary">接受邀請</a>
+                    <a href="#" class="btn btn-danger">忽略</a>
+                </div>
+            </div>
+            <div class="card card-item">
+                <img src="/image/users.webp" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="fs-14-bold">
+                        <span>Leo Wang</span>
+                        <span class="light-icon">#</span>
+                        <span>26歲</span>
+                    </p>
+                    <p class="fs-12">
+                        <span>台北市</span>
+                        <span>男性</span>
+                        <span>@Leo666</span>
+                    </p>
+                    <p class="card-text fs-12">wfklejflk</p>
+                </div>
+                <div class="button-box">
+                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
+                </div>
+            </div>
+            <div class="card card-item">
+                <img src="/image/users.webp" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="fs-14-bold">
+                        <span>Leo Wang</span>
+                        <span class="light-icon">#</span>
+                        <span>26歲</span>
+                    </p>
+                    <p class="fs-12">
+                        <span>台北市</span>
+                        <span>男性</span>
+                        <span>@Leo666</span>
+                    </p>
+                    <p class="card-text fs-12">wfklejflk</p>
+                </div>
+                <div class="button-box">
+                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
+                </div>
+            </div>
+            <div class="card card-item">
+                <img src="/image/users.webp" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="fs-14-bold">
+                        <span>Leo Wang</span>
+                        <span class="light-icon">#</span>
+                        <span>26歲</span>
+                    </p>
+                    <p class="fs-12">
+                        <span>台北市</span>
+                        <span>男性</span>
+                        <span>@Leo666</span>
+                    </p>
+                    <p class="card-text fs-12">wfklejflk</p>
+                </div>
+                <div class="button-box">
+                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
+                </div>
+            </div>
+            <div class="card card-item">
+                <img src="/image/users.webp" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="fs-14-bold">
+                        <span>Leo Wang</span>
+                        <span class="light-icon">#</span>
+                        <span>26歲</span>
+                    </p>
+                    <p class="fs-12">
+                        <span>台北市</span>
+                        <span>男性</span>
+                        <span>@Leo666</span>
+                    </p>
+                    <p class="card-text fs-12">wfklejflk</p>
+                </div>
+                <div class="button-box">
+                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
+                </div>
+            </div>
+            <div class="card card-item">
+                <img src="/image/users.webp" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="fs-14-bold">
+                        <span>Leo Wang</span>
+                        <span class="light-icon">#</span>
+                        <span>26歲</span>
+                    </p>
+                    <p class="fs-12">
+                        <span>台北市</span>
+                        <span>男性</span>
+                        <span>@Leo666</span>
+                    </p>
+                    <p class="card-text fs-12">wfklejflk</p>
+                </div>
+                <div class="button-box">
+                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const displayFilterViewButtons = document.querySelector('.display-filter-cond-buttons-box'),
+        filterHiddenWrapper = document.querySelector('.can-hidden'),
+        friendsInviteWrapper = document.querySelector('.section-two'),
+        clearCondButton = document.querySelector('.clear-cond-box'),
+        statusAll = document.querySelector('#statusAll'),
+        online = document.querySelector('#online'),
+        offline = document.querySelector('#offline'),
+        genderAll = document.querySelector('#genderAll'),
+        male = document.querySelector('#male'),
+        female = document.querySelector('#female'),
+        other = document.querySelector('#other'),
+        areaAll = document.querySelector('#areaAll'),
+        north = document.querySelector('#north'),
+        middle = document.querySelector('#middle'),
+        south = document.querySelector('#south'),
+        east = document.querySelector('#east'),
+        interestForm = document.querySelector('#interestForm'),
+        interestInput = document.querySelector('#interest'),
+        renderInterestWrapper = document.querySelector('#renderInterestWrapper')
+
+    interestForm.addEventListener('click', e => {
+        if (e.target.id === 'addInterestButton') {
+            const value = interestInput.value
+            renderInterestWrapper.innerHTML += `
+                <button type="button" class="interest-item me-3 fs-12" onclick="removeInterest(this)">
+                    X ${value}
+                </button>
+            `
+        }
+    })
+
+    clearCondButton.addEventListener('click', e => {
+        if (online.checked || offline.checked || statusAll.checked) {
+            statusAll.checked = true
+            online.checked = false
+            offline.checked = false
+        }
+
+        if (male.checked || female.checked || other.checked || genderAll.checked) {
+            genderAll.checked = true
+            male.checked = false
+            female.checked = false
+            other.checked = false
+        }
+
+        if (north.checked || middle.checked || south.checked || east.checked || areaAll.checked) {
+            areaAll.checked = true
+            north.checked = false
+            middle.checked = false
+            south.checked = false
+            east.checked = false
+        }
+
+        interestInput.value = ''
+        renderInterestWrapper.innerHTML = ''
+    })
+
+    displayFilterViewButtons.addEventListener('click', e => {
+        if (e.target.tagName === 'BUTTON') {
+            if (e.target.classList.contains('filter-set')) {
+                if (e.target.firstElementChild.classList.contains('fa-chevron-up')) {
+                    e.target.classList.remove('btn-primary')
+                    e.target.classList.add('btn-outline-primary')
+                    filterHiddenWrapper.style.display = 'block'
+                    e.target.firstElementChild.classList.remove('fa-chevron-up')
+                    e.target.firstElementChild.classList.add('fa-chevron-down')
+                } else if (e.target.firstElementChild.classList.contains('fa-chevron-down')) {
+                    e.target.classList.remove('btn-outline-primary')
+                    e.target.classList.add('btn-primary')
+                    filterHiddenWrapper.style.display = 'none'
+                    e.target.firstElementChild.classList.remove('fa-chevron-down')
+                    e.target.firstElementChild.classList.add('fa-chevron-up')
+                }
+            } else if (e.target.classList.contains('friends-set')) {
+                if (e.target.firstElementChild.classList.contains('fa-chevron-up')) {
+                    e.target.classList.remove('btn-primary')
+                    e.target.classList.add('btn-outline-primary')
+                    friendsInviteWrapper.style.display = 'block'
+                    e.target.firstElementChild.classList.remove('fa-chevron-up')
+                    e.target.firstElementChild.classList.add('fa-chevron-down')
+                } else if (e.target.firstElementChild.classList.contains('fa-chevron-down')) {
+                    e.target.classList.remove('btn-outline-primary')
+                    e.target.classList.add('btn-primary')
+                    friendsInviteWrapper.style.display = 'none'
+                    e.target.firstElementChild.classList.remove('fa-chevron-down')
+                    e.target.firstElementChild.classList.add('fa-chevron-up')
+                }
+            }
+        }
+    })
+
+    function removeInterest(element) {
+        element.remove()
+    }
+
+</script>
