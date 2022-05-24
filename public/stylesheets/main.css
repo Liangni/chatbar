@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 /* basic */
 a {
     text-decoration: none;
@@ -210,9 +214,12 @@ a {
 }
 /* chat page layout */
 .chat-wrapper {
-    outline: 2px solid #000;
+    /* outline: 2px solid #000; */
     display: grid;
-    height: 676px;
+    /* 用hight無法正確設定grid的高度，故註解掉 by Penny */
+    /* height: 676px; */
+    /* 加上grid-template-rows設定高度 by Penny */
+    grid-template-rows: 100vh;
     grid-template-columns: 0.5fr 1fr 3fr;
 }
 .chat-nav {
@@ -276,6 +283,12 @@ a {
     background: rgb(235, 235, 235);
     border-radius: 6px;
 }
+/* Add by Penny */
+.room-item.active {
+    background: rgb(16, 16, 253);
+    color: #fff;
+}
+
 .room-item img {
     /* outline: 1px solid blue; */
     width: 60px;
@@ -365,6 +378,12 @@ a {
     border-color: grey;
     border-style: solid;
     border-width: 0 1.5px 3px 1.5px;
+    /* The followings are added by Penny  */
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow: auto;
+    overflow-x:hidden;
 }
 .top-section .right-part {
     border-color: grey;
@@ -896,4 +915,59 @@ a {
     flex-flow: row nowrap;
     align-items: center;
     justify-content: space-around;
+}
+/* Add by Penny */
+.message-by-others {
+    display: flex;
+    align-items: center;
+    flex-flow:row wrap;
+    width: 96%;
+}
+/* Add by Penny */
+.download-item {
+    margin-right: 6px;
+    font-size: 8px;
+    color: #000;
+    border: 1px solid gray;
+    background: #dee2e6;
+    border-radius: 6px;
+    padding: 2px 4px;
+    cursor: pointer;
+}
+/* Add by Penny */
+.remove-btn {
+    cursor: pointer;
+}
+/* Add by Penny */
+.image-item {
+    position: relative;
+    height: 90%;
+}
+/* Add by Penny */
+.image-item .remove-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    position: absolute;
+    background: #fff;
+    border: 1px solid #000;
+    text-align:center;
+    line-height: 17px;
+}
+/* Add by Penny */
+.icon-box-camera label {
+    cursor: pointer;
+}
+/* Add by Penny */
+#image-preview {
+    height: 90%;
+    border: 8px solid #dee2e6;
+    border-radius: 10%;
+    margin-top: 5%;
+    margin-left: 10px;
+}
+/* Add by Penny */
+.image-message-item {
+    max-width: 20vw;
+    margin: 10px 2px;
 }

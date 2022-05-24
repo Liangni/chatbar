@@ -4,6 +4,7 @@ const router = express.Router()
 const userController = require('../../controllers/userContorller')
 const { authenticated } = require('../../middleware/auth')
 
+
 // 註冊登入登出
 router.get('/login', userController.loginPage)
 router.get('/register', userController.registerPage)

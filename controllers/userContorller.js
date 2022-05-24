@@ -1,7 +1,5 @@
 const bcrypt = require('bcryptjs')
-const dayjs = require('dayjs')
-const dayOfYear = require('dayjs/plugin/dayOfYear')
-dayjs.extend(dayOfYear)
+
 // 若採用JWT驗證，要加入如下
 // const jwt = require('jsonwebtoken')
 const { Gender, District, User, Interest, Owned_interest, Area, Group_message, Group_chat } = require('../models')
@@ -107,7 +105,12 @@ const userController = {
             if (RegisteredGroupIds) {
                 groupChats = await Promise.all(RegisteredGroupIds.map(async rgid => {
                     const groupChat = await Group_chat.findByPk(rgid, {
-                        include: [{ model: Group_message, include: [User] }, User],
+                        include: [
+                            { model: Group_message, include: [User]},
+                            User,
+                            { model: User, as: 'RegisteredUsers' }
+                        ],
+                        order: [[Group_message, 'createdAt', 'ASC']]
                     })
                     const groupChatData = groupChat.toJSON()
                     // 為每條訊息加入是否為登入使用者的判斷、調整時間格式
@@ -123,7 +126,7 @@ const userController = {
                     const latestMessage = groupMessageData?.[groupMessageData.length - 1] || null
                     if (latestMessage) {
                         // 刪減過長的訊息文字
-                        if (latestMessage.content.length > 15) {
+                        if (latestMessage.content && latestMessage.content.length > 15) {
                             latestMessage.content = latestMessage.content.substring(0, 14) + '...'
                         }
                     }
@@ -133,10 +136,22 @@ const userController = {
                         name: groupChatData.name,
                         id: groupChatData.id,
                         User: groupChatData.User,
+                        RegisteredUsers: groupChatData.RegisteredUsers,
                         Group_messages: groupChatData.Group_messages,
                         latestMessage,
                     }
                 }))
+                
+                // 將groupChat按日期新->舊排序，沒有訊息的chat置頂
+                let chatsWithNoMessage = []
+                for (let i = groupChats.length - 1; i >= 0; i = i - 1 ) {
+                    if (groupChats[i].Group_messages.length === 0) {
+                        const removed = groupChats.splice(i, 1)
+                        chatsWithNoMessage.unshift(...removed)
+                    }
+                }
+                groupChats = chatsWithNoMessage.concat(groupChats.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt))) 
+                
             }
 
             // 選擇要顯示所有訊息的groupChat
@@ -155,7 +170,8 @@ const userController = {
         } catch (err) {
             next(err)
         }
-    }
+    },
+    
 }
 
 module.exports = userController
