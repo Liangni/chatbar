@@ -2,10 +2,9 @@ const express = require('express')
 const passport = require('../../config/passport')
 const router = express.Router()
 const userController = require('../../controllers/userContorller')
+const { authenticated } = require('../../middleware/auth')
 
-// 暫時用userId 1
-router.get('/1/messages', userController.getUserMessages)
-
+// 註冊登入登出
 router.get('/login', userController.loginPage)
 router.get('/register', userController.registerPage)
 router.post('/register', userController.register)
@@ -21,5 +20,9 @@ router.post('/login', passport.authenticate('local',
   userController.logIn
 )
 router.get('/logout', userController.logOut)
+
+// 使用者訊息
+router.get('/loginUser/messages', userController.getUserMessages)
+router.get('/loginUser/groupChats/groupMessages', authenticated, userController.getUserGroupMessages)
 
 module.exports = router

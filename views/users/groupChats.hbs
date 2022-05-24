@@ -44,8 +44,7 @@
                         aria-expanded="false">
                         已加入
                     </button>
-                    <a href="/users/{{../loginUser.id}}/registered-groupChats/{{this.id}}groupMessages"
-                        class="btn btn-info go-chat ms-2" style="line-height: 13px;">Chat</a>
+                    <a href="/users/loginUser/groupChats/groupMessages?groupId={{this.id}}" class="btn btn-info go-chat ms-2">Chat</a>
                     <ul class="dropdown-menu">
                         <li>
                             <form action="/groupChats/{{this.id}}/groupRegisters?_method=DELETE" method="POST"
