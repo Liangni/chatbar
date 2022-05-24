@@ -9,7 +9,6 @@ const { authenticated } = require('../../middleware/auth')
 router.get('/login', userController.loginPage)
 router.get('/register', userController.registerPage)
 router.post('/register', userController.register)
-router.get('/userList', userController.getUserList)
 router.post('/login', passport.authenticate('local', 
   {
     // 以下兩行前後分離可拿掉
@@ -25,5 +24,8 @@ router.get('/logout', userController.logOut)
 // 使用者訊息
 router.get('/loginUser/messages', userController.getUserMessages)
 router.get('/loginUser/groupChats/groupMessages', authenticated, userController.getUserGroupMessages)
+
+// 全站使用者
+router.get('/', authenticated, userController.getUsers)
 
 module.exports = router

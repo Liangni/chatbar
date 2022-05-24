@@ -84,8 +84,8 @@ const userController = {
         req.logout()
         res.redirect('/users/login')
     },
-    getUserList: (req, res) => {
-          res.render('users/userList')
+    getUsers: (req, res) => {
+          res.render('users/userList', { path: 'userList'} )
     },
     getUserMessages: (req, res) => {
         res.render('users/userMessages', { path: 'getUserMessages' })
