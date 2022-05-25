@@ -25,6 +25,16 @@ module.exports = (sequelize, DataTypes) => {
         as: 'RegisteredGroups'
       })
       User.hasMany(models.Group_message, { foreignKey: 'userId'})
+      User.belongsToMany(models.User, {
+        through: models.Friendship_invitation,
+        foreignKey: 'senderId',
+        as: 'friendshipInvitationRecievers'
+      })
+      User.belongsToMany(models.User, {
+        through: models.Friendship_invitation,
+        foreignKey: 'recieverId',
+        as: 'friendshipInvitationSenders'
+      })
     }
   };
   User.init({
