@@ -66,8 +66,9 @@ passport.deserializeUser(async (id, cb) => {
     let user = await User.findByPk(id, {
       include: [
         { model: Group_chat, as:'RegisteredGroups'},
-        { model: User, as: 'friendshipInvitationRecievers'},
-        { model: User, as: 'friendshipInvitationSenders' }
+        { model: User, as: 'FriendshipInvitationRecievers'},
+        { model: User, as: 'FriendshipInvitationSenders' },
+        { model: User, as: 'Friends' }
       ]
     })
     user = user.toJSON()
