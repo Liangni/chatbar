@@ -3,7 +3,7 @@ const { Op } = require("sequelize")
 const dayjs = require('dayjs')
 // 若採用JWT驗證，要加入如下
 // const jwt = require('jsonwebtoken')
-const { Gender, District, User, Interest, Owned_interest, Area, Friendship_invitation, Group_message, Group_chat } = require('../models')
+const { Gender, District, User, Interest, Owned_interest, Area, Friendship_invitation, Friendship, Group_message, Group_chat, sequelize } = require('../models')
 const { getUser } = require('../helpers/auth-helpers')
 const { formatMessageTime } = require('../helpers/time-helpers')
 
@@ -157,7 +157,53 @@ const userController = {
             req.flash('success_messages', '你已刪除交友邀請!')
             res.redirect('back')
 
-        } catch(err) {
+        } catch (err) {
+            next(err)
+        }
+    },
+    postFriendships: async (req, res) => {
+        try {
+            let { userId } = req.params
+            userId = Number(userId)
+            const loginUser = getUser(req)
+
+            // 檢查交友邀請是否存在，若不存在則結束處理
+            const friendshipInvitaionRecord = await Friendship_invitation.findOne({
+                where: { senderId: userId, recieverId: loginUser.id }
+            })
+            if (!friendshipInvitaionRecord) throw new Error('交友邀請不存在或已被刪除，故無法接受邀請')
+
+            // 檢查朋友關係是否存在，若存在則結束處理
+            const friendshipRecord = await Friendship.findOne({
+                where: {
+                    [Op.or]: [
+                        { userId: loginUser.id, friendId: userId },
+                        { userId: userId, friendId: loginUser.id }
+                    ]
+                }
+            })
+            if (friendshipRecord) throw new Error('朋友關係已存在，無法再次建立關係')
+
+            // 使用transaction保證一併執行「刪除邀請」和「建立朋友關係」，發生錯誤則一併取消
+            await sequelize.transaction(async (t) => {
+                await friendshipInvitaionRecord.destroy({ transaction: t })
+                await Friendship.create(
+                    { userId: loginUser.id, friendId: userId },
+                    // 加入下面一行避免sequelize試圖在friendId插入null
+                    { fields: ["userId", "friendId"] },
+                    { transaction: t }
+                )
+                await Friendship.create(
+                    { userId: userId, friendId: loginUser.id },
+                    // 加入下面一行避免sequelize試圖在friendId插入null
+                    { fields: ["userId", "friendId"] },
+                    { transaction: t }
+                )
+            })
+            
+            req.flash('success_messages', '成功建立朋友關係!')
+            res.redirect('back')
+        } catch (err) {
             next(err)
         }
     },
