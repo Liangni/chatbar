@@ -194,183 +194,54 @@
     </div>
     <div class="section-three">
         <div class="all-users-wrapper bg-white d-flex flex-row flex-wrap justify-content-start">
+            {{#each users}}
             <div class="card card-item">
-                <img src="/image/dog.webp" class="card-img-top" alt="...">
+                <img src="{{#if this.avatar}}{{this.avatar}}{{else}}/image/users.webp{{/if}}" class="card-img-top" alt="...">
                 <div class="card-body">
-                    <p class="fs-14-bold">
-                        <span>Leo666</span>
+                    <p class="fs-14-bold mb-1">
+                        <span>{{this.account}}</span>
                     </p>
-                    <p class="fs-12">
-                        <span>台北市</span>
-                        <span>男性</span>
-                        <span>26歲</span>
+                    <p class="fs-12 mb-1">
+                        <span>{{this.District.name}}</span>
+                        <span>{{this.Gender.name}}</span>
+                        <span>{{this.age}}歲</span>
                     </p>
-                    <p class="card-text fs-12">wfklejflk</p>
+                    <p class="card-text fs-12">{{#if this.intro}}{{this.intro}}{{else}}目前沒有自我介紹{{/if}}</p>
+                    <p class="fs-12 m-0">
+                        {{#each this.CurrentInterests}}
+                        <span class="user-interest-item"># {{this.name}}</span>
+                        {{/each}}
+                    </p>
                 </div>
                 <div class="button-box">
+                    {{#ifCond this.friendshipRole null}}
                     <a href="#" class="btn btn-primary">送出交友邀請</a>
-                </div>
-            </div>
-            <div class="card card-item">
-                <img src="/image/users.webp" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <p class="fs-14-bold">
-                        <span>Leo Wang</span>
-                        <span class="light-icon">#</span>
-                        <span>26歲</span>
-                    </p>
-                    <p class="fs-12">
-                        <span>台北市</span>
-                        <span>男性</span>
-                        <span>@Leo666</span>
-                    </p>
-                    <p class="card-text fs-12">wfklejflk</p>
-                </div>
-                <div class="button-box">
-                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
-                </div>
-            </div>
-            <div class="card card-item">
-                <img src="/image/users.webp" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <p class="fs-14-bold">
-                        <span>Leo Wang</span>
-                        <span class="light-icon">#</span>
-                        <span>26歲</span>
-                    </p>
-                    <p class="fs-12">
-                        <span>台北市</span>
-                        <span>男性</span>
-                        <span>@Leo666</span>
-                    </p>
-                    <p class="card-text fs-12">wfklejflk</p>
-                </div>
-                <div class="button-box">
-                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                    {{/ifCond}}
+                    {{#ifCond this.friendshipRole 'invitationSender'}}
+                    <a href="#" class="btn btn-primary me-2">接受邀請</a>
+                    <a href="#" class="btn btn-danger">忽略</a>
+                    {{/ifCond}}
+                    {{#ifCond this.friendshipRole 'invitationReciever'}}
+                    {{!-- <a href="#" class="btn btn-secondary">等待接受邀請</a> --}}
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        等待接受邀請
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">收回交友邀請</a></li>
+                    </ul>
+                    {{/ifCond}}
+                    {{#ifCond this.friendshipRole 'friend'}}
+                    <button type="button" class="btn btn-success dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
                         朋友
                     </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="#">解除朋友關係</a></li>
                     </ul>
                     <a href="#" class="btn btn-primary">Chat</a>
+                    {{/ifCond}}
                 </div>
             </div>
-            <div class="card card-item">
-                <img src="/image/dog.webp" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <p class="fs-14-bold">
-                        <span>Leo Wang</span>
-                        <span class="light-icon">#</span>
-                        <span>26歲</span>
-                    </p>
-                    <p class="fs-12">
-                        <span>台北市</span>
-                        <span>男性</span>
-                        <span>@Leo666</span>
-                    </p>
-                    <p class="card-text fs-12">damn</p>
-                </div>
-                <div class="button-box">
-                    <a href="#" class="btn btn-primary">接受邀請</a>
-                    <a href="#" class="btn btn-danger">忽略</a>
-                </div>
-            </div>
-            <div class="card card-item">
-                <img src="/image/users.webp" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <p class="fs-14-bold">
-                        <span>Leo Wang</span>
-                        <span class="light-icon">#</span>
-                        <span>26歲</span>
-                    </p>
-                    <p class="fs-12">
-                        <span>台北市</span>
-                        <span>男性</span>
-                        <span>@Leo666</span>
-                    </p>
-                    <p class="card-text fs-12">wfklejflk</p>
-                </div>
-                <div class="button-box">
-                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
-                </div>
-            </div>
-            <div class="card card-item">
-                <img src="/image/users.webp" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <p class="fs-14-bold">
-                        <span>Leo Wang</span>
-                        <span class="light-icon">#</span>
-                        <span>26歲</span>
-                    </p>
-                    <p class="fs-12">
-                        <span>台北市</span>
-                        <span>男性</span>
-                        <span>@Leo666</span>
-                    </p>
-                    <p class="card-text fs-12">wfklejflk</p>
-                </div>
-                <div class="button-box">
-                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
-                </div>
-            </div>
-            <div class="card card-item">
-                <img src="/image/users.webp" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <p class="fs-14-bold">
-                        <span>Leo Wang</span>
-                        <span class="light-icon">#</span>
-                        <span>26歲</span>
-                    </p>
-                    <p class="fs-12">
-                        <span>台北市</span>
-                        <span>男性</span>
-                        <span>@Leo666</span>
-                    </p>
-                    <p class="card-text fs-12">wfklejflk</p>
-                </div>
-                <div class="button-box">
-                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
-                </div>
-            </div>
-            <div class="card card-item">
-                <img src="/image/users.webp" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <p class="fs-14-bold">
-                        <span>Leo Wang</span>
-                        <span class="light-icon">#</span>
-                        <span>26歲</span>
-                    </p>
-                    <p class="fs-12">
-                        <span>台北市</span>
-                        <span>男性</span>
-                        <span>@Leo666</span>
-                    </p>
-                    <p class="card-text fs-12">wfklejflk</p>
-                </div>
-                <div class="button-box">
-                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
-                </div>
-            </div>
-            <div class="card card-item">
-                <img src="/image/users.webp" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <p class="fs-14-bold">
-                        <span>Leo Wang</span>
-                        <span class="light-icon">#</span>
-                        <span>26歲</span>
-                    </p>
-                    <p class="fs-12">
-                        <span>台北市</span>
-                        <span>男性</span>
-                        <span>@Leo666</span>
-                    </p>
-                    <p class="card-text fs-12">wfklejflk</p>
-                </div>
-                <div class="button-box">
-                    <a href="#" class="btn btn-secondary">等待接受邀請</a>
-                </div>
-            </div>
+            {{/each}}
         </div>
     </div>
 </div>

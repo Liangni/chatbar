@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
-
+const { Op } = require("sequelize")
+const dayjs = require('dayjs')
 // 若採用JWT驗證，要加入如下
 // const jwt = require('jsonwebtoken')
 const { Gender, District, User, Interest, Owned_interest, Area, Group_message, Group_chat } = require('../models')
@@ -84,8 +85,34 @@ const userController = {
         req.logout()
         res.redirect('/users/login')
     },
-    getUsers: (req, res) => {
-          res.render('users/userList', { path: 'userList'} )
+    getUsers: async (req, res) => {
+        try {
+            const loginUser = getUser(req)
+            const FriendIds = loginUser.Friends.length ? loginUser.Friends.map(f => f.id) : []
+            const FriendshipInvitationSenderIds = loginUser.FriendshipInvitationSenders.length ? loginUser.FriendshipInvitationSenders.map(s => s.id) : []
+            const FriendshipInvitationRecieverIds = loginUser.FriendshipInvitationRecievers.length ? loginUser.FriendshipInvitationRecievers.map(s => s.id) : []
+
+            const users = await User.findAll({ 
+                where: { id: { [Op.not]: loginUser.id } },
+                include: [Gender, District, { model: Interest, as: 'CurrentInterests' }],
+            })
+            const usersData = users.map(u => {
+                // 計算使用者年齡
+                const today = dayjs(new Date())
+                const age = today.diff(u.birthday, 'year')
+                
+                // 定義使用者與登入使用者的朋友關係
+                let friendshipRole = null
+                if (FriendIds.includes(u.id)) { friendshipRole = 'friend' }
+                if (FriendshipInvitationSenderIds.includes(u.id)) { friendshipRole = 'invitationSender' }
+                if (FriendshipInvitationRecieverIds.includes(u.id)) { friendshipRole = 'invitationReciever' }
+                
+                return { ...u.toJSON(), age, friendshipRole }
+            })
+            res.render('users/userList', { path: 'userList', users: usersData })
+        }  catch(err) {
+            next(err)
+        }
     },
     getUserMessages: (req, res) => {
         res.render('users/userMessages', { path: 'getUserMessages' })

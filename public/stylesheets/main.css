@@ -877,13 +877,16 @@ a {
     width: 96%;
     margin: 0 auto;
     border: 1px solid #dee2e6;
-    padding: 20px;
+    /* padding: 20px; */
+    padding: 6px;
 }
 
 .section-three .all-users-wrapper .card-item {
     margin: 10px 10px;
-    width: 200px;
-    height: 360px;
+    /* width: 200px;*/
+    /* height: 360px;  */
+    width: 300px;
+    height: 420px;
     background: #fff;
     display: flex;
     flex-direction: column;
@@ -893,28 +896,35 @@ a {
 
 .all-users-wrapper .card-item img {
     width: 100%;
-    height: 50%;
+    /* height: 50%; */
+    height: 40%;
     object-fit: cover;
 }
 
 .all-users-wrapper .card-item .card-body {
     width: 100%;
-    height: 30%;
+    /* height: 30%; */
+    height: 45%;
     font-size: 12px;
-    overflow: scroll;
+    /* overflow: scroll; */
+    overflow: auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;
+    /* justify-content: center; */
+    justify-content: start;
 }
 
 .all-users-wrapper .card-item .button-box {
     width: 100%;
-    height: 20%;
+    /* height: 20%; */
+    height: 15%;
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
-    justify-content: space-around;
+    /* justify-content: space-around; */
+    justify-content: flex-end;
+    padding: 5%;
 }
 /* Add by Penny */
 .message-by-others {
@@ -970,4 +980,11 @@ a {
 .image-message-item {
     max-width: 20vw;
     margin: 10px 2px;
+}
+
+.section-three .user-interest-item {
+    border: none;
+    border-radius: 12px;
+    padding: 2px 8px;
+    background: rgb(210, 210, 210);
 }
