@@ -27,6 +27,7 @@ router.get('/loginUser/groupChats/groupMessages', authenticated, userController.
 
 // 朋友關係
 router.post('/:userId/friendshipInvitations', authenticated, userController.postFriendshipInvitations)
+router.delete('/:userId/friendshipInvitations', authenticated, userController.deleteFriendshipInvitations)
 
 // 全站使用者
 router.get('/', authenticated, userController.getUsers)

@@ -213,7 +213,7 @@
                         {{/each}}
                     </p>
                 </div>
-                <div class="button-box">
+                <div class="button-box action">
                     {{#ifCond this.friendshipRole null}}
                     <form action="/users/{{../this.id}}/friendshipInvitations/" method="POST">
                         <button class="btn btn-primary" type="submit">送出交友邀請</button>
@@ -221,15 +221,20 @@
                     {{/ifCond}}
                     {{#ifCond this.friendshipRole 'invitationSender'}}
                     <a href="#" class="btn btn-primary me-2">接受邀請</a>
-                    <a href="#" class="btn btn-danger">忽略</a>
+                    <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST" style="display: inline;">
+                        <button class="btn btn-danger" type="submit">忽略</button>
+                    </form>
                     {{/ifCond}}
                     {{#ifCond this.friendshipRole 'invitationReciever'}}
-                    {{!-- <a href="#" class="btn btn-secondary">等待接受邀請</a> --}}
                     <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         等待接受邀請
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">收回交友邀請</a></li>
+                        <li>
+                            <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST">
+                            <button class="ms-2" type="submit">收回交友邀請</button>
+                            </form>
+                        </li>
                     </ul>
                     {{/ifCond}}
                     {{#ifCond this.friendshipRole 'friend'}}

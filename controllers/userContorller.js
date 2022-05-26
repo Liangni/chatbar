@@ -137,6 +137,30 @@ const userController = {
             next(err)
         }
     },
+    deleteFriendshipInvitations: async (req, res) => {
+        try {
+            const { userId } = req.params
+            const loginUser = getUser(req)
+
+            const friendshipInvitaionRecord = await Friendship_invitation.findOne({
+                where: {
+                    [Op.or]: [
+                        { senderId: loginUser.id, recieverId: Number(userId) },
+                        { senderId: Number(userId), recieverId: loginUser.id }
+                    ]
+                }
+            })
+
+            if (!friendshipInvitaionRecord) throw new Error('交友邀請不存在或已被刪除!')
+
+            await friendshipInvitaionRecord.destroy()
+            req.flash('success_messages', '你已刪除交友邀請!')
+            res.redirect('back')
+
+        } catch(err) {
+            next(err)
+        }
+    },
     getUserMessages: (req, res) => {
         res.render('users/userMessages', { path: 'getUserMessages' })
     },
