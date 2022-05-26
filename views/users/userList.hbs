@@ -215,7 +215,9 @@
                 </div>
                 <div class="button-box">
                     {{#ifCond this.friendshipRole null}}
-                    <a href="#" class="btn btn-primary">送出交友邀請</a>
+                    <form action="/users/{{../this.id}}/friendshipInvitations/" method="POST">
+                        <button class="btn btn-primary" type="submit">送出交友邀請</button>
+                    </form>
                     {{/ifCond}}
                     {{#ifCond this.friendshipRole 'invitationSender'}}
                     <a href="#" class="btn btn-primary me-2">接受邀請</a>

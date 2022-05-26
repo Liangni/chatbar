@@ -3,7 +3,7 @@ const { Op } = require("sequelize")
 const dayjs = require('dayjs')
 // 若採用JWT驗證，要加入如下
 // const jwt = require('jsonwebtoken')
-const { Gender, District, User, Interest, Owned_interest, Area, Group_message, Group_chat } = require('../models')
+const { Gender, District, User, Interest, Owned_interest, Area, Friendship_invitation, Group_message, Group_chat } = require('../models')
 const { getUser } = require('../helpers/auth-helpers')
 const { formatMessageTime } = require('../helpers/time-helpers')
 
@@ -92,7 +92,7 @@ const userController = {
             const FriendshipInvitationSenderIds = loginUser.FriendshipInvitationSenders.length ? loginUser.FriendshipInvitationSenders.map(s => s.id) : []
             const FriendshipInvitationRecieverIds = loginUser.FriendshipInvitationRecievers.length ? loginUser.FriendshipInvitationRecievers.map(s => s.id) : []
 
-            const users = await User.findAll({ 
+            const users = await User.findAll({
                 where: { id: { [Op.not]: loginUser.id } },
                 include: [Gender, District, { model: Interest, as: 'CurrentInterests' }],
             })
@@ -100,17 +100,40 @@ const userController = {
                 // 計算使用者年齡
                 const today = dayjs(new Date())
                 const age = today.diff(u.birthday, 'year')
-                
+
                 // 定義使用者與登入使用者的朋友關係
                 let friendshipRole = null
                 if (FriendIds.includes(u.id)) { friendshipRole = 'friend' }
                 if (FriendshipInvitationSenderIds.includes(u.id)) { friendshipRole = 'invitationSender' }
                 if (FriendshipInvitationRecieverIds.includes(u.id)) { friendshipRole = 'invitationReciever' }
-                
+
                 return { ...u.toJSON(), age, friendshipRole }
             })
             res.render('users/userList', { path: 'userList', users: usersData })
-        }  catch(err) {
+        } catch (err) {
+            next(err)
+        }
+    },
+    postFriendshipInvitations: async (req, res) => {
+        try {
+            const { userId } = req.params
+            const loginUser = getUser(req)
+
+            const friendshipInvitationRecord = await Friendship_invitation.findOne({
+                where: {
+                    senderId: loginUser.id,
+                    recieverId: Number(userId),
+                }
+            })
+            if (friendshipInvitationRecord) throw new Error('重複發送交友邀請')
+
+            await Friendship_invitation.create({
+                senderId: loginUser.id,
+                recieverId: Number(userId),
+            })
+
+            res.redirect('back')
+        } catch (err) {
             next(err)
         }
     },
@@ -123,7 +146,7 @@ const userController = {
             const RegisteredGroupIds = loginUser?.RegisteredGroups?.map(g => g.id) || null
             const groupId = req.query ? Number(req.query.groupId) : null
             let groupChats
-            
+
             if (groupId) {
                 if (!RegisteredGroupIds || !RegisteredGroupIds.includes(groupId)) throw new Error('你沒有加入此話題')
             }
@@ -133,7 +156,7 @@ const userController = {
                 groupChats = await Promise.all(RegisteredGroupIds.map(async rgid => {
                     const groupChat = await Group_chat.findByPk(rgid, {
                         include: [
-                            { model: Group_message, include: [User]},
+                            { model: Group_message, include: [User] },
                             User,
                             { model: User, as: 'RegisteredUsers' }
                         ],
@@ -146,8 +169,8 @@ const userController = {
                         isLoginUser: (loginUser.id === m.User.id),
                         formattedCreatedAt: formatMessageTime(m.createdAt)
                     })) : null
-                    
-                    
+
+
                     // 取出最近一則訊息，取出前先拷貝groupMessages的值，避免更動groupMessages
                     const groupMessageData = groupChatData.Group_messages ? JSON.parse(JSON.stringify(groupChatData.Group_messages)) : null
                     const latestMessage = groupMessageData?.[groupMessageData.length - 1] || null
@@ -157,7 +180,7 @@ const userController = {
                             latestMessage.content = latestMessage.content.substring(0, 14) + '...'
                         }
                     }
-                    
+
                     // 返回前端需要的groupChat資訊, 與相關的最近一則訊息
                     return {
                         name: groupChatData.name,
@@ -168,23 +191,23 @@ const userController = {
                         latestMessage,
                     }
                 }))
-                
+
                 // 將groupChat按日期新->舊排序，沒有訊息的chat置頂
                 let chatsWithNoMessage = []
-                for (let i = groupChats.length - 1; i >= 0; i = i - 1 ) {
+                for (let i = groupChats.length - 1; i >= 0; i = i - 1) {
                     if (groupChats[i].Group_messages.length === 0) {
                         const removed = groupChats.splice(i, 1)
                         chatsWithNoMessage.unshift(...removed)
                     }
                 }
-                groupChats = chatsWithNoMessage.concat(groupChats.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt))) 
-                
+                groupChats = chatsWithNoMessage.concat(groupChats.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt)))
+
             }
 
             // 選擇要顯示所有訊息的groupChat
             let unfoldedGroupChat
-            if(groupId) {
-                unfoldedGroupChat = groupChats.find( i => i.id === groupId)
+            if (groupId) {
+                unfoldedGroupChat = groupChats.find(i => i.id === groupId)
             } else {
                 unfoldedGroupChat = groupChats[0]
             }
@@ -198,7 +221,7 @@ const userController = {
             next(err)
         }
     },
-    
+
 }
 
 module.exports = userController
