@@ -12,8 +12,8 @@
             </div>
             <div class="display-filter-cond-buttons-box">
                 <div class="display-filter-cond me-2">
-                    <button type="button" class="btn btn-primary filter-set">探索設定<i
-                            class="fa fa-chevron-up ms-2"></i></button>
+                    <button type="button" class="btn btn-outline-primary filter-set">探索設定<i
+                            class="fa fa-chevron-down ms-2"></i></button>
                 </div>
                 <div class="friends-invited">
                     <button type="button" class="btn btn-primary friends-set">交友邀請<i
@@ -21,7 +21,7 @@
                 </div>
             </div>
         </div>
-        <div class="can-hidden bg-white" style="display: none;">
+        <div class="can-hidden bg-white" style="display: block;">
             <div class="can-hidden-wrapper">
                 <div class="clear-cond-box fs-6 fw-bold">
                     <span>X</span>
@@ -196,7 +196,8 @@
         <div class="all-users-wrapper bg-white d-flex flex-row flex-wrap justify-content-start">
             {{#each users}}
             <div class="card card-item">
-                <img src="{{#if this.avatar}}{{this.avatar}}{{else}}/image/users.webp{{/if}}" class="card-img-top" alt="...">
+                <img src="{{#if this.avatar}}{{this.avatar}}{{else}}/image/users.webp{{/if}}" class="card-img-top"
+                    alt="...">
                 <div class="card-body">
                     <p class="fs-14-bold mb-1">
                         <span>{{this.account}}</span>
@@ -223,30 +224,33 @@
                     <form action="/users/{{../this.id}}/friendships?" method="POST" style="display: inline;">
                         <button class="btn btn-primary me-2" type="submit">接受邀請</button>
                     </form>
-                    <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST" style="display: inline;">
+                    <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST"
+                        style="display: inline;">
                         <button class="btn btn-danger" type="submit">忽略</button>
                     </form>
                     {{/ifCond}}
                     {{#ifCond this.friendshipRole 'invitationReciever'}}
-                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false">
                         等待接受邀請
                     </button>
                     <ul class="dropdown-menu">
                         <li>
                             <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST">
-                            <button class="ms-2" type="submit">收回交友邀請</button>
+                                <button class="ms-2" type="submit">收回交友邀請</button>
                             </form>
                         </li>
                     </ul>
                     {{/ifCond}}
                     {{#ifCond this.friendshipRole 'friend'}}
-                    <button type="button" class="btn btn-success dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button type="button" class="btn btn-success dropdown-toggle me-2" data-bs-toggle="dropdown"
+                        aria-expanded="false">
                         朋友
                     </button>
                     <ul class="dropdown-menu">
                         <li>
                             <form action="/users/{{../this.id}}/friendships?_method=DELETE" method="POST">
-                            <button class="ms-2" type="submit">解除朋友關係</button>
+                                <button class="ms-2" type="submit">解除朋友關係</button>
                             </form>
                         </li>
                     </ul>
@@ -318,38 +322,38 @@
     })
 
     displayFilterViewButtons.addEventListener('click', e => {
-        if (e.target.tagName === 'BUTTON') {
-            if (e.target.classList.contains('filter-set')) {
-                if (e.target.firstElementChild.classList.contains('fa-chevron-up')) {
-                    e.target.classList.remove('btn-primary')
-                    e.target.classList.add('btn-outline-primary')
-                    filterHiddenWrapper.style.display = 'block'
-                    e.target.firstElementChild.classList.remove('fa-chevron-up')
-                    e.target.firstElementChild.classList.add('fa-chevron-down')
-                } else if (e.target.firstElementChild.classList.contains('fa-chevron-down')) {
-                    e.target.classList.remove('btn-outline-primary')
-                    e.target.classList.add('btn-primary')
-                    filterHiddenWrapper.style.display = 'none'
-                    e.target.firstElementChild.classList.remove('fa-chevron-down')
-                    e.target.firstElementChild.classList.add('fa-chevron-up')
-                }
-            } else if (e.target.classList.contains('friends-set')) {
-                if (e.target.firstElementChild.classList.contains('fa-chevron-up')) {
-                    e.target.classList.remove('btn-primary')
-                    e.target.classList.add('btn-outline-primary')
-                    friendsInviteWrapper.style.display = 'block'
-                    e.target.firstElementChild.classList.remove('fa-chevron-up')
-                    e.target.firstElementChild.classList.add('fa-chevron-down')
-                } else if (e.target.firstElementChild.classList.contains('fa-chevron-down')) {
-                    e.target.classList.remove('btn-outline-primary')
-                    e.target.classList.add('btn-primary')
-                    friendsInviteWrapper.style.display = 'none'
-                    e.target.firstElementChild.classList.remove('fa-chevron-down')
-                    e.target.firstElementChild.classList.add('fa-chevron-up')
-                }
-            }
-        }
+        if (e.target.tagName !== 'BUTTON') return
+
+        if (e.target.classList.contains('filter-set')) {
+            toggleDisplay(e.target, filterHiddenWrapper)
+            // 若隔壁按鈕箭頭向上表示對應清單收合，直接結束處理；反之，則toggle以收合
+            const btnfriendsSet = document.querySelector('.btn.friends-set')
+            if (btnfriendsSet.firstElementChild.classList.contains('fa-chevron-up')) return 
+            return toggleDisplay(btnfriendsSet, friendsInviteWrapper)      
+        } 
+        
+        toggleDisplay(e.target, friendsInviteWrapper)
+        // 若隔壁按鈕箭頭向上表示對應清單收合，直接結束處理；反之，則toggle以收合
+        const btnfilterSet = document.querySelector('.btn.filter-set')
+        if (btnfilterSet.firstElementChild.classList.contains('fa-chevron-up')) return   
+        return toggleDisplay(btnfilterSet, filterHiddenWrapper)
     })
+
+    function toggleDisplay(toggleBtn, targetWrapper) {
+        if (toggleBtn.firstElementChild.classList.contains('fa-chevron-up')) {
+            toggleBtn.classList.remove('btn-primary')
+            toggleBtn.classList.add('btn-outline-primary')
+            targetWrapper.style.display = 'block'
+            toggleBtn.firstElementChild.classList.remove('fa-chevron-up')
+            toggleBtn.firstElementChild.classList.add('fa-chevron-down')
+        } else if (toggleBtn.firstElementChild.classList.contains('fa-chevron-down')) {
+            toggleBtn.classList.remove('btn-outline-primary')
+            toggleBtn.classList.add('btn-primary')
+            targetWrapper.style.display = 'none'
+            toggleBtn.firstElementChild.classList.remove('fa-chevron-down')
+            toggleBtn.firstElementChild.classList.add('fa-chevron-up')
+        }
+    }
 
     function removeInterest(element) {
         element.remove()
