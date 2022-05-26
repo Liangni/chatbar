@@ -200,10 +200,39 @@ const userController = {
                     { transaction: t }
                 )
             })
-            
+
             req.flash('success_messages', '成功建立朋友關係!')
             res.redirect('back')
         } catch (err) {
+            next(err)
+        }
+    },
+    deleteFriendships: async (req, res) => {
+        try {
+            let { userId } = req.params
+            userId = Number(userId)
+            const loginUser = getUser(req)
+
+            // 檢查朋友關係是否存在，若不存在則結束處理
+            const friendshipsRecord = await Friendship.findAll({
+                where: {
+                    [Op.or]: [
+                        { userId: loginUser.id, friendId: userId },
+                        { userId: userId, friendId: loginUser.id }
+                    ]
+                }
+            })
+            if (!friendshipsRecord) throw new Error('朋友關係已解除，無法再次解除')
+            
+            await Friendship.destroy({where: {
+                [Op.or]: [
+                    { userId: loginUser.id, friendId: userId },
+                    { userId: userId, friendId: loginUser.id }
+                ]
+            }})
+            req.flash('success_messages', '解除朋友關係!')
+            res.redirect('back')
+        } catch(err) {
             next(err)
         }
     },

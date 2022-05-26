@@ -244,7 +244,11 @@
                         朋友
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">解除朋友關係</a></li>
+                        <li>
+                            <form action="/users/{{../this.id}}/friendships?_method=DELETE" method="POST">
+                            <button class="ms-2" type="submit">解除朋友關係</button>
+                            </form>
+                        </li>
                     </ul>
                     <a href="#" class="btn btn-primary">Chat</a>
                     {{/ifCond}}
