@@ -85,7 +85,7 @@ const userController = {
         req.logout()
         res.redirect('/users/login')
     },
-    getUsers: async (req, res) => {
+    getUsers: async (req, res, next) => {
         try {
             const loginUser = getUser(req)
             const FriendIds = loginUser.Friends.length ? loginUser.Friends.map(f => f.id) : []
@@ -114,7 +114,7 @@ const userController = {
             next(err)
         }
     },
-    postFriendshipInvitations: async (req, res) => {
+    postFriendshipInvitations: async (req, res, next) => {
         try {
             const { userId } = req.params
             const loginUser = getUser(req)
@@ -137,7 +137,7 @@ const userController = {
             next(err)
         }
     },
-    deleteFriendshipInvitations: async (req, res) => {
+    deleteFriendshipInvitations: async (req, res, next) => {
         try {
             const { userId } = req.params
             const loginUser = getUser(req)
@@ -161,7 +161,7 @@ const userController = {
             next(err)
         }
     },
-    postFriendships: async (req, res) => {
+    postFriendships: async (req, res, next) => {
         try {
             let { userId } = req.params
             userId = Number(userId)
@@ -207,7 +207,7 @@ const userController = {
             next(err)
         }
     },
-    deleteFriendships: async (req, res) => {
+    deleteFriendships: async (req, res, next) => {
         try {
             let { userId } = req.params
             userId = Number(userId)
