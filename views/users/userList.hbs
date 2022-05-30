@@ -110,51 +110,32 @@
         <div class="friends-invite-wrapper d-flex flex-column align-items-center justify-content-center">
             <h5 class="fw-bold" style="width: 100%;">交友邀請</h5>
             <div class="friends-invite-list-box">
-                <div class="card card-item">
-                    <img src="https://wallpaperaccess.com/full/2181187.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <p class="fs-14-bold mb-1">
-                            <span>Leo Wang</span>
-                        </p>
-                        <p class="s-12 mb-1">
-                            <span>台北市</span>
-                            <span>男性</span>
-                            <span>26歲</span>
-                        </p>
-                        <p class="card-text fs-12">damn</p>
-                        <p class="fs-12 m-0">
-                            <span class="user-interest-item"># 足球</span>
-                        </p>
-                    </div>
-                    <div class="button-box">
-                        <a href="#" class="btn btn-primary">接受邀請</a>
-                        <a href="#" class="btn btn-danger">忽略</a>
-                    </div>
-                </div>
+                <span>目前沒有交友邀請!</span>
+                {{!-- Insert card-items through DOM --}}
             </div>
         </div>
     </div>
     <div class="section-three">
         <div class="all-users-wrapper bg-white d-flex flex-row flex-wrap justify-content-start">
             {{#each users}}
-            <div class="card card-item">
-                <img src="{{#if this.avatar}}{{this.avatar}}{{else}}/image/users.webp{{/if}}" class="card-img-top"
+            <div class="card card-item" data-friendship-role="{{this.friendshipRole}}">
+                <img src="{{#if this.avatar}}{{this.avatar}}{{else}}/image/users.webp{{/if}}" class="card-img-top" data-user="avatar"
                     alt="...">
                 <div class="card-body">
                     <p class="fs-14-bold mb-1">
-                        <span>{{this.account}}</span>
+                        <span data-user="account">{{this.account}}</span>
                     </p>
                     <p class="fs-12 mb-1">
-                        <span>{{this.District.name}}</span>
-                        <span>{{this.Gender.name}}</span>
-                        <span>{{this.age}}歲</span>
+                        <span data-user="district">{{this.District.name}}</span>
+                        <span data-user="gender">{{this.Gender.name}}</span>
+                        <span data-user="age">{{this.age}}歲</span>
                     </p>
-                    <p class="card-text fs-12">{{#if this.intro}}{{this.intro}}{{else}}目前沒有自我介紹{{/if}}</p>
-                    <p class="fs-12 m-0">
+                    <p class="fs-12 mb-2" data-user="interests">
                         {{#each this.CurrentInterests}}
                         <span class="user-interest-item"># {{this.name}}</span>
                         {{/each}}
                     </p>
+                    <p class="card-text fs-12" data-user="intro">{{#if this.intro}}{{this.intro}}{{else}}目前沒有自我介紹{{/if}}</p>
                 </div>
                 <div class="button-box action">
                     {{#ifCond this.friendshipRole null}}
@@ -270,15 +251,60 @@
             toggleDisplay(e.target, filterHiddenWrapper)
             // 若隔壁按鈕箭頭向上表示對應清單收合，直接結束處理；反之，則toggle以收合
             const btnfriendsSet = document.querySelector('.btn.friends-set')
-            if (btnfriendsSet.firstElementChild.classList.contains('fa-chevron-up')) return 
-            return toggleDisplay(btnfriendsSet, friendsInviteWrapper)      
-        } 
-        
-        toggleDisplay(e.target, friendsInviteWrapper)
-        // 若隔壁按鈕箭頭向上表示對應清單收合，直接結束處理；反之，則toggle以收合
-        const btnfilterSet = document.querySelector('.btn.filter-set')
-        if (btnfilterSet.firstElementChild.classList.contains('fa-chevron-up')) return   
-        return toggleDisplay(btnfilterSet, filterHiddenWrapper)
+            if (btnfriendsSet.firstElementChild.classList.contains('fa-chevron-up')) return
+            return toggleDisplay(btnfriendsSet, friendsInviteWrapper)
+        }
+
+        if (e.target.classList.contains('friends-set')) {
+            axios.get('/api/users/loginUser/friendshipInviations/senders')
+                .then((response) => {
+                    const data = response.data
+                    if (data.status !== 'success') throw new Error(data.message)
+
+                    const friendshipInvitationSenders = data.friendshipInvitationSenders
+                    if (!friendshipInvitationSenders.length) return
+                    // 清空好友邀請清單預設「目前沒有任何邀請」的文字訊息
+                    const friendsInviteListBox = document.querySelector('.friends-invite-list-box')
+                    friendsInviteListBox.innerText = ''
+
+                    friendshipInvitationSenders.forEach(sender=>{
+                        // 複製發送邀請者的卡片元素
+                        const invitationSenderCard = document.querySelector('.card-item[data-friendship-role = "invitationSender"]')
+                        const CardClone = invitationSenderCard.cloneNode(true)
+                        
+                        // 整理邀請者的使用者資料
+                        let { avatar, intro, account, district, gender, age, CurrentInterests, id } = sender
+                        avatar = avatar? avatar : '/image/users.webp'
+                        intro = intro? intro : '目前沒有自我介紹'
+
+                        // 將資料塞進複製的卡片元素
+                        CardClone.querySelector('[data-user = "avatar"]').src = avatar
+                        CardClone.querySelector('[data-user = "account"]').innerText = account
+                        CardClone.querySelector('[data-user = "district"]').innerText = district
+                        CardClone.querySelector('[data-user = "gender"]').innerText = gender
+                        CardClone.querySelector('[data-user = "age"]').innerText = age
+                        CardClone.querySelector('[data-user = "intro"]').innerText = intro
+                        let interestHTMLTemplate = ''
+                        CurrentInterests.forEach(i=>{
+                            interestHTMLTemplate += `<span class="user-interest-item"># ${i.name}</span>`
+                        })
+                        CardClone.querySelector('[data-user = "interests"]').innerHTML = interestHTMLTemplate
+                        // 將卡片元素插入好友邀請清單
+                        friendsInviteListBox.appendChild(CardClone)
+                    })
+
+                    toggleDisplay(e.target, friendsInviteWrapper)
+                    // 若隔壁按鈕箭頭向上表示對應清單收合，直接結束處理；反之，則toggle以收合
+                    const btnfilterSet = document.querySelector('.btn.filter-set')
+                    if (btnfilterSet.firstElementChild.classList.contains('fa-chevron-up')) return
+                    return toggleDisplay(btnfilterSet, filterHiddenWrapper)
+
+                    filterHiddenWrapper.scrollIntoView(true)
+                })
+                .catch((err) => {
+                    alert(`有地方出錯了！請截圖彈跳視窗給開發人員，我們會盡快排除故障${err}`)
+                })
+        }
     })
 
     function toggleDisplay(toggleBtn, targetWrapper) {
