@@ -16,15 +16,15 @@ module.exports = {
     // 組裝要插入的friendships資料
     const insertData = [
       {
-        sender_id: userIds[0].id,
-        reciever_id: userIds[1].id,
+        sender_id: userIds[1].id,
+        reciever_id: userIds[2].id,
         content: faker.lorem.sentence(),
         created_at: new Date(today.setSeconds(1)),
         updated_at: new Date(today.setSeconds(1)),
       },
       {
         sender_id: userIds[2].id,
-        reciever_id: userIds[0].id,
+        reciever_id: userIds[1].id,
         content: faker.lorem.sentence(),
         created_at: new Date(today.setSeconds(2)),
         updated_at: new Date(today.setSeconds(2)),
