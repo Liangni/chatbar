@@ -151,11 +151,12 @@
                     </form>
                     {{/ifCond}}
                     {{#ifCond this.friendshipRole 'invitationSender'}}
-                    <form action="/users/{{../this.id}}/friendships?" method="POST" data-user="accept-friendship-invitation" style="display: inline;">
+                    <form action="/users/{{../this.id}}/friendships?" method="POST"
+                        data-user="accept-friendship-invitation" style="display: inline;">
                         <button class="btn btn-primary me-2" type="submit">接受邀請</button>
                     </form>
-                    <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST" data-user="delete-friendship-invitation"
-                        style="display: inline;">
+                    <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST"
+                        data-user="delete-friendship-invitation" style="display: inline;">
                         <button class="btn btn-danger" type="submit">忽略</button>
                     </form>
                     {{/ifCond}}
@@ -198,27 +199,11 @@
 
 <script>
     const displayFilterViewButtons = document.querySelector('.display-filter-cond-buttons-box'),
-        filterHiddenWrapper = document.querySelector('.can-hidden'),
-        friendsInviteWrapper = document.querySelector('.section-two'),
         clearCondButton = document.querySelector('.clear-cond-box'),
-        statusAll = document.querySelector('#statusAll'),
-        online = document.querySelector('#online'),
-        offline = document.querySelector('#offline'),
-        genderAll = document.querySelector('#genderAll'),
-        male = document.querySelector('#male'),
-        female = document.querySelector('#female'),
-        other = document.querySelector('#other'),
-        areaAll = document.querySelector('#areaAll'),
-        north = document.querySelector('#north'),
-        middle = document.querySelector('#middle'),
-        south = document.querySelector('#south'),
-        east = document.querySelector('#east'),
-        interestForm = document.querySelector('#interestForm'),
-        interestInput = document.querySelector('#interest'),
-        renderInterestWrapper = document.querySelector('#renderInterestWrapper'),
         userListWrapper = document.querySelector('.userList-wrapper'),
         userFilter = {}
 
+    // socket事件
     socket.emit("fetchOnlineUserIds")
 
     socket.on('getOnlineUserIds', (onlineUserIds) => {
@@ -243,67 +228,11 @@
         })
     })
 
-    userListWrapper.addEventListener('click', function onBtnClicked(e) {
-        if (e.target.id === 'searchBtn') {
-            const searchInput = document.querySelector('Input[name = "account"]')
-            userFilter.account = searchInput.value.trim()
-            filterUsers(userFilter)
-        }
-    })
-
-    interestForm.addEventListener('click', e => {
-        if (e.target.id === 'addInterestButton') {
-            const value = interestInput.value
-            if (value.trim() === '') return
-
-            renderInterestWrapper.innerHTML += `
-                <button type="button" class="interest-item me-3 fs-12" onclick="removeInterest(this)">
-                    X <span>${value}<span>
-                </button>
-            `
-            // 篩選user
-            if (!userFilter.interests) userFilter.interests = []
-            userFilter.interests.push(value)
-            filterUsers(userFilter)
-            // 清空input
-            interestInput.value = ''
-        }
-    })
-
-    clearCondButton.addEventListener('click', e => {
-        if (online.checked || offline.checked || statusAll.checked) {
-            statusAll.checked = true
-            online.checked = false
-            offline.checked = false
-            userFilter.status = 'All'
-        }
-
-        if (male.checked || female.checked || other.checked || genderAll.checked) {
-            genderAll.checked = true
-            male.checked = false
-            female.checked = false
-            other.checked = false
-            userFilter.gender = 'All'
-        }
-
-        if (north.checked || middle.checked || south.checked || east.checked || areaAll.checked) {
-            areaAll.checked = true
-            north.checked = false
-            middle.checked = false
-            south.checked = false
-            east.checked = false
-            userFilter.area = 'All'
-        }
-
-        if (renderInterestWrapper.innerHTML) {
-            renderInterestWrapper.innerHTML = ''
-            userFilter.interests = []
-        }
-
-        filterUsers(userFilter)
-    })
-
+    // 元素操作事件
     displayFilterViewButtons.addEventListener('click', e => {
+        const filterHiddenWrapper = document.querySelector('.can-hidden')
+        const friendsInviteWrapper = document.querySelector('.section-two')
+        
         if (e.target.tagName !== 'BUTTON') return
 
         if (e.target.classList.contains('filter-set')) {
@@ -371,6 +300,80 @@
         }
     })
 
+    userListWrapper.addEventListener('click', function onBtnClicked(e) {
+        if (e.target.id === 'searchBtn') {
+            const searchInput = document.querySelector('Input[name = "account"]')
+            userFilter.account = searchInput.value.trim()
+            filterUsers(userFilter)
+        }
+
+        if (e.target.id === 'addInterestButton') {
+            const interestInput = document.querySelector('#interest')
+            const renderInterestWrapper = document.querySelector('#renderInterestWrapper')
+            const value = interestInput.value
+            if (value.trim() === '') return
+
+            renderInterestWrapper.innerHTML += `
+                <button type="button" class="interest-item me-3 fs-12" onclick="removeInterest(this)">
+                    X <span>${value}<span>
+                </button>
+            `
+            // 篩選user
+            if (!userFilter.interests) userFilter.interests = []
+            userFilter.interests.push(value)
+            filterUsers(userFilter)
+            // 清空input
+            interestInput.value = ''
+        }
+    })
+
+    clearCondButton.addEventListener('click', e => {
+        const statusAll = document.querySelector('#statusAll'),
+            online = document.querySelector('#online'),
+            offline = document.querySelector('#offline'),
+            genderAll = document.querySelector('#genderAll'),
+            male = document.querySelector('#male'),
+            female = document.querySelector('#female'),
+            other = document.querySelector('#other'),
+            areaAll = document.querySelector('#areaAll'),
+            north = document.querySelector('#north'),
+            middle = document.querySelector('#middle'),
+            south = document.querySelector('#south'),
+            east = document.querySelector('#east'),
+            renderInterestWrapper = document.querySelector('#renderInterestWrapper')
+
+        if (online.checked || offline.checked || statusAll.checked) {
+            statusAll.checked = true
+            online.checked = false
+            offline.checked = false
+            userFilter.status = 'All'
+        }
+
+        if (male.checked || female.checked || other.checked || genderAll.checked) {
+            genderAll.checked = true
+            male.checked = false
+            female.checked = false
+            other.checked = false
+            userFilter.gender = 'All'
+        }
+
+        if (north.checked || middle.checked || south.checked || east.checked || areaAll.checked) {
+            areaAll.checked = true
+            north.checked = false
+            middle.checked = false
+            south.checked = false
+            east.checked = false
+            userFilter.area = 'All'
+        }
+
+        if (renderInterestWrapper.innerHTML) {
+            renderInterestWrapper.innerHTML = ''
+            userFilter.interests = []
+        }
+
+        filterUsers(userFilter)
+    })
+
     userListWrapper.addEventListener('change', function onSwitchChanged(e) {
 
         const targetInput = event.target
@@ -388,6 +391,7 @@
 
     })
 
+    // 函式
     function filterUsers(filterObj) {
         const userCardsContainer = document.querySelector('[data-info="users"]')
         const userCards = userCardsContainer.querySelectorAll('[data-info="user"]')
@@ -409,7 +413,7 @@
                         if (!filterValue) break
 
                         const re = new RegExp(`${filterValue}`, 'i')
-                        if (!re.test(userAccountBox.innerText)) udisplaySetting = 'none'
+                        if (!re.test(userAccountBox.innerText)) displaySetting = 'none'
                         break
                     case 'interests':
                         const userInterestBoxes = userCard.querySelectorAll('[data-user = "interest"]')
