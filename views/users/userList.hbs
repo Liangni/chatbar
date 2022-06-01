@@ -151,10 +151,10 @@
                     </form>
                     {{/ifCond}}
                     {{#ifCond this.friendshipRole 'invitationSender'}}
-                    <form action="/users/{{../this.id}}/friendships?" method="POST" style="display: inline;">
+                    <form action="/users/{{../this.id}}/friendships?" method="POST" data-user="accept-friendship-invitation" style="display: inline;">
                         <button class="btn btn-primary me-2" type="submit">接受邀請</button>
                     </form>
-                    <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST"
+                    <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST" data-user="delete-friendship-invitation"
                         style="display: inline;">
                         <button class="btn btn-danger" type="submit">忽略</button>
                     </form>
@@ -351,6 +351,8 @@
                             interestHTMLTemplate += `<span class="user-interest-item"># <span data-user="interest">${i.name}</span></span>`
                         })
                         CardClone.querySelector('[data-user = "interests"]').innerHTML = interestHTMLTemplate
+                        CardClone.querySelector('[data-user="accept-friendship-invitation"]').action = `/users/${id}/friendships?`
+                        CardClone.querySelector('[data-user="delete-friendship-invitation"]').action = `/users/${id}/friendshipInvitations?_method=DELETE`
                         // 將卡片元素插入好友邀請清單
                         friendsInviteListBox.appendChild(CardClone)
                     })
