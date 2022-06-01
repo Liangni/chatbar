@@ -10,7 +10,7 @@
             {{#if ../groupChats}}
             {{#each ../groupChats}}
             <div class="room-item {{#ifCond this.id ../../unfoldedGroupChat.id}}active{{/ifCond}} btn"
-                data-io-room="groupChat{{this.id}}"
+                data-io-room="groupChat{{this.id}}" data-group-chat-id="{{this.id}}"
                 data-url="/api/users/loginUser/groupChats/groupMessages?groupId={{this.id}}">
                 <img src="/image/users.webp" alt="room-avatar" class="chat-avatar">
                 <div class="chat-nameAndNew">
@@ -264,12 +264,13 @@
         classifyOnlineAndOfflineUsers(ioRoom, onlineRoomateIds)
     })
     // 監聽來自伺服器的「新登入」事件，事件發生則更新group message右側的線上/離線使用者清單
-    socket.on('newLogin', (ioRoom, userId) => {
+    socket.on('newLogin', (userGroupChatIds, userId) => {
         const activeChat = document.querySelector('.room-item.active')
-        const offlineRoomates = document.querySelectorAll('.right-part-bottom .online-user')
+        const activeGroupChatId = activeChat.dataset.groupChatId || null
 
         // 更新所展開的groupMessage的登入使用者名單
-        if ((activeChat.dataset.ioRoom === ioRoom) && offlineRoomates) {
+        if (activeGroupChatId && userGroupChatIds.includes(Number(activeGroupChatId))) {
+            const offlineRoomates = document.querySelectorAll('.right-part-bottom .online-user')
             offlineRoomates.forEach(r => {
                 if (Number(r.dataset.userId) === userId) {
                     const onlineUserBox = document.querySelector('#online-user-box')
@@ -279,10 +280,11 @@
         }
     })
     // 監聽來自伺服器的「登出」事件，事件發生則更新group message右側的線上/離線使用者清單
-    socket.on('newLogout', (ioRoom, userId) => {
+    socket.on('newLogout', (userGroupChatIds, userId) => {
         const activeChat = document.querySelector('.room-item.active')
+        const activeGroupChatId = activeChat.dataset.groupChatId || null
 
-        if (activeChat.dataset.ioRoom === ioRoom) {
+        if (activeGroupChatId && userGroupChatIds.includes(Number(activeGroupChatId))) {
             const onlineRoomates = document.querySelectorAll('.online-user')
             onlineRoomates.forEach(r => {
                 if (Number(r.dataset.userId) === userId) {
@@ -378,7 +380,7 @@
 
         // 將檔案上傳至firebase，並在formData加上檔案連結
         if (fileInput.files[0]) formData.append('fileUrl', await uploadAndgetFirebaseRef('files', fileInput.files[0]))
-        if (imageInput.files[0]) formData.append('imageUrl', await uploadAndgetFirebaseRef('images', imageInput.files[0]) )
+        if (imageInput.files[0]) formData.append('imageUrl', await uploadAndgetFirebaseRef('images', imageInput.files[0]))
 
         axios
             .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
@@ -455,7 +457,7 @@
 
         function makeMessageCut(content, file, imageSrc) {
             if (content) return content.substring(0, 14) + '...'
-            if (imageSrc)  return '傳送一張圖片'
+            if (imageSrc) return '傳送一張圖片'
             if (file) return '傳送一個附件'
         }
     }
@@ -548,7 +550,7 @@
         const url = URL.createObjectURL(selectedImage)
 
         adjustHeightsToWrapImagePreview()
-        
+
         imagePreview.src = url
         imageItem.style.display = ""
     }
@@ -609,7 +611,7 @@
             const contentContainer = messageWrapper.children[0]
             contentContainer.innerText = content
         }
-        if (imageSrc) {  
+        if (imageSrc) {
             messageWrapper.insertBefore(makeImageNode(imageSrc), timeContainer)
         }
         if (file) {
@@ -642,11 +644,11 @@
             contentContainer.innerText = content
         }
         if (imageSrc) {
-            
+
             messageWrapper.insertBefore(makeImageNode(imageSrc), timeContainer)
         }
         if (file) {
-            
+
             messageWrapper.insertBefore(makeDownLoadItemNode(file), timeContainer)
         }
 
@@ -668,7 +670,7 @@
         const imageContainer = document.createElement('img')
         imageContainer.classList.add('image-message-item')
         imageContainer.src = imageSrc
-        
+
         return imageContainer
     }
 
