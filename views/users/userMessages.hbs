@@ -240,7 +240,7 @@
     const activeChat = document.querySelector('.room-item.active') || null
     const activeGroupChatId = activeChat?.dataset.groupChatId || null
 
-    if(activeGroupChatId) emitFetchOnlineGroupUsersEvent(Number(activeGroupChatId))
+    if (activeGroupChatId) emitFetchOnlineGroupUsersEvent(Number(activeGroupChatId))
 
     // 初始化firebase
     firebase.initializeApp(firebaseConfig)
@@ -269,34 +269,26 @@
     })
     // 監聽來自伺服器的「新登入」事件，事件發生則更新group message右側的線上/離線使用者清單
     socket.on('newLogin', (userGroupChatIds, userId) => {
-        const activeChat = document.querySelector('.room-item.active')
-        const activeGroupChatId = activeChat.dataset.groupChatId || null
+        if (!activeGroupChatId || !userGroupChatIds.includes(Number(activeGroupChatId))) return
 
         // 更新所展開的groupMessage的登入使用者名單
-        if (activeGroupChatId && userGroupChatIds.includes(Number(activeGroupChatId))) {
-            const offlineRoomates = document.querySelectorAll('.right-part-bottom .online-user')
-            offlineRoomates.forEach(r => {
-                if (Number(r.dataset.userId) === userId) {
-                    const onlineUserBox = document.querySelector('#online-user-box')
-                    onlineUserBox.appendChild(r)
-                }
-            })
-        }
+        const offlineRoomates = document.querySelectorAll('.right-part-bottom .online-user')
+        offlineRoomates.forEach(r => {
+            if (Number(r.dataset.userId) !== userId) return
+            const onlineUserBox = document.querySelector('#online-user-box')
+            onlineUserBox.appendChild(r)
+        })
     })
     // 監聽來自伺服器的「登出」事件，事件發生則更新group message右側的線上/離線使用者清單
     socket.on('newLogout', (userGroupChatIds, userId) => {
-        const activeChat = document.querySelector('.room-item.active')
-        const activeGroupChatId = activeChat.dataset.groupChatId || null
+        if (!activeGroupChatId || !userGroupChatIds.includes(Number(activeGroupChatId))) return
 
-        if (activeGroupChatId && userGroupChatIds.includes(Number(activeGroupChatId))) {
-            const onlineRoomates = document.querySelectorAll('.online-user')
-            onlineRoomates.forEach(r => {
-                if (Number(r.dataset.userId) === userId) {
-                    const offlineUserBox = document.querySelector('#offline-user-box')
-                    offlineUserBox.appendChild(r)
-                }
-            })
-        }
+        const onlineRoomates = document.querySelectorAll('.online-user')
+        onlineRoomates.forEach(r => {
+            if (Number(r.dataset.userId) !== userId) return
+            const offlineUserBox = document.querySelector('#offline-user-box')
+            offlineUserBox.appendChild(r)
+        })
     })
 
     // Section 1.2 元素點擊或送出事件
