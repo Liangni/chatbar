@@ -15,6 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Group_chat, { foreignKey:'userId' })
       User.hasMany(models.Group_message, { foreignKey: 'userId'})
       User.hasMany(models.Friendship_invitation, { foreignKey: 'senderId' })
+      User.hasMany(models.Private_message, { foreignKey: 'senderId' })
+      User.hasMany(models.Private_message, { foreignKey: 'receiverId' })
 
       // Many-to-One
       User.belongsTo(models.Gender, { foreignKey: 'genderId' })
