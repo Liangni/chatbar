@@ -237,6 +237,10 @@
     const msgDisplayer = document.querySelector('#msg-displayer')
     const sendMsgWrapper = document.querySelector('.send-message-wrapper')
     const chats = document.querySelectorAll('.room-item')
+    const activeChat = document.querySelector('.room-item.active') || null
+    const activeGroupChatId = activeChat?.dataset.groupChatId || null
+
+    if(activeGroupChatId) emitFetchOnlineGroupUsersEvent(Number(activeGroupChatId))
 
     // 初始化firebase
     firebase.initializeApp(firebaseConfig)
