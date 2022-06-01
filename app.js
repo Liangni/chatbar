@@ -79,24 +79,34 @@ io.on("connection", (socket) => {
 
   // 將新連線加入連線使用者所屬groupChat的Room
   if (user.groupChatIds) user.groupChatIds.forEach(id => {socket.join(`groupChat${id}`)})
-  
+
+  // 如連線來自新登入使用者
+  console.log(`onlineUserIds before userId${user.id} connecting:`, onlineUserIds)
+  if (isNewLogin) {
+    // 更新線上使用者名單
+    onlineUsers.push({ id: user.id, groupChatIds: user.groupChatIds })
+    // 向所有連線發送「新登入」事件，送出連線使用者id和加入的groupIds
+    io.emit("newLogin", user.groupChatIds, user.id)
+  }
+  console.log(`onlineUserIds after userId${user.id} connecting(updated):`, onlineUsers.map(u => u.id))
+
   // 監聽來自客戶端的chatMessage事件
   socket.on("chatMessage", (ioRoom, Sender, content, createdAt, file, imageSrc) => {
     // 發送chatMessage給特定Room的客戶端
     io.to(ioRoom).emit("chatMessage", ioRoom, Sender, content, createdAt, file, imageSrc);
   })
-  
-  console.log(`onlineUserIds before userId${user.id} connecting:`, onlineUserIds)
-  
-  // 如連線來自新登入使用者
-  if (isNewLogin) { 
-    // 更新線上使用者名單
-    onlineUsers.push({ id: user.id, groupChatIds: user.groupChatIds })
-    // 向連線加入的Room發送「新登入」事件，送出連線使用者id
-    io.emit("newLogin", user.groupChatIds, user.id)
-  } 
-  console.log(`onlineUserIds after userId${user.id} connecting(updated):`, onlineUsers.map(u => u.id))
-  
+  // 監聽來自客戶端的「更新線上使用者名單」事件
+  socket.on('fetchOnlineUserIds', () => {
+    io.to(socket.id).emit("getOnlineUserIds", onlineUserIds)
+  })
+
+  socket.on('fetchOnlineGroupUsers', (groupId) => {
+    const onlineRoomates = onlineUsers.filter(u => u.groupChatIds.includes(groupId))
+    const onlineRoomateIds = onlineRoomates.map(u => u.id)
+    
+    io.to(socket.id).emit("getOnlineGroupUsers", `groupChat${groupId}`, onlineRoomateIds)
+  })
+  // 監聽中斷連線事件事件
   socket.on('disconnect', () => {
     console.log(`userId:${socket.request.user.id} socketId:${socket.id} disconnected`)
   
@@ -119,16 +129,6 @@ io.on("connection", (socket) => {
     }, 2000)
   })
 
-  socket.on('fetchOnlineGroupUsers', (groupId) => {
-    const onlineRoomates = onlineUsers.filter(u => u.groupChatIds.includes(groupId))
-    const onlineRoomateIds = onlineRoomates.map(u => u.id)
-    console.log(`onlineUser in Room:groupChat${groupId}`, onlineRoomateIds)
-    io.in(`groupChat${groupId}`).to(socket.id).emit("getOnlineGroupUsers", `groupChat${groupId}`,onlineRoomateIds)
-  })
-
-  socket.on('fetchOnlineUserIds', ()=>{
-    io.to(socket.id).emit("getOnlineUserIds", onlineUserIds)
-  })
 });
 
 server.listen(PORT, () => {
