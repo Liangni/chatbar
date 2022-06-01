@@ -91,10 +91,10 @@ const userController = {
             const FriendIds = loginUser.Friends.length ? loginUser.Friends.map(f => f.id) : []
             const FriendshipInvitationSenderIds = loginUser.FriendshipInvitationSenders.length ? loginUser.FriendshipInvitationSenders.map(s => s.id) : []
             const FriendshipInvitationRecieverIds = loginUser.FriendshipInvitationRecievers.length ? loginUser.FriendshipInvitationRecievers.map(s => s.id) : []
-
+            
             const users = await User.findAll({
                 where: { id: { [Op.not]: loginUser.id } },
-                include: [Gender, District, { model: Interest, as: 'CurrentInterests' }],
+                include: [Gender, { model: District, include: Area }, { model: Interest, as: 'CurrentInterests' }],
             })
             const usersData = users.map(u => {
                 // 計算使用者年齡

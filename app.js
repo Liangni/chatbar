@@ -90,14 +90,15 @@ io.on("connection", (socket) => {
     // 更新線上使用者名單
     onlineUsers.push({ id: user.id, groupChatIds: user.groupChatIds })
     // 向連線加入的Room發送「新登入」事件，送出連線使用者id
-    user.groupChatIds.forEach(id => { io.to(`groupChat${id}`).emit("newLogin", `groupChat${id}`, user.id ) })
+    io.emit("newLogin", user.groupChatIds, user.id)
+    // user.groupChatIds.forEach(id => { io.to(`groupChat${id}`).emit("newLogin", `groupChat${id}`, user.id ) })
   } else { // 連線來自(在不同頁面轉換的)已登入使用者
     // 對該連線的客戶端發送「取得線上使用者」事件
     user.groupChatIds.forEach(id => { 
       const onlineRoomates = onlineUsers.filter(u => u.groupChatIds.includes(id))
       const onlineRoomateIds = onlineRoomates.map(u => u.id)
       console.log(`onlineUser in Room:groupChat${id}`, onlineRoomateIds )
-      io.in(`groupChat${id}`).to(socket.id).emit("getOnlineUsers", `groupChat${id}`,onlineRoomateIds)
+      io.in(`groupChat${id}`).to(socket.id).emit("getOnlineGroupUsers", `groupChat${id}`,onlineRoomateIds)
     })
   }
   console.log(`onlineUserIds after userId${user.id} connecting(updated):`, onlineUsers.map(u => u.id))
@@ -119,17 +120,22 @@ io.on("connection", (socket) => {
         userIndex = onlineUsers.indexOf({ id: user.id, groupChatIds: user.groupChatIds })
         onlineUsers.splice(userIndex, 1)
         // 向連線加入的Room發送「新登出」事件，送出連線使用者id
-        user.groupChatIds.forEach(id => { io.to(`groupChat${id}`).emit("newLogout", `groupChat${id}`, user.id) })
+        io.emit("newLogout", user.groupChatIds, user.id)
+        // user.groupChatIds.forEach(id => { io.to(`groupChat${id}`).emit("newLogout", `groupChat${id}`, user.id) })
       } 
       console.log('onlineUserIds when a user disconnected:', onlineUsers.map(u => u.id))
     }, 2000)
   })
 
-  socket.on('fetchOnlineUsers', (groupId) => {
+  socket.on('fetchOnlineGroupUsers', (groupId) => {
     const onlineRoomates = onlineUsers.filter(u => u.groupChatIds.includes(groupId))
     const onlineRoomateIds = onlineRoomates.map(u => u.id)
     console.log(`onlineUser in Room:groupChat${groupId}`, onlineRoomateIds)
-    io.in(`groupChat${groupId}`).to(socket.id).emit("getOnlineUsers", `groupChat${groupId}`,onlineRoomateIds)
+    io.in(`groupChat${groupId}`).to(socket.id).emit("getOnlineGroupUsers", `groupChat${groupId}`,onlineRoomateIds)
+  })
+
+  socket.on('fetchOnlineUserIds', ()=>{
+    io.to(socket.id).emit("getOnlineUserIds", onlineUserIds)
   })
 });
 

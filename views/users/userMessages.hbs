@@ -260,7 +260,7 @@
         addMsgToChatList(ioRoom, Sender, content, createdAt, file, imageSrc, loginUserId)
     })
     // 監聽來自伺服器的「上線使用者名單」事件，事件發生則在group message右側正確顯示線上/離線使用者清單
-    socket.on('getOnlineUsers', (ioRoom, onlineRoomateIds) => {
+    socket.on('getOnlineGroupUsers', (ioRoom, onlineRoomateIds) => {
         classifyOnlineAndOfflineUsers(ioRoom, onlineRoomateIds)
     })
     // 監聽來自伺服器的「新登入」事件，事件發生則更新group message右側的線上/離線使用者清單
@@ -476,7 +476,7 @@
             msgDisplayer.innerHTML = assembleMessags(data.unfoldedGroupChat.Group_messages)
             cleanOnlineAndOfflineUserBox()
             appendUsersToOnlineUserBox(data.unfoldedGroupChat.RegisteredUsers)
-            emitFetchOnlineUsersEvent(data.unfoldedGroupChat.id)
+            emitFetchOnlineGroupUsersEvent(data.unfoldedGroupChat.id)
             updateFormUrlAndIoRoom(data.unfoldedGroupChat.id)
             msgDisplayer.scrollTop = msgDisplayer.scrollHeight
         }
@@ -673,9 +673,9 @@
     }
 
     // Section 2.3 socket 事件
-    function emitFetchOnlineUsersEvent(groupId) {
+    function emitFetchOnlineGroupUsersEvent(groupId) {
         // 發送fetchOnlineUsers事件給伺服器，預期收到getOnlineUsers事件
-        socket.emit("fetchOnlineUsers", groupId)
+        socket.emit("fetchOnlineGroupUsers", groupId)
     }
 
     // Section 2.4 檔案上傳/下載
@@ -751,4 +751,4 @@
                 console.log(error)
             });
     }
-</script
+</script>

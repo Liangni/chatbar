@@ -998,10 +998,29 @@ a {
     max-width: 20vw;
     margin: 10px 2px;
 }
-
+/* Add by Penny */
 .card-item .user-interest-item {
     border: none;
     border-radius: 12px;
     padding: 2px 8px;
     background: rgb(210, 210, 210);
+}
+/* Add by Penny */
+.status-light {
+    display: inline-block;
+    border: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    vertical-align: text-top;
+    margin-top: 2px;
+    margin-left: 8px;
+}
+/* Add by Penny */
+.status-light.green {
+    background: green;
+}
+/* Add by Penny */
+.status-light.gray {
+    background: gray;
 }

@@ -2,11 +2,11 @@
     <form action="#" method="GET" class="section-one">
         <div class="no-hidden">
             <div class="search-friends">
-                <input type="text" class="userId" name="userId" id="userId" placeholder="依ID搜尋">
-                <button type="button" class="btn btn-outline-success">搜尋</button>
+                <input type="text" class="userId" name="account" id="userId" placeholder="依ID搜尋">
+                <button type="button" class="btn btn-outline-success" id="searchBtn">搜尋</button>
             </div>
             <div class="form-check form-switch switch-user-box">
-                <input class="form-check-input me-2" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                <input class="form-check-input me-2" type="checkbox" role="switch" id="flexSwitchCheckChecked">
                 <label class="form-check-label" for="flexSwitchCheckChecked">僅顯示朋友</label>
                 {{!-- <span style="display: none;">顯示All</span> --}}
             </div>
@@ -31,16 +31,16 @@
                     <span class="me-4 ms-4 span-title fw-bold">狀態</span>
                     <div class="radio-box d-flex flex-row align-items-center justify-content-between">
                         <div class="me-4">
-                            <input type="radio" name="status" id="statusAll" value="statusAll" checked>
+                            <input type="radio" name="status" id="statusAll" value="All" checked>
                             <label for="statusAll">全部</label>
                         </div>
                         <div class="me-4">
-                            <input type="radio" name="status" id="online" value="online">
-                            <label for="online">上線</label>
+                            <input type="radio" name="status" id="online" value="在線上">
+                            <label for="online">在線上</label>
                         </div>
                         <div>
-                            <input type="radio" name="status" id="offline" value="offline">
-                            <label for="offline">下線</label>
+                            <input type="radio" name="status" id="offline" value="離線">
+                            <label for="offline">離線</label>
                         </div>
                     </div>
                 </div>
@@ -48,19 +48,19 @@
                     <span class="me-4 ms-4 span-title fw-bold">性別</span>
                     <div class="radio-box d-flex flex-row align-items-center justify-content-between">
                         <div class="me-4">
-                            <input type="radio" name="gender" id="genderAll" value="genderAll" checked>
+                            <input type="radio" name="gender" id="genderAll" value="All" checked>
                             <label for="genderAll">全部</label>
                         </div>
                         <div class="me-4">
-                            <input type="radio" name="gender" id="male" value="male">
+                            <input type="radio" name="gender" id="male" value="男性">
                             <label for="male">男性</label>
                         </div>
                         <div class="me-4">
-                            <input type="radio" name="gender" id="female" value="female">
-                            <label for="female">女性</label>
+                            <input type="radio" name="gender" id="female" value="女性">
+                            <label for="女性">女性</label>
                         </div>
                         <div>
-                            <input type="radio" name="gender" id="other" value="other">
+                            <input type="radio" name="gender" id="other" value="其他">
                             <label for="other">其他</label>
                         </div>
                     </div>
@@ -69,26 +69,26 @@
                     <span class="me-4 ms-4 span-title fw-bold">居住地</span>
                     <div class="radio-box me-4 d-flex flex-row align-items-center justify-content-between">
                         <div>
-                            <input type="radio" name="area" id="areaAll" value="areaAll" checked>
+                            <input type="radio" name="area" id="areaAll" value="All" checked>
                             <label for="areaAll">全部</label>
                         </div>
                     </div>
                     <div class="radio-box d-flex flex-column align-items-start justify-content-between">
                         <div>
-                            <input type="radio" name="area" id="north" value="north">
-                            <label for="north">台灣北部（台北市、新北市、桃園市、新竹市、新竹縣、宜蘭縣、基隆市）</label>
+                            <input type="radio" name="area" id="north" value="臺灣北部">
+                            <label for="north">臺灣北部（台北市、新北市、桃園市、新竹市、新竹縣、宜蘭縣、基隆市）</label>
                         </div>
                         <div>
-                            <input type="radio" name="area" id="middle" value="middle">
-                            <label for="middle">台灣中部（台中市、彰化縣、雲林縣、苗栗縣、南投縣）</label>
+                            <input type="radio" name="area" id="middle" value="臺灣中部">
+                            <label for="middle">臺灣中部（台中市、彰化縣、雲林縣、苗栗縣、南投縣）</label>
                         </div>
                         <div>
-                            <input type="radio" name="area" id="south" value="south">
-                            <label for="south">台灣南部（高雄市、台南市、嘉義市、嘉義縣、屏東縣）</label>
+                            <input type="radio" name="area" id="south" value="臺灣南部">
+                            <label for="south">臺灣南部（高雄市、台南市、嘉義市、嘉義縣、屏東縣）</label>
                         </div>
                         <div>
-                            <input type="radio" name="area" id="east" value="east">
-                            <label for="east">台灣東部（台東縣、花蓮縣、澎湖縣、金門縣、連江縣）</label>
+                            <input type="radio" name="area" id="east" value="臺灣東部">
+                            <label for="east">臺灣東部（台東縣、花蓮縣、澎湖縣、金門縣、連江縣）</label>
                         </div>
                     </div>
                 </div>
@@ -116,26 +116,33 @@
         </div>
     </div>
     <div class="section-three">
-        <div class="all-users-wrapper bg-white d-flex flex-row flex-wrap justify-content-start">
+        <div class="all-users-wrapper bg-white d-flex flex-row flex-wrap justify-content-start" data-info="users">
+            {{#if users}}
+            <h4 data-info="no-matched-user" style="display:none;">沒有符合篩選條件的使用者</h4>
             {{#each users}}
-            <div class="card card-item" data-friendship-role="{{this.friendshipRole}}">
-                <img src="{{#if this.avatar}}{{this.avatar}}{{else}}/image/users.webp{{/if}}" class="card-img-top" data-user="avatar"
-                    alt="...">
+            <div class="card card-item" data-info="user" data-user-id="{{this.id}}"
+                data-friendship-role="{{this.friendshipRole}}">
+                <img src="{{#if this.avatar}}{{this.avatar}}{{else}}/image/users.webp{{/if}}" class="card-img-top"
+                    data-user="avatar" alt="...">
                 <div class="card-body">
                     <p class="fs-14-bold mb-1">
                         <span data-user="account">{{this.account}}</span>
                     </p>
                     <p class="fs-12 mb-1">
                         <span data-user="district">{{this.District.name}}</span>
+                        <span data-user="area" hidden="hidden">{{this.District.Area.name}}</span>
                         <span data-user="gender">{{this.Gender.name}}</span>
                         <span data-user="age">{{this.age}}歲</span>
+                        <span class="status-light green" data-user="status-light"></span>
+                        <span data-user="status">在線上</span>
                     </p>
                     <p class="fs-12 mb-2" data-user="interests">
                         {{#each this.CurrentInterests}}
-                        <span class="user-interest-item"># {{this.name}}</span>
+                        <span class="user-interest-item">#<span data-user="interest">{{this.name}}</span></span>
                         {{/each}}
                     </p>
-                    <p class="card-text fs-12" data-user="intro">{{#if this.intro}}{{this.intro}}{{else}}目前沒有自我介紹{{/if}}</p>
+                    <p class="card-text fs-12" data-user="intro">{{#if this.intro}}{{this.intro}}{{else}}目前沒有自我介紹{{/if}}
+                    </p>
                 </div>
                 <div class="button-box action">
                     {{#ifCond this.friendshipRole null}}
@@ -182,6 +189,9 @@
                 </div>
             </div>
             {{/each}}
+            {{else}}
+            <h4>目前沒有其他使用者</h4>
+            {{/if}}
         </div>
     </div>
 </div>
@@ -205,16 +215,58 @@
         east = document.querySelector('#east'),
         interestForm = document.querySelector('#interestForm'),
         interestInput = document.querySelector('#interest'),
-        renderInterestWrapper = document.querySelector('#renderInterestWrapper')
+        renderInterestWrapper = document.querySelector('#renderInterestWrapper'),
+        userListWrapper = document.querySelector('.userList-wrapper'),
+        userFilter = {}
+
+    socket.emit("fetchOnlineUserIds")
+
+    socket.on('getOnlineUserIds', (onlineUserIds) => {
+        const userCards = document.querySelectorAll('[data-info="user"]')
+        userCards.forEach(userCard => {
+            if (onlineUserIds.includes(Number(userCard.dataset.userId))) return displayOnline(userCard)
+            displayOffline(userCard)
+        })
+    })
+
+    socket.on('newLogin', (userGroupIds, userId) => {
+        const userCards = document.querySelectorAll(`[data-info="user"][data-user-id="${userId}"]`)
+        userCards.forEach(userCard => {
+            displayOnline(userCard)
+        })
+    })
+
+    socket.on('newLogout', (userGroupIds, userId) => {
+        const userCards = document.querySelectorAll(`[data-info="user"][data-user-id="${userId}"]`)
+        userCards.forEach(userCard => {
+            displayOffline(userCard)
+        })
+    })
+
+    userListWrapper.addEventListener('click', function onBtnClicked(e) {
+        if (e.target.id === 'searchBtn') {
+            const searchInput = document.querySelector('Input[name = "account"]')
+            userFilter.account = searchInput.value.trim()
+            filterUsers(userFilter)
+        }
+    })
 
     interestForm.addEventListener('click', e => {
         if (e.target.id === 'addInterestButton') {
             const value = interestInput.value
+            if (value.trim() === '') return
+
             renderInterestWrapper.innerHTML += `
                 <button type="button" class="interest-item me-3 fs-12" onclick="removeInterest(this)">
-                    X ${value}
+                    X <span>${value}<span>
                 </button>
             `
+            // 篩選user
+            if (!userFilter.interests) userFilter.interests = []
+            userFilter.interests.push(value)
+            filterUsers(userFilter)
+            // 清空input
+            interestInput.value = ''
         }
     })
 
@@ -223,6 +275,7 @@
             statusAll.checked = true
             online.checked = false
             offline.checked = false
+            userFilter.status = 'All'
         }
 
         if (male.checked || female.checked || other.checked || genderAll.checked) {
@@ -230,6 +283,7 @@
             male.checked = false
             female.checked = false
             other.checked = false
+            userFilter.gender = 'All'
         }
 
         if (north.checked || middle.checked || south.checked || east.checked || areaAll.checked) {
@@ -238,10 +292,15 @@
             middle.checked = false
             south.checked = false
             east.checked = false
+            userFilter.area = 'All'
         }
 
-        interestInput.value = ''
-        renderInterestWrapper.innerHTML = ''
+        if (renderInterestWrapper.innerHTML) {
+            renderInterestWrapper.innerHTML = ''
+            userFilter.interests = []
+        }
+
+        filterUsers(userFilter)
     })
 
     displayFilterViewButtons.addEventListener('click', e => {
@@ -261,23 +320,26 @@
                     const data = response.data
                     if (data.status !== 'success') throw new Error(data.message)
 
-                    const friendshipInvitationSenders = data.friendshipInvitationSenders
-                    if (!friendshipInvitationSenders.length) return
-                    // 清空好友邀請清單預設「目前沒有任何邀請」的文字訊息
                     const friendsInviteListBox = document.querySelector('.friends-invite-list-box')
-                    friendsInviteListBox.innerText = ''
-
-                    friendshipInvitationSenders.forEach(sender=>{
+                    const friendshipInvitationSenders = data.friendshipInvitationSenders
+                    if (friendshipInvitationSenders.length) {
+                        // 清空好友邀請清單預設「目前沒有任何邀請」的文字訊息
+                        friendsInviteListBox.innerText = ''
+                    }
+                    // 對friendshipInvitationSenders陣列做處理，將對應的使用者卡片插入使用者清單
+                    // 若friendshipInvitationSenders是空陣列，則會跳過上述處理
+                    friendshipInvitationSenders.forEach(sender => {
                         // 複製發送邀請者的卡片元素
                         const invitationSenderCard = document.querySelector('.card-item[data-friendship-role = "invitationSender"]')
                         const CardClone = invitationSenderCard.cloneNode(true)
-                        
+
                         // 整理邀請者的使用者資料
                         let { avatar, intro, account, district, gender, age, CurrentInterests, id } = sender
-                        avatar = avatar? avatar : '/image/users.webp'
-                        intro = intro? intro : '目前沒有自我介紹'
+                        avatar = avatar ? avatar : '/image/users.webp'
+                        intro = intro ? intro : '目前沒有自我介紹'
 
                         // 將資料塞進複製的卡片元素
+                        CardClone.dataset.userId = id
                         CardClone.querySelector('[data-user = "avatar"]').src = avatar
                         CardClone.querySelector('[data-user = "account"]').innerText = account
                         CardClone.querySelector('[data-user = "district"]').innerText = district
@@ -285,27 +347,92 @@
                         CardClone.querySelector('[data-user = "age"]').innerText = age
                         CardClone.querySelector('[data-user = "intro"]').innerText = intro
                         let interestHTMLTemplate = ''
-                        CurrentInterests.forEach(i=>{
-                            interestHTMLTemplate += `<span class="user-interest-item"># ${i.name}</span>`
+                        CurrentInterests.forEach(i => {
+                            interestHTMLTemplate += `<span class="user-interest-item"># <span data-user="interest">${i.name}</span></span>`
                         })
                         CardClone.querySelector('[data-user = "interests"]').innerHTML = interestHTMLTemplate
                         // 將卡片元素插入好友邀請清單
                         friendsInviteListBox.appendChild(CardClone)
                     })
-
+                    // 更新所有使用者卡片的顯示的上線狀態
+                    socket.emit("fetchOnlineUserIds")
+                    // 顯示好友邀請清單
                     toggleDisplay(e.target, friendsInviteWrapper)
                     // 若隔壁按鈕箭頭向上表示對應清單收合，直接結束處理；反之，則toggle以收合
                     const btnfilterSet = document.querySelector('.btn.filter-set')
                     if (btnfilterSet.firstElementChild.classList.contains('fa-chevron-up')) return
                     return toggleDisplay(btnfilterSet, filterHiddenWrapper)
-
-                    filterHiddenWrapper.scrollIntoView(true)
                 })
                 .catch((err) => {
                     alert(`有地方出錯了！請截圖彈跳視窗給開發人員，我們會盡快排除故障${err}`)
                 })
         }
     })
+
+    userListWrapper.addEventListener('change', function onSwitchChanged(e) {
+
+        const targetInput = event.target
+        if (targetInput.type === "text") return
+
+        // 整理篩選條件
+        if (targetInput.type === "checkbox") {
+            if (targetInput.checked === true) userFilter.friendshipRole = 'friend'
+            else userFilter.friendshipRole = 'All'
+        }
+        if (targetInput.type === "radio") userFilter[targetInput.name] = targetInput.value
+
+        // 篩選user
+        filterUsers(userFilter)
+
+    })
+
+    function filterUsers(filterObj) {
+        const userCardsContainer = document.querySelector('[data-info="users"]')
+        const userCards = userCardsContainer.querySelectorAll('[data-info="user"]')
+        if (!userCards.length) return
+
+        // 檢查每個user是否符合篩選條件
+        userCards.forEach(userCard => {
+            let displaySetting = 'block'
+            // 逐一檢查filter物件的項目，如user有一項不符合則不顯示
+            for (key in filterObj) {
+                const filterValue = filterObj[key]
+
+                switch (key) {
+                    case 'friendshipRole':
+                        if (filterValue !== 'All' && filterValue !== userCard.dataset.friendshipRole) displaySetting = 'none'
+                        break
+                    case 'account':
+                        const userAccountBox = userCard.querySelector('[data-user = "account"]')
+                        if (!filterValue) break
+
+                        const re = new RegExp(`${filterValue}`, 'i')
+                        if (!re.test(userAccountBox.innerText)) udisplaySetting = 'none'
+                        break
+                    case 'interests':
+                        const userInterestBoxes = userCard.querySelectorAll('[data-user = "interest"]')
+                        let isMatchedFilter = false
+                        if (!filterValue.length) break
+
+                        userInterestBoxes.forEach(box => { if (filterValue.includes(box.innerText)) isMatchedFilter = true })
+                        if (!isMatchedFilter) displaySetting = 'none'
+                        break
+                    default:
+                        const userElementMatchingKey = userCard.querySelector(`[data-user = "${key}"]`)
+                        if (filterValue !== 'All' && filterValue !== userElementMatchingKey.innerText) displaySetting = 'none'
+                }
+            }
+
+            userCard.style.display = displaySetting
+        })
+
+        const shownUserCards = userCardsContainer.querySelectorAll('[data-info="user"][style="display: block;"]')
+
+        if (!shownUserCards.length) return userCardsContainer.querySelector('[data-info="no-matched-user"]').style.display = 'block'
+
+        userCardsContainer.querySelector('[data-info="no-matched-user"]').style.display = 'none'
+
+    }
 
     function toggleDisplay(toggleBtn, targetWrapper) {
         if (toggleBtn.firstElementChild.classList.contains('fa-chevron-up')) {
@@ -324,7 +451,22 @@
     }
 
     function removeInterest(element) {
+        userFilter.interests.splice(userFilter.interests.indexOf(element.querySelector('span').innerText), 1)
+        filterUsers(userFilter)
+
         element.remove()
+    }
+
+    function displayOnline(userCard) {
+        userCard.querySelector('[data-user="status-light"]').classList.remove('gray')
+        userCard.querySelector('[data-user="status-light"]').classList.add('green')
+        userCard.querySelector('[data-user="status"]').innerText = '在線上'
+    }
+
+    function displayOffline(userCard) {
+        userCard.querySelector('[data-user="status-light"]').classList.remove('green')
+        userCard.querySelector('[data-user="status-light"]').classList.add('gray')
+        userCard.querySelector('[data-user="status"]').innerText = '離線'
     }
 
 </script>
