@@ -113,10 +113,10 @@ io.on("connection", (socket) => {
     setTimeout( async () => {
       console.log("Delayed for 2 second.")
       const connectedSockets = await io.of('/').fetchSockets()
-      const connectedSocketIds = connectedSockets.map(s => s.request.user.id )
-      console.log('connectedSocketIds: ', connectedSocketIds)
+      const connectedUserIds = connectedSockets.map(s => s.request.user.id )
+      console.log('still connectedUserIds: ', connectedUserIds)
       // 如namespace已不含剛才disconnect的使用者，表示沒有再次connect，判斷為登出
-      const isLogout = !connectedSocketIds.includes(user.id)
+      const isLogout = !connectedUserIds.includes(user.id)
       
       if (isLogout) {
         // 更新線上使用者名單
@@ -125,7 +125,7 @@ io.on("connection", (socket) => {
         // 向連線加入的Room發送「新登出」事件，送出連線使用者id
         io.emit("newLogout", user.groupChatIds, user.id)
       } 
-      console.log('onlineUserIds when a user disconnected:', onlineUsers.map(u => u.id))
+      console.log(`onlineUserIds when user ${socket.request.user.id} disconnected:`, onlineUsers.map(u => u.id))
     }, 2000)
   })
 
