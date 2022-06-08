@@ -58,6 +58,7 @@
         </div>
     </div>
     <div class="chatting">
+        {{#if chats}}
         <div class="top-section d-flex flex-row justify-content-between" id="chat-details">
             <div class="left-part {{#ifCond unfoldedChat.chatType 'privateChat'}}full-width{{/ifCond}}">
                 <div class="left-part-top bg-light" id="room-info-wrapper">
@@ -168,6 +169,12 @@
                 </div>
             </div>
         </form>
+        {{else}}
+        <div class="no-available-chat-message"style="">
+            <img src="https://cdn-icons-png.flaticon.com/512/95/95458.png" alt="">
+            <h3>沒有可以查看的訊息</h3>
+        </div>
+        {{/if}}
     </div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
