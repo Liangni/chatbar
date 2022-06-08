@@ -185,10 +185,11 @@
     const msgDisplayer = document.querySelector('#msg-displayer')
     const sendMsgWrapper = document.querySelector('.send-message-wrapper')
     const chats = document.querySelectorAll('.room-item')
-    const activeChat = document.querySelector('.room-item.active') || null
-    const activeGroupChatId = activeChat?.dataset.groupChatId || null
+    const privateChats = document.querySelectorAll('.room-item[data-chat-type="privateChat"]')
+    const activeGroupChat = document.querySelector('.room-item.active[data-chat-type="groupChat"]') || null
 
-    if (activeGroupChatId) emitFetchOnlineGroupUsersEvent(Number(activeGroupChatId))
+    if (privateChats.length) socket.emit("fetchOnlineUserIds")
+    if (activeGroupChat) socket.emit("fetchOnlineGroupUserIds", Number(activeGroupChat.dataset.chatId))
 
     // 初始化firebase
     firebase.initializeApp(firebaseConfig)
@@ -203,40 +204,55 @@
 
     // Section 1.1 socket事件
     // 監聽來自伺服器的chatMessage事件，事件發生則在對話框&左側顯示訊息
-    socket.on("chatMessage", (ioRoom, Sender, content, createdAt, file, imageSrc) => {
+    socket.on("chatMessage", (chatRoom, Sender, content, createdAt, file, imageSrc) => {
         const loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
 
         // 在對話框加入訊息
-        addMsgToMsgDisplayer(ioRoom, Sender, content, createdAt, file, imageSrc, loginUserId)
+        addMsgToMsgDisplayer(chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId)
         // 在左列指定的chat item加入訊息
-        addMsgToChatList(ioRoom, Sender, content, createdAt, file, imageSrc, loginUserId)
+        addMsgToChatList(chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId)
     })
-    // 監聽來自伺服器的「上線使用者名單」事件，事件發生則在group message右側正確顯示線上/離線使用者清單
-    socket.on('getOnlineGroupUsers', (ioRoom, onlineRoomateIds) => {
-        classifyOnlineAndOfflineUsers(ioRoom, onlineRoomateIds)
+    // 監聽來自伺服器的「上線使用者名單」事件，事件發生則正確顯示左側privatChat使用者上線狀態
+    socket.on('getOnlineUserIds', (onlineUserIds) => {
+        privateChats.forEach(chatItem => {
+            if (onlineUserIds.includes(Number(chatItem.dataset.chatId))) return
+            chatItem.querySelector('.online').classList.add('gray')
+        })
     })
-    // 監聽來自伺服器的「新登入」事件，事件發生則更新group message右側的線上/離線使用者清單
+    // 監聽來自伺服器的「上線Group User名單」事件，事件發生則在group message右側正確顯示線上/離線使用者清單
+    socket.on('getOnlineGroupUserIds', (onlineGroupUserIds) => {
+        classifyOnlineAndOfflineGroupUsers(onlineGroupUserIds)
+    })
+    // 監聽來自伺服器的「登入」事件，事件發生則更新左側privatChat使用者上線狀態，與group message的上線使用者清單
     socket.on('newLogin', (userGroupChatIds, userId) => {
-        if (!activeGroupChatId || !userGroupChatIds.includes(Number(activeGroupChatId))) return
+        const userPrivateChat = document.querySelector(`.room-item[data-chat-room="privateChat${userId}"]`)
+        const activeGroupChatId = activeGroupChat?.dataset.chatId || null
 
-        // 更新所展開的groupMessage的登入使用者名單
-        const offlineRoomates = document.querySelectorAll('.right-part-bottom .online-user')
-        offlineRoomates.forEach(r => {
-            if (Number(r.dataset.userId) !== userId) return
-            const onlineUserBox = document.querySelector('#online-user-box')
-            onlineUserBox.appendChild(r)
-        })
+        if (userPrivateChat) userPrivateChat.querySelector('.online').classList.remove('gray')
+        if (activeGroupChatId && userGroupChatIds.includes(Number(activeGroupChatId))) {
+            // 更新所展開的groupMessage的登入使用者名單
+            const offlineRoomates = document.querySelectorAll('.right-part-bottom .online-user')
+            offlineRoomates.forEach(r => {
+                if (Number(r.dataset.userId) !== userId) return
+                const onlineUserBox = document.querySelector('#online-user-box')
+                onlineUserBox.appendChild(r)
+            })
+        }    
     })
-    // 監聽來自伺服器的「登出」事件，事件發生則更新group message右側的線上/離線使用者清單
+    // 監聽來自伺服器的「登出」事件，事件發生則更新左側privatChat使用者上線狀態，與group message的上線使用者清單
     socket.on('newLogout', (userGroupChatIds, userId) => {
-        if (!activeGroupChatId || !userGroupChatIds.includes(Number(activeGroupChatId))) return
-
-        const onlineRoomates = document.querySelectorAll('.online-user')
-        onlineRoomates.forEach(r => {
-            if (Number(r.dataset.userId) !== userId) return
-            const offlineUserBox = document.querySelector('#offline-user-box')
-            offlineUserBox.appendChild(r)
-        })
+        const userPrivateChat = document.querySelector(`.room-item[data-chat-room="privateChat${userId}"]`)
+        const activeGroupChatId = activeGroupChat?.dataset.chatId || null
+        
+        if (userPrivateChat) userPrivateChat.querySelector('.online').classList.add('gray')
+        if (activeGroupChatId && userGroupChatIds.includes(Number(activeGroupChatId))) {
+            const onlineRoomates = document.querySelectorAll('.online-user')
+            onlineRoomates.forEach(r => {
+                if (Number(r.dataset.userId) !== userId) return
+                const offlineUserBox = document.querySelector('#offline-user-box')
+                offlineUserBox.appendChild(r)
+            })
+        }
     })
 
     // Section 1.2 元素點擊或送出事件
@@ -244,24 +260,24 @@
     chats.forEach(c => {
         c.addEventListener('click', (e) => {
             const roomItem = e.currentTarget
-            if (!roomItem.classList.contains('active')) {
-                const ioRoom = roomItem.dataset.ioRoom
-                const URL = roomItem.dataset.url
-                roomItem.disabled = true
+            if (roomItem.classList.contains('active')) return
 
-                updateChatActiveStatus(ioRoom)
-                axios.get(URL)
-                    .then((response) => {
-                        if (response.data.status === 'success') {
-                            buildChatDetails(response.data)
-                        }
-                        roomItem.disabled = false
-                    })
-                    .catch((err) => {
-                        console.log(err)
-                        roomItem.disabled = false
-                    })
-            }
+            const chatRoom = roomItem.dataset.chatRoom
+            const URL = roomItem.dataset.url
+            roomItem.disabled = true
+
+            updateChatActiveStatus(chatRoom)
+            axios.get(URL)
+                .then((response) => {
+                    if (response.data.status === 'success') {
+                        buildChatDetails(response.data)
+                    }
+                    roomItem.disabled = false
+                })
+                .catch((err) => {
+                    console.log(err)
+                    roomItem.disabled = false
+                })
         })
     })
     // 訊息顯示區塊監聽點擊事件，事件發生則下載目標檔案
@@ -330,15 +346,21 @@
             .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
             .then((response) => {
                 if (response.data.status === 'error') throw new Error(response.data.message)
-
-                const ioRoom = sendMsgWrapper.dataset.ioRoom
+                const activeChat = document.querySelector('.room-item.active')
+                const chatType = activeChat.dataset.chatType
                 const { User, content, formattedCreatedAt, file, imageSrc } = response.data.message
                 const fileItem = document.querySelector('#file-item')
                 const imageItem = document.querySelector('#image-item')
 
-
                 // 發送chatMessage事件給伺服器
-                socket.emit("chatMessage", ioRoom, User, content, formattedCreatedAt, file, imageSrc)
+                if (chatType === 'groupChat') {
+                    const chatRoom = activeChat.dataset.chatRoom
+                    socket.emit("groupChatMessage", chatRoom, User, content, formattedCreatedAt, file, imageSrc)
+                }
+                if (chatType === 'privateChat') {
+                    const recieverId = Number(activeChat.dataset.chatId)
+                    socket.emit("privateChatMessage", recieverId, User, content, formattedCreatedAt, file, imageSrc)
+                }
 
                 // 清空input的值
                 textInput.value = ''
@@ -363,14 +385,16 @@
     // Section 2. 函式定義
     // 2.1 畫面組裝
     // 2.2 製作前端樣板
-    // 2.3 socket 事件
-    // 2.4 檔案上傳/下載
+    // 2.3 檔案上傳/下載
 
     // Section 2.1 畫面組裝
-    function addMsgToMsgDisplayer(ioRoom, Sender, content, createdAt, file, imageSrc, loginUserId) {
+    function addMsgToMsgDisplayer(chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId) {
         const msgDisplayer = document.querySelector('#msg-displayer')
         const noMessageText = document.querySelector('#no-message-text')
+        const activeChat = document.querySelector('.room-item.active')
         let newMessageDiv
+
+        if (activeChat.dataset.chatRoom !== chatRoom) return
 
         if (noMessageText) noMessageText.parentNode.removeChild(noMessageText)
 
@@ -379,17 +403,19 @@
             newMessageDiv = buildMessageFromUser(content, createdAt, file, imageSrc)
         } else {
             // 製作他人發送的訊息節點
-            newMessageDiv = buildMessageFromOther(content, createdAt, file, imageSrc, Sender.account)
+            newMessageDiv = buildMessageFromOther(content, createdAt, file, imageSrc, Sender)
         }
         // 在對話框加入訊息
         msgDisplayer.appendChild(newMessageDiv)
         // 下滑scrollbar到底
         msgDisplayer.scrollTop = msgDisplayer.scrollHeight
     }
-    function addMsgToChatList(ioRoom, Sender, content, createdAt, file, imageSrc, loginUserId) {
-        const targetChatItem = document.querySelector(`.room-item[data-io-room=${ioRoom}]`)
-        const chatNameAndNew = targetChatItem.children[1]
-        const chatTimeAndRead = targetChatItem.children[2]
+    function addMsgToChatList(chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId) {
+        const targetChatItem = document.querySelector(`.room-item[data-chat-room=${chatRoom}]`)
+        if (!targetChatItem) return
+
+        const chatNameAndNew = targetChatItem.children[2]
+        const chatTimeAndRead = targetChatItem.children[3]
         const isLoginUser = Sender.id === loginUserId
         const senderAlias = isLoginUser ? '你' : Sender.account
         const messageCut = makeMessageCut(content, file, imageSrc)
@@ -405,32 +431,52 @@
             if (file) return '傳送一個附件'
         }
     }
-    function updateChatActiveStatus(ioRoom) {
+    function updateChatActiveStatus(chatRoom) {
         const roomItems = document.querySelectorAll('.room-item')
         roomItems.forEach(r => {
-            if (r.classList.contains('active')) { r.classList.remove('active') }
-            else {
-                if (r.dataset.ioRoom === ioRoom) { r.classList.add('active') }
-            }
+            if (r.classList.contains('active')) r.classList.remove('active')
+            if (r.dataset.chatRoom === chatRoom) r.classList.add('active')
         })
     }
     function buildChatDetails(data) {
-        if (data.unfoldedGroupChat) {
+        if (data.unfoldedChat) {
             const roomInfoWrapper = document.querySelector('#room-info-wrapper')
             const msgDisplayer = document.querySelector('#msg-displayer')
-            roomInfoWrapper.innerHTML = buildRoomInfo(data.unfoldedGroupChat.id, data.unfoldedGroupChat.name, data.unfoldedGroupChat.User.account)
-            msgDisplayer.innerHTML = assembleMessags(data.unfoldedGroupChat.Group_messages)
-            cleanOnlineAndOfflineUserBox()
-            appendUsersToOnlineUserBox(data.unfoldedGroupChat.RegisteredUsers)
-            emitFetchOnlineGroupUsersEvent(data.unfoldedGroupChat.id)
-            updateFormUrlAndIoRoom(data.unfoldedGroupChat.id)
-            msgDisplayer.scrollTop = msgDisplayer.scrollHeight
+            const onlineAndOfflineGroupUsersBox = document.querySelector('[data-info = "online-and-offline-group-users"]')
+            if (data.unfoldedChat.chatType === 'groupChat') {
+                // 更新訊息表單資訊
+                updateGroupMessageFormInfo(data.unfoldedChat.id)
+                // 更新標題
+                roomInfoWrapper.innerHTML = buildGroupMessagesHeader(data.unfoldedChat.id, data.unfoldedChat.name, data.unfoldedChat.User.account)
+                // 更新畫面訊息
+                msgDisplayer.innerHTML = assembleMessags(data.unfoldedChat.Group_messages)
+                msgDisplayer.scrollTop = msgDisplayer.scrollHeight
+                // 整理右側登入使用者名單
+                cleanOnlineAndOfflineGroupUserBox()
+                appendUsersToOnlineGroupUserBox(data.unfoldedChat.RegisteredUsers)
+                socket.emit("fetchOnlineGroupUserIds", data.unfoldedChat.id)
+
+                // 顯示右側登入使用者名單
+                onlineAndOfflineGroupUsersBox.style.display = ""
+            }
+
+            if (data.unfoldedChat.chatType === 'privateChat') {
+                // 更新訊息表單資訊
+                updatePrivateMessageFormInfo(data.unfoldedChat.id)
+                // 更新標題
+                roomInfoWrapper.innerHTML = buildPrivateMessagesHeader(data.unfoldedChat.id, data.unfoldedChat.name, data.unfoldedChat.photo)
+                // 更新畫面訊息
+                msgDisplayer.innerHTML = assembleMessags(data.unfoldedChat.Private_messages)
+                msgDisplayer.scrollTop = msgDisplayer.scrollHeight
+                // 隱藏右側登入使用者名單
+                onlineAndOfflineGroupUsersBox.style.display = "none"
+            }
         }
     }
     function assembleMessags(messages) {
         const tempDiv = document.createElement('div')
 
-        if (messages.length === 0) {
+        if (messages === null || !messages.length) {
             tempDiv.innerHTML = '<span class="new fs-12" id="no-message-text">目前沒有任何訊息!</span>'
         } else {
             messages.forEach(m => {
@@ -438,18 +484,19 @@
                     tempDiv.appendChild(buildMessageFromUser(m.content, m.formattedCreatedAt, m.file, m.imageSrc))
                 }
                 else {
-                    tempDiv.appendChild(buildMessageFromOther(m.content, m.formattedCreatedAt, m.file, m.imageSrc, m.User.account))
+                    tempDiv.appendChild(buildMessageFromOther(m.content, m.formattedCreatedAt, m.file, m.imageSrc, m.User))
                 }
             })
         }
 
         return tempDiv.innerHTML
     }
-    function cleanOnlineAndOfflineUserBox() {
+    function cleanOnlineAndOfflineGroupUserBox() {
         const previousRoomUsers = document.querySelectorAll('.online-user')
+        if (!previousRoomUsers.length) return
         previousRoomUsers.forEach(u => u.parentNode.removeChild(u))
     }
-    function appendUsersToOnlineUserBox(users) {
+    function appendUsersToOnlineGroupUserBox(users) {
         users.forEach(u => {
             const onlineUserBox = document.querySelector('#online-user-box')
             const userItem = document.createElement('div')
@@ -463,23 +510,23 @@
             onlineUserBox.appendChild(userItem)
         })
     }
-    function updateFormUrlAndIoRoom(groupId) {
+    function updateGroupMessageFormInfo(groupId) {
         const sendMessageWrapper = document.querySelector('.send-message-wrapper')
         sendMessageWrapper.dataset.postUrl = `/api/users/loginUser/groupChats/${groupId}/groupMessages`
-        sendMessageWrapper.dataset.ioRoom = `groupChat${groupId}`
     }
-    function classifyOnlineAndOfflineUsers(ioRoom, onlineRoomateIds) {
-        const activeChat = document.querySelector('.room-item.active')
+    function updatePrivateMessageFormInfo(recieverId) {
+        const sendMessageWrapper = document.querySelector('.send-message-wrapper')
+        sendMessageWrapper.dataset.postUrl = `/api/users/loginUser/privateMessages/recievers/${recieverId}`
+    }
+    function classifyOnlineAndOfflineGroupUsers(onlineGroupUserIds) {
         // 在所展開的groupMessage右側顯示登入使用者清單
-        if (activeChat.dataset.ioRoom === ioRoom) {
-            const defaultOnlineRoomates = document.querySelectorAll('.online-user')
-            defaultOnlineRoomates.forEach(r => {
-                if (!onlineRoomateIds.includes(Number(r.dataset.userId))) {
-                    const offlineUserBox = document.querySelector('#offline-user-box')
-                    offlineUserBox.appendChild(r)
-                }
-            })
-        }
+        const defaultOnlineGroupUsers = document.querySelectorAll('.online-user')
+        defaultOnlineGroupUsers.forEach(r => {
+            if (!onlineGroupUserIds.includes(Number(r.dataset.userId))) {
+                const offlineUserBox = document.querySelector('#offline-user-box')
+                offlineUserBox.appendChild(r)
+            }
+        })
     }
     function displayFile(name) {
         const fileItem = document.querySelector('#file-item')
@@ -521,7 +568,7 @@
         sendMessageBox.style.height = "70%"
     }
     // Section 2.2 製作前端樣板
-    function buildRoomInfo(id, name, userAccount) {
+    function buildGroupMessagesHeader(id, name, userAccount) {
         return newTemplate = `
             <div class="room-info d-flex flex-row align-items-center">
                 <img src="/image/users.webp" alt="" class="avatar">
@@ -533,6 +580,21 @@
             <form action="/groupChats/${id}/groupRegisters?_method=DELETE" method="POST" class="out-room">
                 <button class="btn btn-danger" type="submit">退出話題</button>
             </form>
+        `
+    }
+    function buildPrivateMessagesHeader(id, name, photo) {
+        let imgSrc = photo ? photo : '/image/users.webp'
+        return newTemplate = `
+            <div class="room-info d-flex flex-row align-items-center">
+                <img src="${imgSrc}" alt="" class="avatar">
+                <div class="nameAndTime-box d-flex flex-column align-items-start">
+                    <span class="room-name fs-14-bold">${name}</span>
+                </div>
+            </div>
+            <form action="/users/${id}/friendships?_method=DELETE" method="POST"
+                        class="out-room">
+                        <button class="btn btn-danger" type="submit">解除朋友關係</button>
+                    </form>
         `
     }
     function buildMessageFromUser(content, createdAt, file, imageSrc) {
@@ -565,13 +627,13 @@
         return messageContainer
     }
 
-    function buildMessageFromOther(content, createdAt, file, imageSrc, SenderAccount) {
+    function buildMessageFromOther(content, createdAt, file, imageSrc, Sender) {
         const messageContainer = document.createElement('div')
         messageContainer.classList.add('message-by-others', 'm-2')
         messageContainer.innerHTML = `
-            <img src="/image/users.webp" class="avatar" style="width: 60px; height: 60px;">
+            <img src="/image/users.webp" class="avatar">
             <div class="d-flex flex-column align-items-start">
-                <div class="fs-14-bold">${SenderAccount}</div>
+                <div class="fs-14-bold">${Sender.account}</div>
                 <div class="m-1 p-2" style="background: rgb(235, 235, 235);border-radius: 6px;">
                     <div>
                         <div class="new fs-12"></div>
@@ -580,7 +642,7 @@
                  </div>
             </div>
         `
-
+        if (Sender.avatar) messageContainer.querySelector('img').src = Sender.avatar
         const messageWrapper = messageContainer.children[1].children[1].children[0]
         const timeContainer = messageWrapper.children[1]
         if (content) {
@@ -618,13 +680,7 @@
         return imageContainer
     }
 
-    // Section 2.3 socket 事件
-    function emitFetchOnlineGroupUsersEvent(groupId) {
-        // 發送fetchOnlineUsers事件給伺服器，預期收到getOnlineUsers事件
-        socket.emit("fetchOnlineGroupUsers", groupId)
-    }
-
-    // Section 2.4 檔案上傳/下載
+    // Section 2.3 檔案上傳/下載
     async function uploadAndgetFirebaseRef(fileType, file) {
         const storage = firebase.storage()
         // Points to the root reference

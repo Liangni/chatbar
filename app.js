@@ -77,7 +77,7 @@ io.on("connection", (socket) => {
   const isNewLogin = !onlineUserIds.includes(user.id)
   user.groupChatIds = user.RegisteredGroups?.map(g => g.id) || []
 
-  // 將新連線加入連線使用者所屬groupChat的Room
+  // 將新連線加入連線使用者所屬groupChat的chatRoom
   if (user.groupChatIds) user.groupChatIds.forEach(id => {socket.join(`groupChat${id}`)})
 
   // 如連線來自新登入使用者
@@ -85,26 +85,37 @@ io.on("connection", (socket) => {
   if (isNewLogin) {
     // 更新線上使用者名單
     onlineUsers.push({ id: user.id, groupChatIds: user.groupChatIds })
-    // 向所有連線發送「新登入」事件，送出連線使用者id和加入的groupIds
+    // 向所有連線發送「登入」事件，送出連線使用者id和加入的groupIds
     io.emit("newLogin", user.groupChatIds, user.id)
   }
   console.log(`onlineUserIds after userId${user.id} connecting(updated):`, onlineUsers.map(u => u.id))
 
   // 監聽來自客戶端的chatMessage事件
-  socket.on("chatMessage", (ioRoom, Sender, content, createdAt, file, imageSrc) => {
+  socket.on("groupChatMessage", (chatRoom, Sender, content, createdAt, file, imageSrc) => {
     // 發送chatMessage給特定Room的客戶端
-    io.to(ioRoom).emit("chatMessage", ioRoom, Sender, content, createdAt, file, imageSrc);
+    io.to(chatRoom).emit("chatMessage", chatRoom, Sender, content, createdAt, file, imageSrc);
+  })
+  socket.on("privateChatMessage", async (recieverId, Sender, content, createdAt, file, imageSrc) => {
+    // 發送chatMessage給送出私人訊息的客戶端
+    io.to(socket.id).emit("chatMessage", `privateChat${recieverId}`, Sender, content, createdAt, file, imageSrc)
+    // 若預計接收私人訊息的客戶端在線上，則也對其發送chatMessage
+    if (onlineUsers.find(User => User.id === recieverId)) {
+      const connectedSockets = await io.of('/').fetchSockets()
+      const recieverSocket = connectedSockets.find(s => s.request.user.id === recieverId )
+      console.log('recieverSocket:', recieverSocket)
+      io.to(recieverSocket.id).emit("chatMessage", `privateChat${Sender.id}`, Sender, content, createdAt, file, imageSrc)
+    }
   })
   // 監聽來自客戶端的「更新線上使用者名單」事件
   socket.on('fetchOnlineUserIds', () => {
     io.to(socket.id).emit("getOnlineUserIds", onlineUserIds)
   })
 
-  socket.on('fetchOnlineGroupUsers', (groupId) => {
+  socket.on('fetchOnlineGroupUserIds', (groupId) => {
     const onlineRoomates = onlineUsers.filter(u => u.groupChatIds.includes(groupId))
     const onlineRoomateIds = onlineRoomates.map(u => u.id)
     
-    io.to(socket.id).emit("getOnlineGroupUsers", `groupChat${groupId}`, onlineRoomateIds)
+    io.to(socket.id).emit("getOnlineGroupUserIds", onlineRoomateIds)
   })
   // 監聽中斷連線事件事件
   socket.on('disconnect', () => {
@@ -122,7 +133,7 @@ io.on("connection", (socket) => {
         // 更新線上使用者名單
         userIndex = onlineUsers.indexOf({ id: user.id, groupChatIds: user.groupChatIds })
         onlineUsers.splice(userIndex, 1)
-        // 向連線加入的Room發送「新登出」事件，送出連線使用者id
+        // 向連線加入的Room發送「登出」事件，送出連線使用者id
         io.emit("newLogout", user.groupChatIds, user.id)
       } 
       console.log(`onlineUserIds when user ${socket.request.user.id} disconnected:`, onlineUsers.map(u => u.id))

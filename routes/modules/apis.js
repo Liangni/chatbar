@@ -11,6 +11,8 @@ router.get('/users/loginUser/friendshipInviations/senders', authenticated, userC
 // userMessages頁面相關
 router.get('/users/loginUser/groupChats/groupMessages', authenticated, userController.getUserGroupMessages)
 router.post('/users/loginUser/groupChats/:groupId/groupMessages', authenticated, cpUpload, userController.postUserGroupMessages)
+router.get('/users/loginUser/privateMessages', authenticated, userController.getUserPrivateMessages)
+router.post('/users/loginUser/privateMessages/recievers/:recieverId', authenticated, cpUpload, userController.postUserPrivateMessages)
 
 // Error Handlers
 router.use('/', apiErrorHandler)
