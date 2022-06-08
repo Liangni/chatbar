@@ -170,7 +170,7 @@
             </div>
         </form>
         {{else}}
-        <div class="no-available-chat-message"style="">
+        <div class="no-available-chat-message">
             <img src="https://cdn-icons-png.flaticon.com/512/95/95458.png" alt="">
             <h3>沒有可以查看的訊息</h3>
         </div>
@@ -202,7 +202,7 @@
     firebase.initializeApp(firebaseConfig)
 
     // 將卷軸置底
-    msgDisplayer.scrollTop = msgDisplayer.scrollHeight
+    if (msgDisplayer) msgDisplayer.scrollTop = msgDisplayer.scrollHeight
 
     // 以下至文件結尾分成兩個Sections: 1. 事件監聽器 2. 函式定義
     // Section 1. 事件監聽器
@@ -244,13 +244,13 @@
                 const onlineUserBox = document.querySelector('#online-user-box')
                 onlineUserBox.appendChild(r)
             })
-        }    
+        }
     })
     // 監聽來自伺服器的「登出」事件，事件發生則更新左側privatChat使用者上線狀態，與group message的上線使用者清單
     socket.on('newLogout', (userGroupChatIds, userId) => {
         const userPrivateChat = document.querySelector(`.room-item[data-chat-room="privateChat${userId}"]`)
         const activeGroupChatId = activeGroupChat?.dataset.chatId || null
-        
+
         if (userPrivateChat) userPrivateChat.querySelector('.online').classList.add('gray')
         if (activeGroupChatId && userGroupChatIds.includes(Number(activeGroupChatId))) {
             const onlineRoomates = document.querySelectorAll('.online-user')
@@ -288,106 +288,109 @@
         })
     })
     // 訊息顯示區塊監聽點擊事件，事件發生則下載目標檔案
-    msgDisplayer.addEventListener('click', function onMessageClicked(e) {
-        if (e.target.matches('.download-item') || e.target.parentNode.matches('.download-item')) {
-            downloadFile(e.target.dataset.url)
-        }
-    })
+    if (msgDisplayer) {
+        msgDisplayer.addEventListener('click', function onMessageClicked(e) {
+            if (e.target.matches('.download-item') || e.target.parentNode.matches('.download-item')) {
+                downloadFile(e.target.dataset.url)
+            }
+        })
+    }
     // 編輯訊息區監聽change事件，事件發生則啟動檔案預覽
-    sendMsgWrapper.addEventListener('change', function onFileChanged(e) {
-        // 如果event target是text area，則結束處理
-        if (!e.target.files) return
+    if (sendMsgWrapper) {
+        sendMsgWrapper.addEventListener('change', function onFileChanged(e) {
+            // 如果event target是text area，則結束處理
+            if (!e.target.files) return
 
-        if (e.target.matches('#file')) displayFile(e.target.files[0].name)
-        if (e.target.matches('#image')) displayImage(e.target.files[0])
-    })
-    // 檔案預覽「ｘ」按鈕監聽點擊事件，事件發生則關閉檔案預覽
-    sendMsgWrapper.addEventListener('click', function onFileRemovedIconClicked(e) {
-        if (!e.target.matches('.remove-btn')) return
+            if (e.target.matches('#file')) displayFile(e.target.files[0].name)
+            if (e.target.matches('#image')) displayImage(e.target.files[0])
+        })
+        // 檔案預覽「ｘ」按鈕監聽點擊事件，事件發生則關閉檔案預覽
+        sendMsgWrapper.addEventListener('click', function onFileRemovedIconClicked(e) {
+            if (!e.target.matches('.remove-btn')) return
 
-        if (e.target.parentNode.matches('#file-item')) {
-            const fileItem = e.target.parentNode
-            const fileInput = document.querySelector('#file')
+            if (e.target.parentNode.matches('#file-item')) {
+                const fileItem = e.target.parentNode
+                const fileInput = document.querySelector('#file')
 
-            // 隱藏檔案名稱標籤
-            fileItem.style.display = "none"
-            // 清空檔案input
-            fileInput.value = ''
-        }
-
-        if (e.target.parentNode.matches('#image-item')) {
-            const imageItem = e.target.parentNode
-            const imageInput = document.querySelector('#image')
-
-            // 隱藏image preview
-            imageItem.style.display = "none"
-            // 清空image input
-            imageInput.value = ''
-            // 恢復畫面高度至原來設定
-            setHeightsToOriginalSettings()
-        }
-    })
-    // 訊息表單監聽送出事件，事件發生則處理檔案上傳、發送表單至後端，並發送socket事件
-    sendMsgWrapper.addEventListener('submit', async function onMessageSubmitted(e) {
-        const textInput = document.querySelector('#text-message')
-        const fileInput = document.querySelector('#file')
-        const imageInput = document.querySelector('#image')
-        const submitBtn = document.querySelector('#submitBtn')
-        const postURL = sendMsgWrapper.dataset.postUrl
-        const formData = new FormData(sendMsgWrapper)
-
-        e.preventDefault()
-
-        // 如果沒有輸入任何訊息、也沒有選擇檔案，則結束處理
-        if (!textInput.value.trim() && !fileInput.files.length && !imageInput.files.length) return
-
-        // disable送出按紐
-        submitBtn.disabled = true
-        submitBtn.innerText = '發送中'
-
-        // 將檔案上傳至firebase，並在formData加上檔案連結
-        if (fileInput.files[0]) formData.append('fileUrl', await uploadAndgetFirebaseRef('files', fileInput.files[0]))
-        if (imageInput.files[0]) formData.append('imageUrl', await uploadAndgetFirebaseRef('images', imageInput.files[0]))
-
-        axios
-            .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-            .then((response) => {
-                if (response.data.status === 'error') throw new Error(response.data.message)
-                const activeChat = document.querySelector('.room-item.active')
-                const chatType = activeChat.dataset.chatType
-                const { User, content, formattedCreatedAt, file, imageSrc } = response.data.message
-                const fileItem = document.querySelector('#file-item')
-                const imageItem = document.querySelector('#image-item')
-
-                // 發送chatMessage事件給伺服器
-                if (chatType === 'groupChat') {
-                    const chatRoom = activeChat.dataset.chatRoom
-                    socket.emit("groupChatMessage", chatRoom, User, content, formattedCreatedAt, file, imageSrc)
-                }
-                if (chatType === 'privateChat') {
-                    const recieverId = Number(activeChat.dataset.chatId)
-                    socket.emit("privateChatMessage", recieverId, User, content, formattedCreatedAt, file, imageSrc)
-                }
-
-                // 清空input的值
-                textInput.value = ''
-                fileInput.value = ''
-                imageInput.value = ''
-                // 隱藏檔案預覽、圖片預覽
+                // 隱藏檔案名稱標籤
                 fileItem.style.display = "none"
+                // 清空檔案input
+                fileInput.value = ''
+            }
+
+            if (e.target.parentNode.matches('#image-item')) {
+                const imageItem = e.target.parentNode
+                const imageInput = document.querySelector('#image')
+
+                // 隱藏image preview
                 imageItem.style.display = "none"
+                // 清空image input
+                imageInput.value = ''
                 // 恢復畫面高度至原來設定
                 setHeightsToOriginalSettings()
-                // 恢復送出按紐功能
-                submitBtn.disabled = false
-                submitBtn.innerText = '送出'
-            })
-            .catch((err) => {
-                alert(`有地方出錯了！請截圖彈跳視窗給開發人員，我們會盡快排除故障${err}`)
+            }
+        })
+        // 訊息表單監聽送出事件，事件發生則處理檔案上傳、發送表單至後端，並發送socket事件
+        sendMsgWrapper.addEventListener('submit', async function onMessageSubmitted(e) {
+            const textInput = document.querySelector('#text-message')
+            const fileInput = document.querySelector('#file')
+            const imageInput = document.querySelector('#image')
+            const submitBtn = document.querySelector('#submitBtn')
+            const postURL = sendMsgWrapper.dataset.postUrl
+            const formData = new FormData(sendMsgWrapper)
 
-            })
-    })
+            e.preventDefault()
 
+            // 如果沒有輸入任何訊息、也沒有選擇檔案，則結束處理
+            if (!textInput.value.trim() && !fileInput.files.length && !imageInput.files.length) return
+
+            // disable送出按紐
+            submitBtn.disabled = true
+            submitBtn.innerText = '發送中'
+
+            // 將檔案上傳至firebase，並在formData加上檔案連結
+            if (fileInput.files[0]) formData.append('fileUrl', await uploadAndgetFirebaseRef('files', fileInput.files[0]))
+            if (imageInput.files[0]) formData.append('imageUrl', await uploadAndgetFirebaseRef('images', imageInput.files[0]))
+
+            axios
+                .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+                .then((response) => {
+                    if (response.data.status === 'error') throw new Error(response.data.message)
+                    const activeChat = document.querySelector('.room-item.active')
+                    const chatType = activeChat.dataset.chatType
+                    const { User, content, formattedCreatedAt, file, imageSrc } = response.data.message
+                    const fileItem = document.querySelector('#file-item')
+                    const imageItem = document.querySelector('#image-item')
+
+                    // 發送chatMessage事件給伺服器
+                    if (chatType === 'groupChat') {
+                        const chatRoom = activeChat.dataset.chatRoom
+                        socket.emit("groupChatMessage", chatRoom, User, content, formattedCreatedAt, file, imageSrc)
+                    }
+                    if (chatType === 'privateChat') {
+                        const recieverId = Number(activeChat.dataset.chatId)
+                        socket.emit("privateChatMessage", recieverId, User, content, formattedCreatedAt, file, imageSrc)
+                    }
+
+                    // 清空input的值
+                    textInput.value = ''
+                    fileInput.value = ''
+                    imageInput.value = ''
+                    // 隱藏檔案預覽、圖片預覽
+                    fileItem.style.display = "none"
+                    imageItem.style.display = "none"
+                    // 恢復畫面高度至原來設定
+                    setHeightsToOriginalSettings()
+                    // 恢復送出按紐功能
+                    submitBtn.disabled = false
+                    submitBtn.innerText = '送出'
+                })
+                .catch((err) => {
+                    alert(`有地方出錯了！請截圖彈跳視窗給開發人員，我們會盡快排除故障${err}`)
+                })
+        })
+
+    }
 
     // Section 2. 函式定義
     // 2.1 畫面組裝
