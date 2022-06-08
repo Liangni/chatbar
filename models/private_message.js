@@ -11,11 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Private_message.belongsTo(models.User, { foreignKey: 'recieverId' })
-      Private_message.belongsTo(models.User, { foreignKey: 'senderId' })
+      Private_message.belongsTo(models.User, { foreignKey: 'recieverId', as: 'Reciever' })
+      Private_message.belongsTo(models.User, { foreignKey: 'senderId', as: 'Sender' })
     }
   };
   Private_message.init({
+    // senderId: DataTypes.INTEGER,
+    // recieverId: DataTypes.INTEGER,
     content: DataTypes.TEXT,
     file: DataTypes.STRING,
     image: DataTypes.STRING,

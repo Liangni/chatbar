@@ -1,0 +1,47 @@
+{{#if this.isLoginUser}}
+<div class="d-flex flex-row-reverse">
+  <div class="d-flex flex-column align-items-start">
+    <div class="m-2 p-2" style="background: rgb(16, 16, 253); color: #fff; border-radius: 6px;">
+      <div>
+        <div class="new fs-12">{{this.content}}</div>
+        {{#if this.imageSrc}}
+        <img src="{{this.imageSrc}}" class="image-message-item" alt="image sent">
+        {{/if}}
+        {{#if this.file}}
+        <div class="download-item" data-url="{{this.file}}">
+          <i class="fa fa-download" data-url="{{this.file}}"></i>
+          <span data-url="{{this.file}}">{{#getFileNameFromUrl}}{{../this.file}}{{/getFileNameFromUrl}}</span>
+        </div>
+        {{/if}}
+        <div class="time fs-12 text-end">{{this.formattedCreatedAt}}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{{else}}
+<div class="message-by-others m-2">
+  {{#if this.User.avatar}}
+  <img src="{{this.User.avatar}}" class="avatar">
+  {{else}}
+  <img src="/image/users.webp" class="avatar" style="width: 60px; height: 60px;">
+  {{/if}}
+  <div class="d-flex flex-column align-items-start">
+    <div class="fs-14-bold">{{this.User.account}}</div>
+    <div class="my-1 p-2" style="background: rgb(235, 235, 235);border-radius: 6px;">
+      <div>
+        <div class="new fs-12">{{this.content}}</div>
+        {{#if this.imageSrc}}
+        <img src="{{this.imageSrc}}" class="image-message-item" alt="image sent">
+        {{/if}}
+        {{#if this.file}}
+        <div class="download-item" data-url="{{this.file}}">
+          <i class="fa fa-download" data-url="{{this.file}}"></i>
+          <span data-url="{{this.file}}">{{#getFileNameFromUrl}}{{../this.file}}{{/getFileNameFromUrl}}</span>
+        </div>
+        {{/if}}
+        <div class="time fs-12 text-end">{{this.formattedCreatedAt}}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{{/if}}

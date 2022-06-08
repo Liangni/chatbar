@@ -24,6 +24,7 @@ router.get('/logout', userController.logOut)
 // 使用者訊息
 router.get('/loginUser/messages', userController.getUserMessages)
 router.get('/loginUser/groupChats/groupMessages', authenticated, userController.getUserGroupMessages)
+router.get('/loginUser/privateMessages', authenticated, userController.getUserPrivateMessages)
 
 // 朋友關係
 router.post('/:userId/friendshipInvitations', authenticated, userController.postFriendshipInvitations)

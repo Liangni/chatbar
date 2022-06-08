@@ -16,7 +16,7 @@
           <a class="nav-link {{#ifCond path 'userList'}}active{{/ifCond}}" aria-current="page" href="/users">誰也在用</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {{#some path (makeArray 'getUserMessages' 'getUserGroupMessages') }}active{{/some}}"
+          <a class="nav-link {{#some path (makeArray 'getUserMessages' 'getUserGroupMessages' 'getUserPrivateMessages') }}active{{/some}}"
             href="/users/loginUser/messages">你的聊天</a>
         </li>
       </ul>
