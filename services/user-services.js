@@ -1,4 +1,3 @@
-const bcrypt = require('bcryptjs')
 const { Op } = require("sequelize")
 const { User,  Group_message, Group_chat, Private_message } = require('../models')
 const { getUser } = require('../helpers/auth-helpers')
