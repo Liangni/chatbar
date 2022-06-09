@@ -273,7 +273,7 @@ const userController = {
                     }
                 }
             }
-            const chatsWithMessage = userPrivateChats.chats?.concat(userGroupChats.chats ? userGroupChats.chats : []) || []
+            const chatsWithMessage = userPrivateChats.chats?.concat(userGroupChats.chats ? userGroupChats.chats : []) || userGroupChats.chats ? userGroupChats.chats : []
             if (chatsWithMessage.length) {
                 chatsWithMessage.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt))
                 if (chatsWithMessage[0].chatType === 'groupChat') unfoldedChat = userGroupChats.unfoldedChat
