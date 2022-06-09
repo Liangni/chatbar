@@ -420,7 +420,12 @@
                         let isMatchedFilter = false
                         if (!filterValue.length) break
 
-                        userInterestBoxes.forEach(box => { if (filterValue.includes(box.innerText)) isMatchedFilter = true })
+                        userInterestBoxes.forEach(box => { 
+                            filterValue.forEach(eachValue => {
+                                const re = new RegExp(`${eachValue}`, 'i')
+                                if (re.test(box.innerText)) isMatchedFilter = true
+                            })
+                        })
                         if (!isMatchedFilter) displaySetting = 'none'
                         break
                     default:
