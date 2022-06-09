@@ -306,7 +306,8 @@ const userController = {
                         chatsWithNoMessage.unshift(...removed)
                     }
                 }
-                groupChats = chatsWithNoMessage.concat(groupChats.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt)))
+                const chatsWithMessage = groupChats.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt))
+                groupChats = chatsWithMessage.concat(chatsWithNoMessage)
 
             }
 

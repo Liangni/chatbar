@@ -233,9 +233,9 @@
     // 監聽來自伺服器的「登入」事件，事件發生則更新左側privatChat使用者上線狀態，與group message的上線使用者清單
     socket.on('newLogin', (userGroupChatIds, userId) => {
         const userPrivateChat = document.querySelector(`.room-item[data-chat-room="privateChat${userId}"]`)
-        const activeGroupChatId = activeGroupChat?.dataset.chatId || null
-
-        if (userPrivateChat) userPrivateChat.querySelector('.online').classList.remove('gray')
+        const activeGroupChatId = document.querySelector('.room-item.active[data-chat-type="groupChat"]')?.dataset.chatId || null
+    
+        if (userPrivateChat) { userPrivateChat.querySelector('.online').classList.remove('gray') }
         if (activeGroupChatId && userGroupChatIds.includes(Number(activeGroupChatId))) {
             // 更新所展開的groupMessage的登入使用者名單
             const offlineRoomates = document.querySelectorAll('.right-part-bottom .online-user')
