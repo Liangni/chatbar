@@ -35,7 +35,7 @@
                 data-createdate="{{#dateFormator}}{{../this.createdAt}}{{/dateFormator}}">
                 <span class="group-chat-name">{{this.name}}</span>
                 <span class="group-chat-user-account">{{this.user.account}}</span>
-                <span class="group-chat-online-user-count">4</span>
+                <span class="group-chat-online-user-count" data-info="group-chat-online-user-count"></span>
                 <span class="group-chat-user-count">{{this.numOfRegisters}}</span>
                 <span class="group-chat-created-at">{{#dateFormator}}{{../this.createdAt}}{{/dateFormator}}</span>
                 <span class="action group-chat-action">
@@ -74,6 +74,22 @@
         originRawHtml = roomsPanel.innerHTML
 
     let i, switching, roomOptions, shouldSwitch
+    
+    // socket事件
+    socket.emit("fetchOnlineUsers")
+
+    socket.on('getOnlineUsers', (onlineUsers) => {
+        const onlineGroupUserCountBoxes = document.querySelectorAll('[data-info="group-chat-online-user-count"]')
+        
+        onlineGroupUserCountBoxes.forEach(box=> {
+            const groupChatId = Number(box.parentElement.dataset.groupchatid)
+            let userCount = 0 
+            onlineUsers.forEach(user=> {
+                if (user.groupChatIds.includes(groupChatId)) userCount += 1
+            })
+            box.innerText = userCount
+        })  
+    })
     
     // 排序聊天室功能
     tableHead.addEventListener('click', e => {

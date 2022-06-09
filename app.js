@@ -107,6 +107,10 @@ io.on("connection", (socket) => {
     }
   })
   // 監聽來自客戶端的「更新線上使用者名單」事件
+  socket.on('fetchOnlineUsers', () => {
+    io.to(socket.id).emit("getOnlineUsers", onlineUsers)
+  })
+  
   socket.on('fetchOnlineUserIds', () => {
     io.to(socket.id).emit("getOnlineUserIds", onlineUserIds)
   })
