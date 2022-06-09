@@ -438,11 +438,15 @@ a {
 .right-part .right-part-top {
     height: 44%;
     position: relative;
-    overflow: scroll;
+    /* Edit by Penny */
+    /* overflow: scroll; */
+    overflow: auto;
 }
 .right-part .right-part-bottom {
     height: 46%;
-    overflow: scroll;
+    /* Edit by Penny */
+    /* overflow: scroll; */
+    overflow: auto;
 }
 .right-part img {
     width: 30px;
