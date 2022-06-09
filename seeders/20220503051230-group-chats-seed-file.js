@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const SEED_GROUP_CHATS = ['gorupChat1', 'groupChat2', 'groupChat3']
+    const SEED_GROUP_CHATS = ['groupChat1', 'groupChat2', 'groupChat3']
     const SEED_USER = 'user1'
 
     const userData = await queryInterface.sequelize.query(

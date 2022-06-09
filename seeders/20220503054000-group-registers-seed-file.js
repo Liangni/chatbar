@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const SEED_GROUP_CHATS = ['gorupChat1', 'groupChat2', 'groupChat3']
+    const SEED_GROUP_CHATS = ['groupChat1', 'groupChat2', 'groupChat3']
     const SEED_USERS = ['user1', 'user2', 'user3']
     // 取出SEED_GROUP_CHATS在資料庫的id
     const groupChatIds = await Promise.all(SEED_GROUP_CHATS.map(async g => {
