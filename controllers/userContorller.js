@@ -333,16 +333,16 @@ const userController = {
             const loginUser = getUser(req)
             const friends = loginUser.Friends
             const userId = req.query ? Number(req.query.userId) : null
-            
+
             let givenFriend
             if (userId) {
                 // 檢查朋友關係是否存在，若不存在則結束處理
-                givenFriend = friends.filter(friend=> friend.id === userId)
+                givenFriend = friends.filter(friend => friend.id === userId)
                 if (!givenFriend.length) throw new Error('朋友關係不存在或已解除，無法查看對話')
             }
 
             // 整理左側聊天列表
-            const latestPrivateMessges = friends.length? await Promise.all(friends.map(async friend=>{
+            let latestPrivateMessges = friends.length ? await Promise.all(friends.map(async friend => {
                 const MessageData = await Private_message.findOne({
                     where: {
                         [Op.or]: [
@@ -352,22 +352,22 @@ const userController = {
                     },
                     order: [['createdAt', 'DESC']]
                 })
-                
+
                 if (MessageData) {
                     // 刪減過長的訊息文字
                     if (MessageData.content && MessageData.content.length > 15) {
                         MessageData.content = MessageData.content.substring(0, 14) + '...'
                     }
                 }
-                
-                const Message = MessageData? { 
+
+                const Message = MessageData ? {
                     ...MessageData.toJSON(),
                     User: friend,
                     isLoginUser: (loginUser.id === MessageData.senderId),
                     formattedCreatedAt: formatMessageTime(MessageData.createdAt)
                 } : null
 
-                return { 
+                return {
                     id: friend.id,
                     name: friend.account,
                     avatar: friend.avatar,
@@ -375,22 +375,26 @@ const userController = {
                     latestMessage: Message
                 }
             })) : null
-            
+
+            if (latestPrivateMessges) {
+                latestPrivateMessges = latestPrivateMessges.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt))
+            }
+
             // 若左側聊天列表資料存在，整理右側展開訊息
             let unfoldedPrivateChat
             if (friends.length) {
                 const privateMessagesData = await Private_message.findAll({
                     where: {
                         [Op.or]: [
-                            { senderId: loginUser.id, recieverId: givenFriend? givenFriend[0].id : latestPrivateMessges[0].id },
-                            { senderId: givenFriend? givenFriend[0].id : latestPrivateMessges[0].id, recieverId: loginUser.id }
+                            { senderId: loginUser.id, recieverId: givenFriend ? givenFriend[0].id : latestPrivateMessges[0].id },
+                            { senderId: givenFriend ? givenFriend[0].id : latestPrivateMessges[0].id, recieverId: loginUser.id }
                         ]
                     },
                     include: [{ model: User, as: 'Sender' }, { model: User, as: 'Reciever' }],
                     raw: true,
                     nest: true
                 })
-                const Private_messages = privateMessagesData.map(message=> {
+                const Private_messages = privateMessagesData.map(message => {
                     return {
                         ...message,
                         User: message.Sender,
@@ -400,11 +404,11 @@ const userController = {
                 })
 
                 unfoldedPrivateChat = {
-                    id: givenFriend? givenFriend[0].id : latestPrivateMessges[0].id,
-                    name: givenFriend? givenFriend[0].account : latestPrivateMessges[0].name,
-                    photo: givenFriend? givenFriend[0].avatar : latestPrivateMessges[0].avatar,
+                    id: givenFriend ? givenFriend[0].id : latestPrivateMessges[0].id,
+                    name: givenFriend ? givenFriend[0].account : latestPrivateMessges[0].name,
+                    photo: givenFriend ? givenFriend[0].avatar : latestPrivateMessges[0].avatar,
                     chatType: 'privateChat',
-                    Private_messages: Private_messages.length ? Private_messages: null
+                    Private_messages: Private_messages.length ? Private_messages : null
                 }
             }
 
@@ -413,7 +417,7 @@ const userController = {
                 chats: latestPrivateMessges,
                 unfoldedChat: unfoldedPrivateChat || null
             })
-            
+
         } catch (err) {
             next(err)
         }
