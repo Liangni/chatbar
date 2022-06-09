@@ -11,7 +11,7 @@
             </div>
         </div>
         <form action="/groupChats" method="POST" class="create-chat-room-box">
-            <input name="name" type="text" class="me-2" maxlength="30"placeholder="今天想聊什麼?">
+            <input name="name" type="text" class="me-2" maxlength="30" placeholder="今天想聊什麼?">
             <button class="btn btn-primary" type="submit">開新話題</button>
         </form>
     </div>
@@ -20,9 +20,9 @@
         <div class="table-head">
             <span class="group-chat-name">話題名稱</span>
             <span class="group-chat-user-account">話題主ID</span>
-            <span  class="group-chat-online-user-count" id="sortByOnline">上線人數<i class="fa fa-chevron-up ms-2"></i><i
+            <span class="group-chat-online-user-count" id="sortByOnline">上線人數<i class="fa fa-chevron-up ms-2"></i><i
                     class="fa fa-chevron-down ms-2 "></i></span>
-            <span  class="group-chat-user-count" id="sortByJoinedTotal">加入人數<i class="fa fa-chevron-up ms-2"></i><i
+            <span class="group-chat-user-count" id="sortByJoinedTotal">加入人數<i class="fa fa-chevron-up ms-2"></i><i
                     class="fa fa-chevron-down ms-2"></i></span>
             <span class="group-chat-created-at" id="sortByInitDate">開聊日期<i class="fa fa-chevron-up ms-2"></i><i
                     class="fa fa-chevron-down ms-2"></i></span>
@@ -31,7 +31,7 @@
         <div class="table-body" id="roomsPanel" data-loginuserid="{{loginUser.id}}">
             {{#each groupChats}}
             <div class="room-items" data-groupchatid="{{this.id}}" data-inituseraccount="{{this.user.account}}"
-                data-roomtitle="{{this.name}}" data-total="{{this.numOfRegisters}}"
+                data-roomtitle="{{this.name}}" data-online-total="0" data-total="{{this.numOfRegisters}}"
                 data-createdate="{{#dateFormator}}{{../this.createdAt}}{{/dateFormator}}">
                 <span class="group-chat-name">{{this.name}}</span>
                 <span class="group-chat-user-account">{{this.user.account}}</span>
@@ -44,7 +44,8 @@
                         aria-expanded="false">
                         已加入
                     </button>
-                    <a href="/users/loginUser/groupChats/groupMessages?groupId={{this.id}}" class="btn btn-info go-chat ms-2">Chat</a>
+                    <a href="/users/loginUser/groupChats/groupMessages?groupId={{this.id}}"
+                        class="btn btn-info go-chat ms-2">Chat</a>
                     <ul class="dropdown-menu">
                         <li>
                             <form action="/groupChats/{{this.id}}/groupRegisters?_method=DELETE" method="POST"
@@ -74,27 +75,63 @@
         originRawHtml = roomsPanel.innerHTML
 
     let i, switching, roomOptions, shouldSwitch
-    
+
     // socket事件
     socket.emit("fetchOnlineUsers")
 
     socket.on('getOnlineUsers', (onlineUsers) => {
         const onlineGroupUserCountBoxes = document.querySelectorAll('[data-info="group-chat-online-user-count"]')
-        
-        onlineGroupUserCountBoxes.forEach(box=> {
+
+        onlineGroupUserCountBoxes.forEach(box => {
             const groupChatId = Number(box.parentElement.dataset.groupchatid)
-            let userCount = 0 
-            onlineUsers.forEach(user=> {
+            let userCount = 0
+            onlineUsers.forEach(user => {
                 if (user.groupChatIds.includes(groupChatId)) userCount += 1
             })
             box.innerText = userCount
-        })  
+            box.parentElement.dataset.onlineTotal = userCount
+        })
     })
-    
+
     // 排序聊天室功能
     tableHead.addEventListener('click', e => {
-        // 依聊天室加入人數多寡排序
-        if (e.target.classList.contains('fa-chevron-up') && e.target.parentElement.id === 'sortByJoinedTotal') {
+        // 依聊天室上線人數多寡排序
+        if (e.target.classList.contains('fa-chevron-up') && e.target.parentElement.id === 'sortByOnline') {
+            switching = true
+            while (switching) {
+                switching = false
+                roomOptions = document.querySelectorAll('div[data-roomtitle]')
+                for (i = 0; i < (roomOptions.length - 1); i++) {
+                    shouldSwitch = false
+                    if (Number(roomOptions[i].dataset.onlineTotal) > Number(roomOptions[i + 1].dataset.onlineTotal)) {
+                        shouldSwitch = true
+                        break
+                    }
+                }
+                if (shouldSwitch) {
+                    roomOptions[i].parentElement.insertBefore(roomOptions[i + 1], roomOptions[i])
+                    switching = true
+                }
+            }
+        } else if (e.target.classList.contains('fa-chevron-down') && e.target.parentElement.id === 'sortByOnline') {
+            switching = true
+            while (switching) {
+                switching = false
+                roomOptions = document.querySelectorAll('div[data-roomtitle]')
+                for (i = 0; i < (roomOptions.length - 1); i++) {
+                    shouldSwitch = false
+                    if (Number(roomOptions[i].dataset.onlineTotal) < Number(roomOptions[i + 1].dataset.onlineTotal)) {
+                        shouldSwitch = true
+                        break
+                    }
+                }
+                if (shouldSwitch) {
+                    roomOptions[i].parentElement.insertBefore(roomOptions[i + 1], roomOptions[i])
+                    switching = true
+                }
+            }
+            // 依聊天室加入人數多寡排序
+        } else if (e.target.classList.contains('fa-chevron-up') && e.target.parentElement.id === 'sortByJoinedTotal') {
             switching = true
             while (switching) {
                 switching = false
