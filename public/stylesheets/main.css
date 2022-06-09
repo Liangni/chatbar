@@ -311,6 +311,8 @@ a {
     display: flex;
     flex-direction: column;
     align-items: start;
+    /* Add by Penny */
+    text-align:start;
 }
 .room-item .chat-timeAndRead {
     /* outline: 1px solid blue; */
@@ -658,10 +660,41 @@ a {
     flex-direction: column;
     font-size: 14px;
 }
-.bottom-box .table-head span,
+/* The following blocks is editted by Penny */
+/* .bottom-box .table-head span,
 .bottom-box .table-body span {
     width: 15%;
+} */
+.bottom-box .table-head span,
+.bottom-box .table-body span {
+    display: block;
+    text-align:start;
 }
+.bottom-box .table-head .group-chat-name,
+.bottom-box .table-body .group-chat-name {
+    width: 30%;
+}
+.bottom-box .table-head .group-chat-user-account,
+.bottom-box .table-body .group-chat-user-account {
+    width: 15%;
+}
+.bottom-box .table-head .group-chat-online-user-count,
+.bottom-box .table-body .group-chat-online-user-count {
+    width: 10%;
+}
+.bottom-box .table-head .group-chat-user-count,
+.bottom-box .table-body .group-chat-user-count {
+    width: 10%;
+}
+.bottom-box .table-head .group-chat-created-at,
+.bottom-box .table-body .group-chat-created-at {
+    width: 10%;
+}
+.bottom-box .table-head .group-chat-action,
+.bottom-box .table-body .group-chat-action {
+    width: 15%;
+}
+/* End of the blocks editted by Penny */
 .bottom-box .table-body .room-items {
     width: 100%;
     height: 30px;
