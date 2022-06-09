@@ -8,7 +8,7 @@
         <div class="room-box d-flex flex-column align-items-center" id="chatList">
             {{#if chats}}
             {{#each chats}}
-            <div class="room-item {{#ifCond this.id ../unfoldedChat.id}}active{{/ifCond}} btn"
+            <div class="room-item {{#ifCond this.id ../unfoldedChat.id}}{{#ifCond ../this.chatType ../../unfoldedChat.chatType}}active{{/ifCond}}{{/ifCond}} btn"
                 data-chat-room="{{this.chatType}}{{this.id}}" data-chat-id="{{this.id}}"
                 data-chat-type="{{this.chatType}}" {{#ifCond this.chatType 'groupChat' }}
                 data-url="/api/users/loginUser/groupChats/groupMessages?groupId={{../this.id}}" {{/ifCond}} {{#ifCond
@@ -60,7 +60,7 @@
     <div class="chatting">
         {{#if chats}}
         <div class="top-section d-flex flex-row justify-content-between" id="chat-details">
-            <div class="left-part {{#ifCond unfoldedChat.chatType 'privateChat'}}full-width{{/ifCond}}">
+            <div class="left-part {{#ifCond unfoldedChat.chatType 'privateChat'}}full-width{{/ifCond}}" data-info= "unfoldedChatBox">
                 <div class="left-part-top bg-light" id="room-info-wrapper">
                     <div class="room-info d-flex flex-row align-items-center">
                         {{#if unfoldedChat.photo}}
@@ -249,9 +249,9 @@
     // 監聽來自伺服器的「登出」事件，事件發生則更新左側privatChat使用者上線狀態，與group message的上線使用者清單
     socket.on('newLogout', (userGroupChatIds, userId) => {
         const userPrivateChat = document.querySelector(`.room-item[data-chat-room="privateChat${userId}"]`)
-        const activeGroupChatId = activeGroupChat?.dataset.chatId || null
+        const activeGroupChatId = document.querySelector('.room-item.active[data-chat-type="groupChat"]')?.dataset.chatId || null
 
-        if (userPrivateChat) userPrivateChat.querySelector('.online').classList.add('gray')
+        if (userPrivateChat) { userPrivateChat.querySelector('.online').classList.add('gray') }
         if (activeGroupChatId && userGroupChatIds.includes(Number(activeGroupChatId))) {
             const onlineRoomates = document.querySelectorAll('.online-user')
             onlineRoomates.forEach(r => {
@@ -452,7 +452,8 @@
         if (data.unfoldedChat) {
             const roomInfoWrapper = document.querySelector('#room-info-wrapper')
             const msgDisplayer = document.querySelector('#msg-displayer')
-            const onlineAndOfflineGroupUsersBox = document.querySelector('[data-info = "online-and-offline-group-users"]')
+            const onlineAndOfflineGroupUsersBox = document.querySelector('[data-info="online-and-offline-group-users"]')
+            const unfoldedChatBox = document.querySelector('[data-info= "unfoldedChatBox"]')
             if (data.unfoldedChat.chatType === 'groupChat') {
                 // 更新訊息表單資訊
                 updateGroupMessageFormInfo(data.unfoldedChat.id)
@@ -468,6 +469,7 @@
 
                 // 顯示右側登入使用者名單
                 onlineAndOfflineGroupUsersBox.style.display = ""
+                unfoldedChatBox.classList.remove('full-width')
             }
 
             if (data.unfoldedChat.chatType === 'privateChat') {
@@ -480,6 +482,7 @@
                 msgDisplayer.scrollTop = msgDisplayer.scrollHeight
                 // 隱藏右側登入使用者名單
                 onlineAndOfflineGroupUsersBox.style.display = "none"
+                unfoldedChatBox.classList.add('full-width')
             }
         }
     }

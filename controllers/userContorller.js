@@ -6,6 +6,7 @@ const dayjs = require('dayjs')
 const { Gender, District, User, Interest, Owned_interest, Area, Friendship_invitation, Friendship, Group_message, Group_chat, Private_message, sequelize } = require('../models')
 const { getUser } = require('../helpers/auth-helpers')
 const { formatMessageTime } = require('../helpers/time-helpers')
+const userServices = require('../services/user-services')
 
 const userController = {
     loginPage: (req, res) => {
@@ -242,8 +243,54 @@ const userController = {
             next(err)
         }
     },
-    getUserMessages: (req, res) => {
-        res.render('users/userMessages', { path: 'getUserMessages' })
+    getUserMessages: async (req, res, next) => {
+        try {
+            let userGroupChats = {}
+            let userPrivateChats = {}
+            let chatsWithNoMessage = []
+            let unfoldedChat = null
+            await userServices.getUserGroupMessages(req, (err, data) => {
+                return err ? next(err) : userGroupChats = data
+            })
+            
+            await userServices.getUserPrivateMessages(req, (err, data) => {
+                return err ? next(err) : userPrivateChats = data
+            })
+
+            if (userPrivateChats.chats) {
+                for (let i = userPrivateChats.chats.length - 1; i >= 0; i = i - 1) {
+                    if (!userPrivateChats.chats[i].latestMessage) {
+                        const removed = userPrivateChats.chats.splice(i, 1)
+                        chatsWithNoMessage.unshift(...removed)
+                    }
+                }
+            }
+            if (userGroupChats.chats) {
+                for (let i = userGroupChats.chats.length - 1; i >= 0; i = i - 1) {
+                    if (!userGroupChats.chats[i].latestMessage) {
+                        const removed = userGroupChats.chats.splice(i, 1)
+                        chatsWithNoMessage.unshift(...removed)
+                    }
+                }
+            }
+            const chatsWithMessage = userPrivateChats.chats?.concat(userGroupChats.chats ? userGroupChats.chats : []) || []
+            if (chatsWithMessage.length) {
+                chatsWithMessage.sort((a, b) => new Date(b.latestMessage.createdAt) - new Date(a.latestMessage.createdAt))
+                if (chatsWithMessage[0].chatType === 'groupChat') unfoldedChat = userGroupChats.unfoldedChat
+                if (chatsWithMessage[0].chatType === 'privateChat') unfoldedChat = userPrivateChats.unfoldedChat
+            }
+            
+            const chats = chatsWithMessage.concat(chatsWithNoMessage)
+           
+            res.render('users/userMessages', { 
+                path: 'getUserMessages',
+                chats: chats.length? chats : null,
+                unfoldedChat 
+             })
+        } catch (err) {
+            next(err)
+        }
+
     },
     getUserGroupMessages: async (req, res, next) => {
         try {
