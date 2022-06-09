@@ -1,7 +1,11 @@
+/* Add by Penny */
 * {
     box-sizing: border-box;
 }
-
+/* Add by Penny */
+.body {
+    min-width: 1228px;
+}
 /* basic */
 a {
     text-decoration: none;
@@ -226,6 +230,8 @@ a {
     border-color: grey;
     border-style: solid;
     border-width: 3px 1.5px 3px 3px;
+    /* Add by Penny */
+    min-height: 521px;
 }
 .chat-nav a {
     color: #fff;
@@ -247,6 +253,9 @@ a {
     border-color: grey;
     border-style: solid;
     border-width: 3px 3px 3px 1.5px;
+    /* Add by Penny */
+    overflow: auto;
+    min-height: 521px;
 }
 .chat-room .search-box {
     position: relative;
@@ -319,6 +328,8 @@ a {
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
+    /* Add by Penny */
+    min-height: 500px;
 }
 .chatting .top-section ,
 .chatting .bottom-section {
