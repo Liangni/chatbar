@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
 
+// private_key後面要加replace的原因見stack overflow討論https://stackoverflow.com/questions/50299329/node-js-firebase-service-account-private-key-wont-parse
 admin.initializeApp({
   credential: admin.credential.cert({
     "type": "service_account",
