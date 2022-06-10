@@ -1,15 +1,13 @@
-const firebase = require('../config/firebase')
-
-async function getDownloadUrl (targetUrl) {
+async function createFirebaseCustomToken(userId) {
   try {
-    const storage = firebase.storage()
-    const storageRef = storage.ref()
-
-    return await storageRef.child(targetUrl).getDownloadURL()
+    const firebaseAdmin = require('../config/firebaseAdmin')
+    const uid = userId.toString()
+    const customToken = await firebaseAdmin.auth().createCustomToken(uid)
+    return customToken
   } catch(err) {
-    return err
+    console.log('Error creating custom token:', err)
   }
 }
 
-module.exports = { getDownloadUrl }
+module.exports = { createFirebaseCustomToken }
 

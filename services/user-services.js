@@ -74,7 +74,7 @@ const userServices = {
       if (groupId) {
         unfoldedGroupChat = groupChats.find(i => i.id === groupId)
       } else {
-        unfoldedGroupChat = groupChats[0]
+        unfoldedGroupChat = groupChats?.[0] || null
       }
 
       return cb(null, {

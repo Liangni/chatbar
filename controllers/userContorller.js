@@ -7,6 +7,7 @@ const { Gender, District, User, Interest, Owned_interest, Area, Friendship_invit
 const { getUser } = require('../helpers/auth-helpers')
 const { formatMessageTime } = require('../helpers/time-helpers')
 const userServices = require('../services/user-services')
+const fileHelpers = require('../helpers/file-helpers')
 
 const userController = {
     loginPage: (req, res) => {
@@ -59,10 +60,12 @@ const userController = {
             next(err)
         }
     },
-    logIn: (req, res, next) => {
+    logIn: async (req, res, next) => {
         try {
+            const loginUser = getUser(req)
+            const token = await fileHelpers.createFirebaseCustomToken(loginUser.id)
             req.flash('success_messages', '成功登入!')
-            res.redirect('/groupChats')
+            res.redirect(`/groupChats?token=${token}`)
             //如採用JWT，要取代成如下程式碼
             // 因為設定了{ session: false }，不會進入反序列化的程序，因此物件未被整理成JS的簡單物件
             // const userData = req.user.toJSON()

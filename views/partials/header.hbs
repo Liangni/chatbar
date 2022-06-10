@@ -21,8 +21,20 @@
         </li>
       </ul>
       <span class="navbar-text me-3 ">Hi, {{user.account}}!</span>
-      <a href="/users/logout"><button class="btn btn-outline-success my-sm-0 my-2">Logout</button></a>
-      {{/if}}
+      <button class="btn btn-outline-success my-sm-0 my-2" onclick="signoutFromFirebase()">Logout</button>
     </div>
+    {{/if}}
   </div>
 </nav>
+<script>
+  function signoutFromFirebase() {
+    firebase.auth().signOut().then(() => {
+      // Sign-out successful.
+      document.location.href = "/users/logout"
+    }).catch((error) => {
+      // An error happened.
+      alert(`有地方出錯了！請截圖彈跳視窗給開發人員，我們會盡快排除故障${error}`)
+      document.location.href = "/users/logout"
+    })
+  }
+</script>

@@ -23,7 +23,9 @@ const groupChatController = {
                     isRegistered: RegisteredGroupIds?.includes(groupChat.id) || false
                 }
             })
-            res.render('users/groupChats', { groupChats: groupChatData, path:'getGroupChats' })
+            const token = req.query ? req.query.token : null
+            
+            res.render('users/groupChats', { groupChats: groupChatData, path:'getGroupChats', token })
         } catch(err) {
             next(err)
         }

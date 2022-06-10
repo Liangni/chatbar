@@ -177,18 +177,7 @@
         {{/if}}
     </div>
 </div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyC7_ngNVYfX7bIlF38bbtrNuXylP3DlQbk",
-        authDomain: "chatbar-18653.firebaseapp.com",
-        projectId: "chatbar-18653",
-        storageBucket: "chatbar-18653.appspot.com",
-        messagingSenderId: "381229737588",
-        appId: "1:381229737588:web:44d6713852372c7d1d1321",
-        measurementId: "G-JKR4BJ21PR"
-    }
     const msgDisplayer = document.querySelector('#msg-displayer')
     const sendMsgWrapper = document.querySelector('.send-message-wrapper')
     const searchChatInput = document.querySelector('[data-info="search-chat"]')
@@ -199,8 +188,6 @@
     if (privateChats.length) socket.emit("fetchOnlineUserIds")
     if (activeGroupChat) socket.emit("fetchOnlineGroupUserIds", Number(activeGroupChat.dataset.chatId))
 
-    // 初始化firebase
-    firebase.initializeApp(firebaseConfig)
 
     // 將卷軸置底
     if (msgDisplayer) msgDisplayer.scrollTop = msgDisplayer.scrollHeight
@@ -351,7 +338,12 @@
 
             // 將檔案上傳至firebase，並在formData加上檔案連結
             if (fileInput.files[0]) formData.append('fileUrl', await uploadAndgetFirebaseRef('files', fileInput.files[0]))
-            if (imageInput.files[0]) formData.append('imageUrl', await uploadAndgetFirebaseRef('images', imageInput.files[0]))
+            if (imageInput.files[0]) {
+                const imageUrl = await uploadAndgetFirebaseRef('images', imageInput.files[0])
+                const imageSrc = await getImageDownloadUrl(imageUrl)
+                formData.append('imageUrl', imageUrl)
+                formData.append('imageSrc', imageSrc.toString())
+            }
 
             axios
                 .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
@@ -765,16 +757,14 @@
                 console.log(error)
             });
     }
-    function getImageDownloadUrlAndAddToSrc(imgElement, imageUrl) {
-        const storage = firebase.storage()
-        const storageRef = storage.ref()
-
-        storageRef.child(imageUrl).getDownloadURL()
-            .then((url) => {
-                imgElement.setAttribute('src', url)
-            })
-            .catch((error) => {
-                console.log(error)
-            });
+    async function getImageDownloadUrl(imageUrl) {
+        try {
+            const storage = firebase.storage()
+            const storageRef = storage.ref()
+            
+            return await storageRef.child(imageUrl).getDownloadURL()
+        } catch(err) {
+            return err
+        }
     }
 </script>
