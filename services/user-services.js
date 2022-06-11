@@ -148,6 +148,7 @@ const userServices = {
             ]
           },
           include: [{ model: User, as: 'Sender' }, { model: User, as: 'Reciever' }],
+          order:[['createdAt', 'ASC']],
           raw: true,
           nest: true
         })
