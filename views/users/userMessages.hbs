@@ -186,7 +186,9 @@
     const activeGroupChat = document.querySelector('.room-item.active[data-chat-type="groupChat"]') || null
 
     if (privateChats.length) socket.emit("fetchOnlineUserIds")
-    if (activeGroupChat) socket.emit("fetchOnlineGroupUserIds", Number(activeGroupChat.dataset.chatId))
+    if (activeGroupChat) 
+    {   console.log('emitfetchOnlineGroupUserIds')
+        socket.emit("fetchOnlineGroupUserIds", Number(activeGroupChat.dataset.chatId)) }
 
 
     // 將卷軸置底
@@ -216,6 +218,7 @@
     })
     // 監聽來自伺服器的「上線Group User名單」事件，事件發生則在group message右側正確顯示線上/離線使用者清單
     socket.on('getOnlineGroupUserIds', (onlineGroupUserIds) => {
+        console.log('onlineGroupUserIds',onlineGroupUserIds)
         classifyOnlineAndOfflineGroupUsers(onlineGroupUserIds)
     })
     // 監聽來自伺服器的「登入」事件，事件發生則更新左側privatChat使用者上線狀態，與group message的上線使用者清單
