@@ -3,9 +3,8 @@ const { Op } = require("sequelize")
 const dayjs = require('dayjs')
 // 若採用JWT驗證，要加入如下
 // const jwt = require('jsonwebtoken')
-const { Gender, District, User, Interest, Owned_interest, Area, Friendship_invitation, Friendship, Group_message, Group_chat, Private_message, sequelize } = require('../models')
+const { Gender, District, User, Interest, Owned_interest, Area, Friendship_invitation, Friendship, sequelize } = require('../models')
 const { getUser } = require('../helpers/auth-helpers')
-const { formatMessageTime } = require('../helpers/time-helpers')
 const userServices = require('../services/user-services')
 const fileHelpers = require('../helpers/file-helpers')
 
