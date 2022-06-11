@@ -1,6 +1,6 @@
 const dayjs = require('dayjs')
 module.exports = {
-  dateFormator: (options) => { return dayjs(options.fn(this)).format('MM/DD/YYYY') },
+  dateFormator: (options) => { return dayjs(options.fn(this).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })).format('MM/DD/YYYY') },
   makeArray: (...items) => { 
     items.pop()
     return items

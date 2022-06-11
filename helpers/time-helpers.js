@@ -5,7 +5,7 @@ dayjs.extend(dayOfYear)
 const formatMessageTime = (createdAt) => {
   const today = dayjs(new Date())
   const yesterday = dayjs(new Date()).subtract(1, 'day')
-  const createdDay = dayjs(createdAt)
+  const createdDay = dayjs(createdAt.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false }))
 
   switch (createdDay.dayOfYear()) {
     case today.dayOfYear():
