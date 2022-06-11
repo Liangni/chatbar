@@ -87,6 +87,9 @@ io.on("connection", (socket) => {
     onlineUsers.push({ id: user.id, groupChatIds: user.groupChatIds })
     // 向所有連線發送「登入」事件，送出連線使用者id和加入的groupIds
     io.emit("newLogin", user.groupChatIds, user.id)
+  } else {
+    // 如連線來自原線上使用者，更新使用者groupChatId資訊
+    onlineUsers.map(u => { if (u.id === user.id) { u.groupChatIds = user.groupChatIds}})
   }
   console.log(`onlineUserIds after userId${user.id} connecting(updated):`, onlineUsers.map(u => u.id))
 
@@ -137,7 +140,7 @@ io.on("connection", (socket) => {
         // 更新線上使用者名單
         userIndex = onlineUsers.indexOf({ id: user.id, groupChatIds: user.groupChatIds })
         onlineUsers.splice(userIndex, 1)
-        // 向連線加入的Room發送「登出」事件，送出連線使用者id
+        // 向所有線上使用者發送「登出」事件，送出連線使用者id
         io.emit("newLogout", user.groupChatIds, user.id)
       } 
       console.log(`onlineUserIds when user ${socket.request.user.id} disconnected:`, onlineUsers.map(u => u.id))
