@@ -16,7 +16,7 @@
 ![image](/public/image/show_online_status.gif)
 
 ### 依條件搜尋想聊天的對象
-使用者可以在**看誰在用**的功能中，用條件搜尋想聊天的對象。
+使用者可以在**誰也在用**的功能中，用條件搜尋想聊天的對象。
 <br/>
 ![image](/public/image/filter_users.gif)
 
