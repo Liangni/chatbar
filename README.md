@@ -1,21 +1,21 @@
-# ChatBar 聊聊吧
+# ChatBar 聊聊吧!
 一個讓使用者能在網路上認識新朋友的即時通訊網站。
 體驗部署在**Heroku**的應用程式，請至https://chatbar-fullstack.herokuapp.com/
 
 ![image](/public/image/group_messages.png)
 
 ## 特色功能
-### 即時聊天
-使用者可以加入**群組聊天室**進行多人聊天，也可以在加其他使用者好又後發送**私人訊息**給對方，除了文字訊息，還可以發送檔案和圖片。
+### :star2: 即時聊天
+使用者可以加入**群組聊天室**進行多人聊天，也可以在加其他使用者好友後發送**私人訊息**給對方，除了文字訊息，還可以發送**檔案**和**圖片**。
 <br/>
 ![image](/public/image/send_messages.gif)
 
-### 查看其他使用者登入狀態
+### :star2: 查看其他使用者登入狀態
 使用者可以即時查看群組聊天室其他成員、私人訊息聊天對象、或全站使用者的登入狀態。
 <br/>
 ![image](/public/image/show_online_status.gif)
 
-### 依條件搜尋想聊天的對象
+### :star2: 依條件搜尋想聊天的對象
 使用者可以在**誰也在用**的功能中，用條件搜尋想聊天的對象。
 <br/>
 ![image](/public/image/filter_users.gif)
