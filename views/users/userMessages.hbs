@@ -216,7 +216,6 @@
     })
     // 監聽來自伺服器的「上線Group User名單」事件，事件發生則在group message右側正確顯示線上/離線使用者清單
     socket.on('getOnlineGroupUserIds', (onlineGroupUserIds) => {
-        console.log('onlineGroupUserIds',onlineGroupUserIds)
         classifyOnlineAndOfflineGroupUsers(onlineGroupUserIds)
     })
     // 監聽來自伺服器的「登入」事件，事件發生則更新左側privatChat使用者上線狀態，與group message的上線使用者清單
@@ -271,8 +270,8 @@
                     roomItem.disabled = false
                 })
                 .catch((err) => {
-                    console.log(err)
-                    roomItem.disabled = false
+                    alert(`有地方出錯了！請截圖彈跳視窗給開發人員，我們會盡快排除故障${err}`)
+                    window.location.reload()
                 })
         })
     })
@@ -381,6 +380,7 @@
                 })
                 .catch((err) => {
                     alert(`有地方出錯了！請截圖彈跳視窗給開發人員，我們會盡快排除故障${err}`)
+                    window.location.reload()
                 })
         })
 
@@ -756,6 +756,7 @@
             })
             .catch((error) => {
                 console.log(error)
+                return null
             });
     }
     async function getImageDownloadUrl(imageUrl) {
@@ -765,7 +766,8 @@
             
             return await storageRef.child(imageUrl).getDownloadURL()
         } catch(err) {
-            return err
+            console.log(err)
+            return null
         }
     }
 </script>
