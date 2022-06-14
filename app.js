@@ -69,9 +69,6 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-  
-  console.log(`new connection from userId:${socket.request.user.id} socketId: ${socket.id}`)
-  
   const onlineUserIds = onlineUsers?.map(u => u.id) || []
   const { user } = socket.request
   const isNewLogin = !onlineUserIds.includes(user.id)
@@ -81,7 +78,6 @@ io.on("connection", (socket) => {
   if (user.groupChatIds) user.groupChatIds.forEach(id => {socket.join(`groupChat${id}`)})
 
   // 如連線來自新登入使用者
-  console.log(`onlineUserIds before userId${user.id} connecting:`, onlineUserIds)
   if (isNewLogin) {
     // 更新線上使用者名單
     onlineUsers.push({ id: user.id, groupChatIds: user.groupChatIds })
@@ -91,7 +87,6 @@ io.on("connection", (socket) => {
     // 如連線來自原線上使用者，更新使用者groupChatId資訊
     onlineUsers.map(u => { if (u.id === user.id) { u.groupChatIds = user.groupChatIds}})
   }
-  console.log(`onlineUserIds after userId${user.id} connecting(updated):`, onlineUsers.map(u => u.id))
 
   // 監聽來自客戶端的chatMessage事件
   socket.on("groupChatMessage", (chatRoom, Sender, content, createdAt, file, imageSrc) => {
@@ -105,7 +100,7 @@ io.on("connection", (socket) => {
     if (onlineUsers.find(User => User.id === recieverId)) {
       const connectedSockets = await io.of('/').fetchSockets()
       const recieverSocket = connectedSockets.find(s => s.request.user.id === recieverId )
-      console.log('recieverSocket:', recieverSocket)
+
       io.to(recieverSocket.id).emit("chatMessage", `privateChat${Sender.id}`, Sender, content, createdAt, file, imageSrc)
     }
   })
@@ -126,13 +121,9 @@ io.on("connection", (socket) => {
   })
   // 監聽中斷連線事件事件
   socket.on('disconnect', () => {
-    console.log(`userId:${socket.request.user.id} socketId:${socket.id} disconnected`)
-  
     setTimeout( async () => {
-      console.log("Delayed for 2 second.")
       const connectedSockets = await io.of('/').fetchSockets()
       const connectedUserIds = connectedSockets.map(s => s.request.user.id )
-      console.log('still connectedUserIds: ', connectedUserIds)
       // 如namespace已不含剛才disconnect的使用者，表示沒有再次connect，判斷為登出
       const isLogout = !connectedUserIds.includes(user.id)
       
@@ -143,7 +134,6 @@ io.on("connection", (socket) => {
         // 向所有線上使用者發送「登出」事件，送出連線使用者id
         io.emit("newLogout", user.groupChatIds, user.id)
       } 
-      console.log(`onlineUserIds when user ${socket.request.user.id} disconnected:`, onlineUsers.map(u => u.id))
     }, 2000)
   })
 
