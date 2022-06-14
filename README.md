@@ -32,7 +32,7 @@
 * **Passport.js:** 實現登入登出、權限認證所使用的套件
 * **Socket.io:** 實現即時通訊所使用的套件
 * **Firebase Storage:** 第三方儲存工具，用來儲存使用者傳送的檔案和圖片
-* **Firebase Admin:** 搭配Firebase Storage的權限管理工具
+* **Firebase Admin:** 使用JWT技術實現對Firebase Storage權限管理的工具
 
 ## 專案安裝
 1. 下載專案
