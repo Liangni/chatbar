@@ -199,13 +199,13 @@
 
     // Section 1.1 socket事件
     // 監聽來自伺服器的chatMessage事件，事件發生則在對話框&左側顯示訊息
-    socket.on("chatMessage", (chatRoom, Sender, content, createdAt, file, imageSrc) => {
-        const loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
+    socket.on("chatMessage", (payload) => {
+        payload.loginUserId = Number(sendMsgWrapper.dataset.loginUserId)
 
         // 在對話框加入訊息
-        addMsgToMsgDisplayer(chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId)
+        addMsgToMsgDisplayer(payload)
         // 在左列指定的chat item加入訊息
-        addMsgToChatList(chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId)
+        addMsgToChatList(payload)
     })
     // 監聽來自伺服器的「上線使用者名單」事件，事件發生則正確顯示左側privatChat使用者上線狀態
     socket.on('getOnlineUserIds', (onlineUserIds) => {
@@ -355,14 +355,23 @@
                     const fileItem = document.querySelector('#file-item')
                     const imageItem = document.querySelector('#image-item')
 
+                    const payload = {
+                        Sender: User,
+                        content,
+                        createdAt: formattedCreatedAt,
+                        file,
+                        imageSrc
+                    }
+
                     // 發送chatMessage事件給伺服器
                     if (chatType === 'groupChat') {
-                        const chatRoom = activeChat.dataset.chatRoom
-                        socket.emit("groupChatMessage", chatRoom, User, content, formattedCreatedAt, file, imageSrc)
+                        payload.chatRoom = activeChat.dataset.chatRoom
+                        socket.emit("groupChatMessage", payload)
                     }
+
                     if (chatType === 'privateChat') {
-                        const recieverId = Number(activeChat.dataset.chatId)
-                        socket.emit("privateChatMessage", recieverId, User, content, formattedCreatedAt, file, imageSrc)
+                        payload.recieverId = Number(activeChat.dataset.chatId)
+                        socket.emit("privateChatMessage", payload)
                     }
 
                     // 清空input的值
@@ -402,7 +411,8 @@
     // 2.3 檔案上傳/下載
 
     // Section 2.1 畫面組裝
-    function addMsgToMsgDisplayer(chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId) {
+    function addMsgToMsgDisplayer(payload) {
+        const { chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId } = payload
         const msgDisplayer = document.querySelector('#msg-displayer')
         const noMessageText = document.querySelector('#no-message-text')
         const activeChat = document.querySelector('.room-item.active')
@@ -424,7 +434,8 @@
         // 下滑scrollbar到底
         msgDisplayer.scrollTop = msgDisplayer.scrollHeight
     }
-    function addMsgToChatList(chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId) {
+    function addMsgToChatList(payload) {
+        const { chatRoom, Sender, content, createdAt, file, imageSrc, loginUserId } = payload
         const targetChatItem = document.querySelector(`.room-item[data-chat-room=${chatRoom}]`)
         if (!targetChatItem) return
 

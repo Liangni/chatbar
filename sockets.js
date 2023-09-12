@@ -1,22 +1,20 @@
+const { wrap, authenticate } = require('./middleware/sockets')
 const sessionMiddleware = require('./middleware/session-middleware')
-const passport = require('./config/passport')
+const passport = require('./config/passport');
 
-function listen(io) {
-    const wrap = middleware => (socket, next) => middleware(socket.request, {}, next)
-    const onlineUsers = []
-
+function init(io) {
     io.use(wrap(sessionMiddleware))
     io.use(wrap(passport.initialize()));
     io.use(wrap(passport.session()));
+    io.use(authenticate);
+}
 
-    io.use((socket, next) => {
-        if (socket.request.user) {
-        next();
-    } else {
-        next(new Error('unauthorized'))
-    }
-    });
 
+function listen(io) {
+    console.log('Socket is listening!')
+    init(io)
+
+    const onlineUsers = []
     io.on("connection", (socket) => {
     const onlineUserIds = onlineUsers?.map(u => u.id) || []
     const { user } = socket.request
@@ -38,21 +36,27 @@ function listen(io) {
     }
 
     // 監聽來自客戶端的chatMessage事件
-    socket.on("groupChatMessage", (chatRoom, Sender, content, createdAt, file, imageSrc) => {
+    socket.on("groupChatMessage", (payload) => {
         // 發送chatMessage給特定Room的客戶端
-        io.to(chatRoom).emit("chatMessage", chatRoom, Sender, content, createdAt, file, imageSrc);
+        io.to(payload.chatRoom).emit("chatMessage", payload);
     })
-    socket.on("privateChatMessage", async (recieverId, Sender, content, createdAt, file, imageSrc) => {
+
+    socket.on("privateChatMessage", async (payload) => {
+        const { recieverId, Sender } = payload.recieverId
+        payload.chatRoom = `privateChat${recieverId}`
         // 發送chatMessage給送出私人訊息的客戶端
-        io.to(socket.id).emit("chatMessage", `privateChat${recieverId}`, Sender, content, createdAt, file, imageSrc)
+        io.to(socket.id).emit("chatMessage", payload)
+
         // 若預計接收私人訊息的客戶端在線上，則也對其發送chatMessage
         if (onlineUsers.find(User => User.id === recieverId)) {
         const connectedSockets = await io.of('/').fetchSockets()
         const recieverSocket = connectedSockets.find(s => s.request.user.id === recieverId )
+        payload.chatRoom = `privateChat${Sender.id}`
 
-        io.to(recieverSocket.id).emit("chatMessage", `privateChat${Sender.id}`, Sender, content, createdAt, file, imageSrc)
+        io.to(recieverSocket.id).emit("chatMessage", payload)
         }
     })
+
     // 監聽來自客戶端的「更新線上使用者名單」事件
     socket.on('fetchOnlineUsers', () => {
         io.to(socket.id).emit("getOnlineUsers", onlineUsers)
@@ -68,6 +72,7 @@ function listen(io) {
         
         io.to(socket.id).emit("getOnlineGroupUserIds", onlineRoomateIds)
     })
+
     // 監聽中斷連線事件事件
     socket.on('disconnect', () => {
         setTimeout( async () => {
