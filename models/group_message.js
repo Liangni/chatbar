@@ -1,7 +1,8 @@
-'use strict';
+/* eslint-disable camelcase */
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Group_message extends Model {
     /**
@@ -11,10 +12,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Group_message.belongsTo(models.Group_chat, { foreignKey: 'groupId' })
-      Group_message.belongsTo(models.User, { foreignKey: 'userId' })
+      Group_message.belongsTo(models.Group_chat, { foreignKey: 'groupId' });
+      Group_message.belongsTo(models.User, { foreignKey: 'userId' });
     }
-  };
+  }
   Group_message.init({
     content: DataTypes.TEXT,
     file: DataTypes.STRING,
@@ -24,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Group_message',
     tableName: 'Group_messages',
-    underscored: true,
+    underscored: true
   });
   return Group_message;
 };

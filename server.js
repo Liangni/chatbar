@@ -1,17 +1,20 @@
+/* eslint-disable no-console */
+/* eslint-disable global-require */
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config()
+  require('dotenv').config();
 }
-const http = require('http')
-const io = require('socket.io')
+const http = require('http');
+const io = require('socket.io');
 
-const apiServer = require('./app')
-const httpServer = http.createServer(apiServer)
-const socketServer = io(httpServer)
+const apiServer = require('./app');
 
-const sockets = require('./sockets')
+const httpServer = http.createServer(apiServer);
+const socketServer = io(httpServer);
 
-const PORT = process.env.PORT || 3000
+const sockets = require('./sockets');
+
+const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
-  console.log(`App is running on port ${PORT}!`)
-})
-sockets.listen(socketServer)
+  console.log(`App is running on port ${PORT}!`);
+});
+sockets.listen(socketServer);

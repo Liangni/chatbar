@@ -1,7 +1,8 @@
-'use strict';
+/* eslint-disable camelcase */
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Owned_interest extends Model {
     /**
@@ -12,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
-  };
+  }
   Owned_interest.init({
     interestId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER
@@ -20,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Owned_interest',
     tableName: 'Owned_interests',
-    underscored: true,
+    underscored: true
   });
   return Owned_interest;
 };

@@ -1,7 +1,7 @@
-'use strict';
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Area extends Model {
     /**
@@ -11,16 +11,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Area.hasMany(models.District, { foreignKey: 'areaId'})
+      Area.hasMany(models.District, { foreignKey: 'areaId' });
     }
-  };
+  }
   Area.init({
     name: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Area',
     tableName: 'Areas',
-    underscored: true,
+    underscored: true
   });
   return Area;
 };

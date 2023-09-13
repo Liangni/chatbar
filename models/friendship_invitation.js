@@ -1,7 +1,8 @@
-'use strict';
+/* eslint-disable camelcase */
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Friendship_invitation extends Model {
     /**
@@ -11,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Friendship_invitation.belongsTo(models.User, { foreignKey: 'senderId' })
+      Friendship_invitation.belongsTo(models.User, { foreignKey: 'senderId' });
     }
-  };
+  }
   Friendship_invitation.init({
     senderId: DataTypes.INTEGER,
     recieverId: DataTypes.INTEGER
@@ -21,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Friendship_invitation',
     tableName: 'Friendship_invitations',
-    underscored: true,
+    underscored: true
   });
   return Friendship_invitation;
 };

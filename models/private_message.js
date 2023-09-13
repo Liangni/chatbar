@@ -1,7 +1,8 @@
-'use strict';
+/* eslint-disable camelcase */
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Private_message extends Model {
     /**
@@ -11,10 +12,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Private_message.belongsTo(models.User, { foreignKey: 'recieverId', as: 'Reciever' })
-      Private_message.belongsTo(models.User, { foreignKey: 'senderId', as: 'Sender' })
+      Private_message.belongsTo(models.User, { foreignKey: 'recieverId', as: 'Reciever' });
+      Private_message.belongsTo(models.User, { foreignKey: 'senderId', as: 'Sender' });
     }
-  };
+  }
   Private_message.init({
     // senderId: DataTypes.INTEGER,
     // recieverId: DataTypes.INTEGER,
@@ -26,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Private_message',
     tableName: 'Private_messages',
-    underscored: true,
+    underscored: true
   });
   return Private_message;
 };

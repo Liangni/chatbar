@@ -1,7 +1,8 @@
-'use strict';
+/* eslint-disable camelcase */
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Group_register extends Model {
     /**
@@ -12,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
-  };
+  }
   Group_register.init({
     groupId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER
@@ -20,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Group_register',
     tableName: 'Group_registers',
-    underscored: true,
+    underscored: true
   });
   return Group_register;
 };
