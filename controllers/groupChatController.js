@@ -27,9 +27,8 @@ const groupChatController = {
           isRegistered: RegisteredGroupIds?.includes(groupChat.id) || false
         };
       });
-      const token = req.query ? req.query.token : null;
 
-      res.render('users/groupChats', { groupChats: groupChatData, path: 'getGroupChats', token });
+      res.render('users/groupChats', { groupChats: groupChatData, path: 'getGroupChats' });
     } catch (err) {
       next(err);
     }

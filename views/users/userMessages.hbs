@@ -336,15 +336,6 @@
             submitBtn.disabled = true
             submitBtn.innerText = '發送中'
 
-            // 將檔案上傳至firebase，並在formData加上檔案連結
-            {{!-- if (fileInput.files[0]) formData.append('fileUrl', await uploadAndgetFirebaseRef('files', fileInput.files[0]))
-            if (imageInput.files[0]) {
-                const imageUrl = await uploadAndgetFirebaseRef('images', imageInput.files[0])
-                const imageSrc = await getImageDownloadUrl(imageUrl)
-                formData.append('imageUrl', imageUrl)
-                formData.append('imageSrc', imageSrc.toString())
-            } --}}
-
             axios
                 .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
                 .then((response) => {
@@ -747,38 +738,11 @@
         return fileName
     }
     function downloadFile(fileUrl) {
-        const storage = firebase.storage()
-        const storageRef = storage.ref()
+        // This can be downloaded directly:
+        const xhr = new XMLHttpRequest()
+        xhr.open('GET', fileUrl)
+        xhr.send()
 
-        storageRef.child(fileUrl).getDownloadURL()
-            .then((url) => {
-                // `url` is the download URL for 'file'
-
-                // This can be downloaded directly:
-                var xhr = new XMLHttpRequest()
-                xhr.responseType = 'blob'
-                xhr.onload = (event) => {
-                    var blob = xhr.response
-                };
-                xhr.open('GET', url)
-                xhr.send()
-
-                window.open(url)
-            })
-            .catch((error) => {
-                console.log(error)
-                return null
-            });
-    }
-    async function getImageDownloadUrl(imageUrl) {
-        try {
-            const storage = firebase.storage()
-            const storageRef = storage.ref()
-            
-            return await storageRef.child(imageUrl).getDownloadURL()
-        } catch(err) {
-            console.log(err)
-            return null
-        }
+        window.open(fileUrl)
     }
 </script>

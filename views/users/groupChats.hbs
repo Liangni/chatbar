@@ -65,7 +65,6 @@
         </div>
     </div>
 </div>
-<div style="display:none;" data-firebase-token="{{token}}"></div>
 
 <script>
     const filterCondInput = document.querySelector('#filterCond'),
@@ -74,25 +73,8 @@
         tableHead = document.querySelector('.table-head'),
         allRooms = document.querySelectorAll(`div[data-roomtitle]`),
         originRawHtml = roomsPanel.innerHTML
-        tokenContainer = document.querySelector('[data-firebase-token]')
 
     let i, switching, roomOptions, shouldSwitch
-
-    if (tokenContainer.dataset.firebaseToken) {
-        // 登入firebase
-        firebase.auth().signInWithCustomToken(tokenContainer.dataset.firebaseToken)
-            .then((userCredential) => {
-                // Signed in
-                // const user = userCredential.user;
-                console.log('successfully login firebase!')
-            })
-            .catch((error) => {
-                // const errorCode = error.code;
-                const errorMessage = error.message;
-                alert(`有地方出錯了！請截圖彈跳視窗給開發人員，我們會盡快排除故障: fail to login firebase, errorMessage: ${errorMessage}`)
-                document.location.href = "/groupChats"
-            })
-    }
 
     // socket事件
     socket.emit("fetchOnlineUsers")

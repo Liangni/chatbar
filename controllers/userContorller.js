@@ -18,7 +18,6 @@ const {
 } = require('../models');
 const { getUser } = require('../helpers/auth-helpers');
 const userServices = require('../services/user-services');
-const fileHelpers = require('../helpers/file-helpers');
 
 const userController = {
   loginPage: (req, res) => {
@@ -76,9 +75,8 @@ const userController = {
   logIn: async (req, res, next) => {
     try {
       const loginUser = getUser(req);
-      const token = await fileHelpers.createFirebaseCustomToken(loginUser.id);
       req.flash('success_messages', '成功登入!');
-      res.redirect(`/groupChats?token=${token}`);
+      res.redirect('/groupChats');
       // 如採用JWT，要取代成如下程式碼
       // 因為設定了{ session: false }，不會進入反序列化的程序，因此物件未被整理成JS的簡單物件
       // const userData = req.user.toJSON()
