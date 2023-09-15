@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable camelcase */
 const dayjs = require('dayjs');
 const { Op } = require('sequelize');
@@ -13,6 +14,7 @@ const {
 } = require('../../models');
 const { getUser } = require('../../helpers/auth-helpers');
 const { formatMessageTime } = require('../../helpers/time-helpers');
+const { uploadPromise } = require('../../services/aws');
 
 const userController = {
   getFriendshipInvitationSenders: async (req, res, next) => {
@@ -86,22 +88,42 @@ const userController = {
       const loginUser = getUser(req);
       const RegisteredGroupIds = loginUser?.RegisteredGroups?.map((g) => g.id) || null;
       const groupId = Number(req.params.groupId);
-      const {
-        content, fileUrl, imageUrl, imageSrc
-      } = req.body;
+      const { content = null, imageUrl = null } = req.body;
+      let { fileUrl = null, imageSrc = null } = req.body;
       const { files } = req;
 
       if (!RegisteredGroupIds || !RegisteredGroupIds.includes(groupId)) throw new Error('你沒有加入此話題');
-      if (!content.trim() && !files.file && !files.image) throw new Error('未輸入任何訊息!');
+      if ((!content || !content.trim()) && !files.file && !files.image) throw new Error('未輸入任何訊息!');
+
+      if (files.image || files.file) {
+        const { buffer, mimetype } = files.image?.[0] || files.file[0];
+
+        const params = {
+          Bucket: `chatbar/users/${loginUser.id}`,
+          Key: `${Date.now()}.${mimetype.split('/')[1]}`,
+          Body: buffer,
+          ContentType: mimetype
+          // ACL: 'public-read',
+        };
+
+        const awsUrl = await uploadPromise(params);
+
+        if (mimetype.includes('image')) {
+          imageSrc = awsUrl;
+        } else {
+          fileUrl = awsUrl;
+        }
+      }
 
       const messageData = await Group_message.create({
         groupId,
         userId: loginUser.id,
-        content: content || null,
-        file: fileUrl || null,
-        image: imageUrl || null,
-        imageSrc: imageSrc || null
+        content,
+        file: fileUrl,
+        image: imageUrl,
+        imageSrc
       });
+
       const newMessage = messageData.toJSON();
       newMessage.formattedCreatedAt = formatMessageTime(newMessage.createdAt);
       newMessage.User = { id: loginUser.id, account: loginUser.account, avatar: loginUser.avatar };
@@ -136,12 +158,14 @@ const userController = {
         raw: true,
         nest: true
       });
+
       const Private_messages = privateMessagesData.map((message) => ({
         ...message,
         User: message.Sender,
         isLoginUser: (loginUser.id === message.senderId),
         formattedCreatedAt: formatMessageTime(message.createdAt)
       }));
+
       const unfoldedPrivateChat = {
         id: currentFriend[0].id,
         name: currentFriend[0].account,
@@ -163,23 +187,42 @@ const userController = {
       const loginUser = getUser(req);
       const friends = loginUser.Friends;
       const recieverId = Number(req.params.recieverId);
-      const {
-        content, fileUrl, imageUrl, imageSrc
-      } = req.body;
+      const { content = null, imageUrl = null } = req.body;
+      let { fileUrl = null, imageSrc = null } = req.body;
       const { files } = req;
 
       // 檢查朋友關係是否存在，若不存在則結束處理
       const givenFriend = friends.filter((friend) => friend.id === recieverId);
       if (!givenFriend.length) throw new Error('朋友關係不存在或已解除，無法發送訊息');
-      if (!content.trim() && !files.file && !files.image) throw new Error('未輸入任何訊息!');
+      if ((!content || !content.trim()) && !files.file && !files.image) throw new Error('未輸入任何訊息!');
+
+      if (files.image || files.file) {
+        const { buffer, mimetype } = files.image?.[0] || files.file[0];
+
+        const params = {
+          Bucket: `chatbar/users/${loginUser.id}`,
+          Key: `${Date.now()}.${mimetype.split('/')[1]}`,
+          Body: buffer,
+          ContentType: mimetype
+          // ACL: 'public-read',
+        };
+
+        const awsUrl = await uploadPromise(params);
+
+        if (mimetype.includes('image')) {
+          imageSrc = awsUrl;
+        } else {
+          fileUrl = awsUrl;
+        }
+      }
 
       const messageData = await Private_message.create({
         recieverId,
         senderId: loginUser.id,
-        content: content || null,
-        file: fileUrl || null,
-        image: imageUrl || null,
-        imageSrc: imageSrc || null
+        content,
+        file: fileUrl,
+        image: imageUrl,
+        imageSrc
       });
       const newMessage = messageData.toJSON();
       newMessage.formattedCreatedAt = formatMessageTime(newMessage.createdAt);

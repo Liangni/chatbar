@@ -1,9 +1,5 @@
-/* eslint-disable camelcase */
 const {
-  Group_chat,
-  Group_register,
-  User,
-  Group_message
+  Group_chat, Group_register, User, Group_message
 } = require('../models');
 const { getUser } = require('../helpers/auth-helpers');
 
@@ -20,12 +16,12 @@ const groupChatController = {
       const RegisteredGroupIds = loginUser.RegisteredGroups?.map((g) => g.id) || null;
       const groupChatData = groupChats.map((groupChat) => {
         const {
-          id, name, createdAt, RegisteredUsers
+          id, name, User, createdAt, RegisteredUsers
         } = groupChat;
         return {
           id,
           name,
-          user: groupChat.User.toJSON(),
+          user: User.toJSON(),
           createdAt,
           numOfRegisters: RegisteredUsers.length,
           isRegistered: RegisteredGroupIds?.includes(groupChat.id) || false

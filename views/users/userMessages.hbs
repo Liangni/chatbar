@@ -337,13 +337,13 @@
             submitBtn.innerText = '發送中'
 
             // 將檔案上傳至firebase，並在formData加上檔案連結
-            if (fileInput.files[0]) formData.append('fileUrl', await uploadAndgetFirebaseRef('files', fileInput.files[0]))
+            {{!-- if (fileInput.files[0]) formData.append('fileUrl', await uploadAndgetFirebaseRef('files', fileInput.files[0]))
             if (imageInput.files[0]) {
                 const imageUrl = await uploadAndgetFirebaseRef('images', imageInput.files[0])
                 const imageSrc = await getImageDownloadUrl(imageUrl)
                 formData.append('imageUrl', imageUrl)
                 formData.append('imageSrc', imageSrc.toString())
-            }
+            } --}}
 
             axios
                 .post(postURL, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
