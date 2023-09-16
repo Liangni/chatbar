@@ -1,40 +1,46 @@
 # ChatBar 聊聊吧!
 一個讓使用者能在網路上認識新朋友的即時通訊網站。
-體驗部署在**Heroku**的應用程式，請至https://chatbar-fullstack.herokuapp.com/
+體驗部署在**AWS EC2**的應用程式，請至http://52.194.224.93:3000/
 
-![image](/public/image/group_messages.png)
+![image](/readme-materials/group_messages.png)
+
+## 專案架構
+![image](/readme-materials/flowchart.png)
 
 ## 特色功能
 ### :star2: 即時聊天
-使用者可以加入**群組聊天室**進行多人聊天，也可以在加其他使用者好友後發送**私人訊息**給對方，除了文字訊息，還可以發送**檔案**和**圖片**。
+使用者可以加入**群組聊天室**進行多人聊天，或與其他使用者互加好友後發送**私人訊息**給對方。訊息格式支援：**文字、檔案、與圖片**。
 <br/>
-![image](/public/image/send_messages.gif)
+![image](/readme-materials/send_messages.gif)
 
 ### :star2: 查看其他使用者登入狀態
 使用者可以即時查看群組聊天室其他成員、私人訊息聊天對象、或全站使用者的登入狀態。
 <br/>
-![image](/public/image/show_online_status.gif)
+![image](/readme-materials/show_online_status.gif)
 
 ### :star2: 依條件搜尋想聊天的對象
 使用者可以在**誰也在用**的功能中，用條件搜尋想聊天的對象。
 <br/>
-![image](/public/image/filter_users.gif)
+![image](/readme-materials/filter_users.gif)
 
 ## 測試帳號
 * user1, 密碼: 12345678
 * user2, 密碼: 12345678
 * user3, 密碼: 12345678
 
-## 開發工具
+## 開發工具（本地開發、啟動專案必需）
 * **Node.js:** 開發環境
-* **Express.js:** 伺服器開發框架
-* **MySQL:** 關聯式資料庫工具
+* **Express.js:** 網頁伺服器開發框架
+* **MySQL:** 關聯式資料庫
 * **Passport.js:** 實現登入登出、權限認證所使用的套件
 * **Socket.io:** 實現即時通訊所使用的套件
-* **Firebase Storage:** 第三方儲存工具，用來儲存使用者傳送的檔案和圖片
-* **Firebase Admin:** 使用JWT技術實現對Firebase Storage權限管理的工具
+* **AWS S3:** 第三方檔案儲存服務，用來儲存使用者聊天時傳送的檔案和圖片
 
-## 專案安裝
+## 部署
+* **AWS EC2:** 雲端上的虛擬機器，用以部署chatbar服務
+* **Docker:** 容器化專案程式碼，並在EC2上運行程式 
+
+## 專案安裝使用JWT技術實現對Firebase Storage權限管理的工具
 1. 下載專案
 ```
 git clone https://github.com/Liangni/chatbar.git
@@ -57,7 +63,8 @@ touch .env
 
 5. 創建資料庫
 ```
-create database chatbar_workspace;
+npx sequelize db:drop
+npx sequelize db:create
 ```
 
 6. 建立 migration
