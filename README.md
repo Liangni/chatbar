@@ -4,7 +4,7 @@
 
 ![image](/readme-materials/group_messages.png)
 
-## 專案架構
+## 服務架構
 ![image](/readme-materials/flowchart.png)
 
 ## 特色功能
@@ -28,7 +28,7 @@
 * user2, 密碼: 12345678
 * user3, 密碼: 12345678
 
-## 開發工具（本地開發、啟動專案必需）
+## 主要開發工具
 * **Node.js:** 開發環境
 * **Express.js:** 網頁伺服器開發框架
 * **MySQL:** 關聯式資料庫
@@ -40,7 +40,7 @@
 * **AWS EC2:** 雲端上的虛擬機器，用以部署chatbar服務
 * **Docker:** 容器化專案程式碼，並在EC2上運行程式 
 
-## 專案安裝使用JWT技術實現對Firebase Storage權限管理的工具
+## 專案安裝
 1. 下載專案
 ```
 git clone https://github.com/Liangni/chatbar.git
