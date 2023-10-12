@@ -1,6 +1,6 @@
 # ChatBar 聊聊吧!
 一個讓使用者能在網路上認識新朋友的即時通訊網站。
-體驗部署在**AWS EC2**的應用程式，請至http://52.194.224.93:3000/
+體驗部署在**AWS EC2**的應用程式，請至http://35.78.245.88:3000/
 
 ![image](/readme-materials/group_messages.png)
 
