@@ -1,49 +1,17 @@
 /* eslint-disable arrow-body-style */
 /* eslint-disable camelcase */
-const dayjs = require('dayjs');
 const { Op } = require('sequelize');
 const {
   Group_chat,
   Group_message,
   User,
-  Friendship_invitation,
-  Gender,
-  District,
-  Interest,
   Private_message
-} = require('../../models');
-const { getUser } = require('../../helpers/auth-helpers');
-const { formatMessageTime } = require('../../helpers/time-helpers');
-const { uploadPromise } = require('../../services/aws');
+} = require('../models');
+const { getUser } = require('../helpers/auth-helpers');
+const { formatMessageTime } = require('../helpers/time-helpers');
+const { uploadPromise } = require('../services/aws');
 
-const userController = {
-  getFriendshipInvitationSenders: async (req, res, next) => {
-    try {
-      const loginUser = getUser(req);
-      const friendshipInvitations = await Friendship_invitation.findAll({
-        where: { recieverId: loginUser.id },
-        include: {
-          model: User,
-          include: [Gender, District, { model: Interest, as: 'CurrentInterests' }]
-        },
-        order: [['createdAt', 'DESC']]
-      });
-      const friendshipInvitationSenders = friendshipInvitations.map((i) => ({
-        ...i.User.toJSON(),
-        age: dayjs(new Date()).diff(i.User.birthday, 'year'),
-        district: i.User.District.name,
-        gender: i.User.Gender.name
-      }));
-
-      res.json({
-        status: 'success',
-        friendshipInvitationSenders
-      });
-    } catch (err) {
-      console.error(err);
-      next(err);
-    }
-  },
+const messageController = {
   getUserGroupMessages: async (req, res, next) => {
     try {
       const loginUser = getUser(req);
@@ -236,4 +204,4 @@ const userController = {
   }
 };
 
-module.exports = userController;
+module.exports = messageController;

@@ -146,16 +146,16 @@
                 </div>
                 <div class="button-box action">
                     {{#ifCond this.friendshipRole null}}
-                    <form action="/users/{{../this.id}}/friendshipInvitations/" method="POST">
+                    <form action="/friendships/users/{{../this.id}}/friendshipInvitations/" method="POST">
                         <button class="btn btn-primary" type="submit">送出交友邀請</button>
                     </form>
                     {{/ifCond}}
                     {{#ifCond this.friendshipRole 'invitationSender'}}
-                    <form action="/users/{{../this.id}}/friendships?" method="POST"
+                    <form action="/friendships/users/{{../this.id}}/friendships?" method="POST"
                         data-user="accept-friendship-invitation" style="display: inline;">
                         <button class="btn btn-primary me-2" type="submit">接受邀請</button>
                     </form>
-                    <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST"
+                    <form action="/friendships/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST"
                         data-user="delete-friendship-invitation" style="display: inline;">
                         <button class="btn btn-danger" type="submit">忽略</button>
                     </form>
@@ -167,7 +167,7 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li>
-                            <form action="/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST">
+                            <form action="/friendships/users/{{../this.id}}/friendshipInvitations?_method=DELETE" method="POST">
                                 <button class="ms-2" type="submit">收回交友邀請</button>
                             </form>
                         </li>
@@ -180,12 +180,12 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li>
-                            <form action="/users/{{../this.id}}/friendships?_method=DELETE" method="POST">
+                            <form action="/friendships/users/{{../this.id}}/friendships?_method=DELETE" method="POST">
                                 <button class="ms-2" type="submit">解除朋友關係</button>
                             </form>
                         </li>
                     </ul>
-                    <a href="/users/loginUser/privateMessages?userId={{../this.id}}" class="btn btn-primary">Chat</a>
+                    <a href="/messages/privateMessages?userId={{../this.id}}" class="btn btn-primary">Chat</a>
                     {{/ifCond}}
                 </div>
             </div>
@@ -244,7 +244,7 @@
         }
 
         if (e.target.classList.contains('friends-set')) {
-            axios.get('/api/users/loginUser/friendshipInviations/senders')
+            axios.get('/friendships/friendshipInviations/senders')
                 .then((response) => {
                     const data = response.data
                     if (data.status !== 'success') throw new Error(data.message)
@@ -280,8 +280,8 @@
                             interestHTMLTemplate += `<span class="user-interest-item"># <span data-user="interest">${i.name}</span></span>`
                         })
                         CardClone.querySelector('[data-user = "interests"]').innerHTML = interestHTMLTemplate
-                        CardClone.querySelector('[data-user="accept-friendship-invitation"]').action = `/users/${id}/friendships?`
-                        CardClone.querySelector('[data-user="delete-friendship-invitation"]').action = `/users/${id}/friendshipInvitations?_method=DELETE`
+                        CardClone.querySelector('[data-user="accept-friendship-invitation"]').action = `/friendships/users/${id}/friendships?`
+                        CardClone.querySelector('[data-user="delete-friendship-invitation"]').action = `/friendships/users/${id}/friendshipInvitations?_method=DELETE`
                         // 將卡片元素插入好友邀請清單
                         friendsInviteListBox.appendChild(CardClone)
                     })

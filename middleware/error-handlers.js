@@ -5,7 +5,7 @@ module.exports = {
     } else {
       req.flash('error_messages', `${err.name}`);
     }
-    const url = req.headers.referer ? 'back' : '/groupChats';
+    const url = req.headers.referer ? 'back' : '/pages/groupChats';
     res.redirect(url);
     next(err);
   },

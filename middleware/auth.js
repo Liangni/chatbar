@@ -6,7 +6,7 @@ const authenticated = (req, res, next) => {
   if (ensureAuthenticated(req)) {
     return next();
   }
-  res.redirect('/users/login');
+  res.redirect('/pages/login');
 };
 
 module.exports = {

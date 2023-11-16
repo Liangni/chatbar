@@ -11,8 +11,8 @@
             <div class="room-item {{#ifCond this.id ../unfoldedChat.id}}{{#ifCond ../this.chatType ../../unfoldedChat.chatType}}active{{/ifCond}}{{/ifCond}} btn"
                 data-chat-room="{{this.chatType}}{{this.id}}" data-chat-id="{{this.id}}"
                 data-chat-type="{{this.chatType}}" {{#ifCond this.chatType 'groupChat' }}
-                data-url="/api/users/loginUser/groupChats/groupMessages?groupId={{../this.id}}" {{/ifCond}} {{#ifCond
-                this.chatType 'privateChat' }} data-url="/api/users/loginUser/privateMessages?userId={{../this.id}}"
+                data-url="/messages/groupMessages?groupId={{../this.id}}" {{/ifCond}} {{#ifCond
+                this.chatType 'privateChat' }} data-url="/messages/privateMessages?userId={{../this.id}}"
                 {{/ifCond}}>
                 <div class="online" {{#ifCond this.chatType 'groupChat' }}style="display:none;" {{/ifCond}}></div>
                 {{#if this.avatar}}
@@ -83,7 +83,7 @@
                     </form>
                     {{/ifCond}}
                     {{#ifCond unfoldedChat.chatType 'privateChat'}}
-                    <form action="/users/{{../unfoldedChat.id}}/friendships?_method=DELETE" method="POST"
+                    <form action="/friendships/users/{{../unfoldedChat.id}}/friendships?_method=DELETE" method="POST"
                         class="out-room">
                         <button class="btn btn-danger" type="submit">解除朋友關係</button>
                     </form>
@@ -134,9 +134,9 @@
         </div>
         <form class="bottom-section send-message-wrapper bg-light" enctype='multipart/form-data' {{#ifCond
             unfoldedChat.chatType 'groupChat' }}
-            data-post-url="/api/users/loginUser/groupChats/{{../unfoldedChat.id}}/groupMessages" {{/ifCond}} {{#ifCond
+            data-post-url="/messages/groupChats/{{../unfoldedChat.id}}/groupMessages" {{/ifCond}} {{#ifCond
             unfoldedChat.chatType 'privateChat' }}
-            data-post-url="/api/users/loginUser/privateMessages/recievers/{{../unfoldedChat.id}}" {{/ifCond}}
+            data-post-url="/messages/privateMessages/recievers/{{../unfoldedChat.id}}" {{/ifCond}}
             data-login-user-id="{{user.id}}">
             <div class="if-file-box d-flex flex-row justify-content-start align-items-center">
                 <div class="file-item" style="display:none;" id="file-item">
@@ -531,11 +531,11 @@
     }
     function updateGroupMessageFormInfo(groupId) {
         const sendMessageWrapper = document.querySelector('.send-message-wrapper')
-        sendMessageWrapper.dataset.postUrl = `/api/users/loginUser/groupChats/${groupId}/groupMessages`
+        sendMessageWrapper.dataset.postUrl = `/messages/groupChats/${groupId}/groupMessages`
     }
     function updatePrivateMessageFormInfo(recieverId) {
         const sendMessageWrapper = document.querySelector('.send-message-wrapper')
-        sendMessageWrapper.dataset.postUrl = `/api/users/loginUser/privateMessages/recievers/${recieverId}`
+        sendMessageWrapper.dataset.postUrl = `/messages/privateMessages/recievers/${recieverId}`
     }
     function classifyOnlineAndOfflineGroupUsers(onlineGroupUserIds) {
         // 在所展開的groupMessage右側顯示登入使用者清單
@@ -610,7 +610,7 @@
                     <span class="room-name fs-14-bold">${name}</span>
                 </div>
             </div>
-            <form action="/users/${id}/friendships?_method=DELETE" method="POST"
+            <form action="/friendships/users/${id}/friendships?_method=DELETE" method="POST"
                         class="out-room">
                         <button class="btn btn-danger" type="submit">解除朋友關係</button>
                     </form>

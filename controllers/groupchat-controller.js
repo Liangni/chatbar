@@ -1,38 +1,10 @@
+/* eslint-disable camelcase */
 const {
-  Group_chat, Group_register, User, Group_message
+  Group_chat, Group_register, Group_message
 } = require('../models');
 const { getUser } = require('../helpers/auth-helpers');
 
 const groupChatController = {
-  getGroupChats: async (req, res, next) => {
-    try {
-      const groupChats = await Group_chat.findAll({
-        include: [
-          User,
-          { model: User, as: 'RegisteredUsers' }
-        ]
-      });
-      const loginUser = getUser(req);
-      const RegisteredGroupIds = loginUser.RegisteredGroups?.map((g) => g.id) || null;
-      const groupChatData = groupChats.map((groupChat) => {
-        const {
-          id, name, User, createdAt, RegisteredUsers
-        } = groupChat;
-        return {
-          id,
-          name,
-          user: User.toJSON(),
-          createdAt,
-          numOfRegisters: RegisteredUsers.length,
-          isRegistered: RegisteredGroupIds?.includes(groupChat.id) || false
-        };
-      });
-
-      res.render('users/groupChats', { groupChats: groupChatData, path: 'getGroupChats' });
-    } catch (err) {
-      next(err);
-    }
-  },
   postGroupChats: async (req, res, next) => {
     try {
       const { name } = req.body;
@@ -47,7 +19,7 @@ const groupChatController = {
         userId: loginUser.id
       });
       req.flash('success_messages', '成功開啟話題!');
-      res.redirect('/groupChats');
+      res.redirect('/pages/groupChats');
     } catch (err) {
       next(err);
     }
@@ -68,7 +40,7 @@ const groupChatController = {
         userId: loginUser.id
       });
       req.flash('success_messages', '成功加入話題!');
-      res.redirect('/groupChats');
+      res.redirect('/pages/groupChats');
     } catch (err) {
       next(err);
     }
@@ -95,8 +67,8 @@ const groupChatController = {
         if (groupChat) { groupChat.destroy(); }
       }
       req.flash('success_messages', '你已退出話題!');
-      if (currentUrl.indexOf('/users/loginUser/groupChats/groupMessages') !== -1) {
-        res.redirect('/users/loginUser/groupChats/groupMessages');
+      if (currentUrl.indexOf('/pages/groupMessages') !== -1) {
+        res.redirect('/pages/groupMessages');
       }
       res.redirect('back');
     } catch (err) {
