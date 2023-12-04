@@ -37,7 +37,7 @@ const userController = {
         interestId: userInterest.id
       });
       req.flash('success_messages', '註冊成功!');
-      res.redirect('pages/users/login');
+      res.redirect('/pages/login');
     } catch (err) {
       next(err);
     }
