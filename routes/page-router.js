@@ -1,7 +1,7 @@
 const express = require('express');
 
 const pageRouter = express.Router();
-const pageController = require('../controllers/page-controller');
+const pageController = require('../api/controllers/page-controller');
 const { authenticated } = require('../middleware/auth');
 
 // 註冊登入頁面

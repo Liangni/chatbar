@@ -1,7 +1,7 @@
 const express = require('express');
 
 const friendshipRouter = express.Router();
-const friendshipController = require('../controllers/friendship-controller');
+const friendshipController = require('../api/controllers/friendship-controller');
 const { authenticated } = require('../middleware/auth');
 const { apiErrorHandler } = require('../middleware/error-handlers');
 

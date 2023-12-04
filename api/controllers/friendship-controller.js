@@ -11,8 +11,8 @@ const {
   District,
   Interest,
   sequelize
-} = require('../models');
-const { getUser } = require('../helpers/auth-helpers');
+} = require('../../models');
+const { getUser } = require('../../helpers/auth-helpers');
 
 const friendshipController = {
   postFriendshipInvitations: async (req, res, next) => {

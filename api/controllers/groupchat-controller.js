@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
 const {
   Group_chat, Group_register, Group_message
-} = require('../models');
-const { getUser } = require('../helpers/auth-helpers');
+} = require('../../models');
+const { getUser } = require('../../helpers/auth-helpers');
 
 const groupChatController = {
   postGroupChats: async (req, res, next) => {

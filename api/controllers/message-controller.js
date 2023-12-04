@@ -6,10 +6,10 @@ const {
   Group_message,
   User,
   Private_message
-} = require('../models');
-const { getUser } = require('../helpers/auth-helpers');
-const { formatMessageTime } = require('../helpers/time-helpers');
-const { uploadPromise } = require('../services/aws');
+} = require('../../models');
+const { getUser } = require('../../helpers/auth-helpers');
+const { formatMessageTime } = require('../../helpers/time-helpers');
+const { uploadPromise } = require('../../services/aws');
 
 const messageController = {
   getUserGroupMessages: async (req, res, next) => {

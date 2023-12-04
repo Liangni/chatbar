@@ -9,9 +9,9 @@ const {
   Interest,
   Area,
   Group_chat
-} = require('../models');
-const { getUser } = require('../helpers/auth-helpers');
-const userServices = require('../services/user-services');
+} = require('../../models');
+const { getUser } = require('../../helpers/auth-helpers');
+const userServices = require('../../services/user-services');
 
 const pageController = {
   loginPage: (req, res) => {

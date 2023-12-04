@@ -2,7 +2,7 @@ const express = require('express');
 
 const userRouter = express.Router();
 const passport = require('../config/passport');
-const userController = require('../controllers/user-contorller');
+const userController = require('../api/controllers/user-contorller');
 
 // 註冊登入登出
 userRouter.post('/register', userController.register);

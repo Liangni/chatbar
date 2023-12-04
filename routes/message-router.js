@@ -1,7 +1,7 @@
 const express = require('express');
 
 const messageRouter = express.Router();
-const messageController = require('../controllers/message-controller');
+const messageController = require('../api/controllers/message-controller');
 const { authenticated } = require('../middleware/auth');
 const { apiErrorHandler } = require('../middleware/error-handlers');
 const cpUpload = require('../middleware/multer');

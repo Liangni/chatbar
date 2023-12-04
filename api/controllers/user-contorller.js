@@ -7,7 +7,7 @@ const {
   User,
   Interest,
   Owned_interest
-} = require('../models');
+} = require('../../models');
 
 const userController = {
   register: async (req, res, next) => {
