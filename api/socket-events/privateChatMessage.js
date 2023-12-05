@@ -1,3 +1,5 @@
+const redisConnect = require('../../utility/redis');
+
 const privateChatMessage = (socket, io) => async (payload) => {
   const { recieverId, Sender } = payload;
   const payloadCopy = JSON.parse(JSON.stringify(payload));
@@ -7,13 +9,11 @@ const privateChatMessage = (socket, io) => async (payload) => {
   io.to(socket.id).emit('chatMessage', payloadCopy);
 
   // 若收件者在線上，則也對其發送chatMessage
-  const connectedSockets = await io.of('/').fetchSockets();
-  const recieverSocket = connectedSockets.find((s) => s.request.user.id === recieverId);
+  const recieverSocketId = await redisConnect.hget('userSocketHash', recieverId.toString());
+  if (!recieverSocketId) return;
 
-  if (recieverSocket) {
-    payloadCopy.chatRoom = `privateChat${Sender.id}`;
-    io.to(recieverSocket.id).emit('chatMessage', payloadCopy);
-  }
+  payloadCopy.chatRoom = `privateChat${Sender.id}`;
+  io.to(recieverSocketId).emit('chatMessage', payloadCopy);
 };
 
 module.exports = privateChatMessage;
