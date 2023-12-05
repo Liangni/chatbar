@@ -24,6 +24,16 @@ const redisConnect = {
     cacheTime = cacheTime || 60 * 60 * 10;
 
     await client.set(key, value, { EX: cacheTime });
+  },
+  async hget(key, field) {
+    if (!key || !field) return null;
+    const val = await client.hGet(key, field);
+    return val;
+  },
+  async hset(key, field, val) {
+    if (!key || !field) return;
+
+    await client.hSet(key, field, val);
   }
 };
 
