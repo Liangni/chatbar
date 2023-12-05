@@ -1,10 +1,18 @@
 /* eslint-disable no-console */
 /* eslint-disable global-require */
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
+require('dotenv').config();
+
 const http = require('http');
 const io = require('socket.io');
+const redisConnect = require('./utility/redis');
+
+const { REDIS_PASSWORD, REDIS_HOST, REDIS_PORT } = process.env;
+
+redisConnect.init({
+  password: REDIS_PASSWORD,
+  host: REDIS_HOST,
+  port: REDIS_PORT
+});
 
 const apiServer = require('./app');
 
