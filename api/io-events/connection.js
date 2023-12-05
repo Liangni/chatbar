@@ -6,8 +6,7 @@ const onConnection = (io, socketEvents) => async (socket) => {
   await redisConnect.hset('userSocketHash', user.id.toString(), socket.id);
 
   // 加入參與的 chatRoom
-  const roomIds = user.RegisteredGroups?.map((group) => group.id) || [];
-  roomIds.forEach((id) => { socket.join(`groupChat${id}`); });
+  user.RegisteredGroups?.forEach((group) => socket.join(`groupChat${group.id}`));
 
   // 監聽 socket events
   Object.keys(socketEvents).forEach((key) => {
