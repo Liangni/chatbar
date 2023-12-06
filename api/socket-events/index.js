@@ -1,6 +1,6 @@
-const groupChatMessage = require('./groupChatMessage');
-const privateChatMessage = require('./privateChatMessage');
-const fetchOnlineUsers = require('./fetchOnlineUsers');
+const groupChatMessage = require('./group-chat-message');
+const privateChatMessage = require('./private-chat-message');
+const fetchOnlineUsers = require('./fetch-online-users');
 const fetchOnlineUserIds = require('./fetch-online-user-ids');
 const disconnect = require('./disconnect');
 
