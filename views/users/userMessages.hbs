@@ -185,9 +185,11 @@
     const privateChats = document.querySelectorAll('.room-item[data-chat-type="privateChat"]')
     const activeGroupChat = document.querySelector('.room-item.active[data-chat-type="groupChat"]') || null
 
-    if (privateChats.length) socket.emit("fetchOnlineUserIds")
-    if (activeGroupChat) socket.emit("fetchOnlineGroupUserIds", Number(activeGroupChat.dataset.chatId))
-
+    socket.on('connected', () => {
+        if (privateChats.length) socket.emit("fetchOnlineUserIds")
+        if (activeGroupChat) socket.emit("fetchOnlineGroupUserIds", Number(activeGroupChat.dataset.chatId))
+    })
+    
 
     // 將卷軸置底
     if (msgDisplayer) msgDisplayer.scrollTop = msgDisplayer.scrollHeight
