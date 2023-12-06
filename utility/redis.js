@@ -41,6 +41,11 @@ const redisConnect = {
     const result = await client.hGetAll(key);
     // eslint-disable-next-line consistent-return
     return result;
+  },
+  async hdel(key, field) {
+    if (!key || !field) return;
+
+    await client.hDel(key, field);
   }
 };
 
