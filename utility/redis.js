@@ -34,6 +34,13 @@ const redisConnect = {
     if (!key || !field) return;
 
     await client.hSet(key, field, val);
+  },
+  async hgetall(key) {
+    if (!key) return;
+
+    const result = await client.hGetAll(key);
+    // eslint-disable-next-line consistent-return
+    return result;
   }
 };
 

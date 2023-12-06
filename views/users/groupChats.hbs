@@ -77,7 +77,10 @@
     let i, switching, roomOptions, shouldSwitch
 
     // socket事件
-    socket.emit("fetchOnlineUsers")
+    socket.on('connected', () => {
+        socket.emit("fetchOnlineUsers")
+    })
+    
 
     socket.on('getOnlineUsers', (onlineUsers) => {
         const onlineGroupUserCountBoxes = document.querySelectorAll('[data-info="group-chat-online-user-count"]')
