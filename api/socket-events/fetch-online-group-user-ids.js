@@ -1,4 +1,3 @@
-const Sequelize = require('sequelize');
 const redisConnect = require('../../utility/redis');
 const { Group_register } = require('../../models');
 
