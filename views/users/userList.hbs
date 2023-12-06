@@ -204,9 +204,12 @@
         userFilter = {}
 
     // socket事件
-    socket.emit("fetchOnlineUserIds")
+    socket.on('connected', () => {
+        socket.emit("fetchOnlineUserIds")
+    })
 
     socket.on('getOnlineUserIds', (onlineUserIds) => {
+        console.log(onlineUserIds)
         const userCards = document.querySelectorAll('[data-info="user"]')
         userCards.forEach(userCard => {
             if (onlineUserIds.includes(Number(userCard.dataset.userId))) return displayOnline(userCard)
