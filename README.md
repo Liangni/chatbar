@@ -5,7 +5,7 @@
 ![image](/readme-materials/group_messages.png)
 
 ## 服務架構
-![image](/readme-materials/flowchart.png)
+![image](/readme-materials/flowchart-1.png)
 
 ## 特色功能
 ### :star2: 即時聊天
@@ -13,8 +13,8 @@
 <br/>
 ![image](/readme-materials/send_messages.gif)
 
-### :star2: 查看其他使用者登入狀態
-使用者可以即時查看群組聊天室其他成員、私人訊息聊天對象、或全站使用者的登入狀態。
+### :star2: 查看其他使用者在線/離線狀態
+使用者可以即時查看群組聊天室其他成員、私人訊息聊天對象、或全站使用者的在線/離線狀態。
 <br/>
 ![image](/readme-materials/show_online_status.gif)
 
@@ -30,15 +30,16 @@
 
 ## 主要開發工具
 * **Node.js:** 開發環境
-* **Express.js:** 網頁伺服器開發框架
-* **MySQL:** 關聯式資料庫
+* **Express.js:** 開發框架
+* **MySQL:** 主要資料庫
+* **Redis:** 記憶使用者在線狀態之資料庫
 * **Passport.js:** 實現登入登出、權限認證所使用的套件
 * **Socket.io:** 實現即時通訊所使用的套件
 * **AWS S3:** 第三方檔案儲存服務，用來儲存使用者聊天時傳送的檔案和圖片
 
 ## 部署
-* **AWS EC2:** 雲端上的虛擬機器，用以部署chatbar服務
-* **Docker:** 容器化專案程式碼，並在EC2上運行程式 
+* **AWS EC2:** 雲端上的虛擬機器，用以部署 chatbar 服務
+* **Docker:** 以 docker-compose 串連多個容器，共同運行服務 
 
 ## 專案安裝
 1. 下載專案
