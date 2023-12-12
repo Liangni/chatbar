@@ -6,13 +6,13 @@ networks:
 
 services: 
   #mysql
-  mysql_container:
+  db:
     container_name: mysql_container
     image: mysql:8
     ports:
       - "3307:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=${PROD_MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=chatbar_workspace
     volumes:
       - mysql:/var/lib/mysql
@@ -21,6 +21,7 @@ services:
     networks:
       - app-tier
 
+  # redis
   cache:
     container_name: redis
     image: redis:alpine
@@ -33,7 +34,6 @@ services:
     networks:
       - app-tier
 
-
   # application
   app:
     container_name: chatbar
@@ -43,13 +43,10 @@ services:
     volumes:
       - ./:/app
     links: 
-      - mysql_container
+      - db
       - cache
-    environment:
-      # - DB_HOST=mysql_container
-      # - REDIS_HOST=cache
     restart: always
-    depends_on: [mysql_container, cache]
+    depends_on: [db, cache]
     networks:
       - app-tier
 

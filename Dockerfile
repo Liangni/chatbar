@@ -8,14 +8,15 @@ COPY . .
 # RUN is for image build steps
 RUN npm install --only=production
 
-# Only creating table, doing migration, adding seeds once in image build steps
-RUN npx sequelize db:drop --env production
+# IF USING 'docker-compose', BELOW 'RUN' STEPS(CREATE TABLES, MIGRATE, ADD SEEDS) SHOULD BE SKIPPED.
 
-RUN npx sequelize db:create --env production
+# RUN npx sequelize db:drop --env production
 
-RUN npx sequelize db:migrate --env production
+# RUN npx sequelize db:create --env production
 
-RUN npx sequelize db:seed:all --env production
+# RUN npx sequelize db:migrate --env production
+
+# RUN npx sequelize db:seed:all --env production
 
 USER node
 
