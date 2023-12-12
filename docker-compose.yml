@@ -1,0 +1,42 @@
+version: '3.6'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services: 
+  #mysql
+  mysql_container:
+    container_name: mysql_container
+    image: mysql:8
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${PROD_MYSQL_PASSWORD}
+      - MYSQL_DATABASE=chatbar_workspace
+    volumes:
+      - mysql:/var/lib/mysql
+      - ./mysql:/docker-entrypoint-initdb.d
+    restart: always
+    networks:
+      - app-tier
+
+  # application
+  # app:
+  #   container_name: chatbar
+  #   build: ./
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./:/app
+  #   links: 
+  #     - mysql_container
+  #   environment:
+  #     - DB_HOST=mysql_container
+  #   restart: always
+  #   depends_on: [mysql_container]
+  #   networks:
+  #     - app-tier
+
+volumes:
+  mysql:
