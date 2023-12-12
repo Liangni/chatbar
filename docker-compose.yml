@@ -6,53 +6,52 @@ networks:
 
 services: 
   #mysql
-  # mysql_container:
-  #   container_name: mysql_container
-  #   image: mysql:8
-  #   ports:
-  #     - "3307:3306"
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=${PROD_MYSQL_PASSWORD}
-  #     - MYSQL_DATABASE=chatbar_workspace
-  #   volumes:
-  #     - mysql:/var/lib/mysql
-  #     - ./mysql:/docker-entrypoint-initdb.d
-  #   restart: always
-  #   networks:
-  #     - app-tier
+  mysql_container:
+    container_name: mysql_container
+    image: mysql:8
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${PROD_MYSQL_PASSWORD}
+      - MYSQL_DATABASE=chatbar_workspace
+    volumes:
+      - mysql:/var/lib/mysql
+      - ./mysql:/docker-entrypoint-initdb.d
+    restart: always
+    networks:
+      - app-tier
 
   cache:
     container_name: redis
-    image: redis:6.2-alpine
+    image: redis:alpine
     restart: always
     ports: 
       - "6379:6379"
     volumes:
       - redis:/data
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_PORT=6379
-      - REDIS_DATABASES=16
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     networks:
       - app-tier
 
 
   # application
-  # app:
-  #   container_name: chatbar
-  #   build: ./
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./:/app
-  #   links: 
-  #     - mysql_container
-  #   environment:
-  #     - DB_HOST=mysql_container
-  #   restart: always
-  #   depends_on: [mysql_container]
-  #   networks:
-  #     - app-tier
+  app:
+    container_name: chatbar
+    build: ./
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+    links: 
+      - mysql_container
+      - cache
+    environment:
+      # - DB_HOST=mysql_container
+      # - REDIS_HOST=cache
+    restart: always
+    depends_on: [mysql_container, cache]
+    networks:
+      - app-tier
 
 volumes:
   mysql:

@@ -21,12 +21,12 @@
     "express": "^4.17.3",
     "express-handlebars": "^5.3.3",
     "faker": "5.5.3",
+    "ioredis": "^5.3.2",
     "method-override": "^3.0.0",
     "multer": "^1.4.3",
     "mysql2": "^2.2.5",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
-    "redis": "^4.6.11",
     "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0",
     "socket.io": "^4.5.0"
