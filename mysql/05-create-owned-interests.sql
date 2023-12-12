@@ -1,4 +1,4 @@
-CREATE TABLE Owned_insterests (
+CREATE TABLE Owned_interests (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     interest_id INT NOT NULL,
     user_id INT NOT NULL,
