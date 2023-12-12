@@ -6,20 +6,36 @@ networks:
 
 services: 
   #mysql
-  mysql_container:
-    container_name: mysql_container
-    image: mysql:8
-    ports:
-      - "3307:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=${PROD_MYSQL_PASSWORD}
-      - MYSQL_DATABASE=chatbar_workspace
-    volumes:
-      - mysql:/var/lib/mysql
-      - ./mysql:/docker-entrypoint-initdb.d
+  # mysql_container:
+  #   container_name: mysql_container
+  #   image: mysql:8
+  #   ports:
+  #     - "3307:3306"
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=${PROD_MYSQL_PASSWORD}
+  #     - MYSQL_DATABASE=chatbar_workspace
+  #   volumes:
+  #     - mysql:/var/lib/mysql
+  #     - ./mysql:/docker-entrypoint-initdb.d
+  #   restart: always
+  #   networks:
+  #     - app-tier
+
+  cache:
+    container_name: redis
+    image: redis:6.2-alpine
     restart: always
+    ports: 
+      - "6379:6379"
+    volumes:
+      - redis:/data
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
     networks:
       - app-tier
+
 
   # application
   # app:
@@ -40,3 +56,4 @@ services:
 
 volumes:
   mysql:
+  redis:
