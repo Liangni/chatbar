@@ -39,7 +39,7 @@
 
 ## 部署
 * **AWS EC2:** 雲端上的虛擬機器，用以部署 chatbar 服務
-* **Docker:** 以 docker-compose 串連多個容器（nodeje + redis + mysql），共同運行服務 
+* **Docker:** 以 docker-compose 串連多個容器（nodejs + redis + mysql），共同運行服務 
 
 ## 專案安裝
 1. 下載專案
