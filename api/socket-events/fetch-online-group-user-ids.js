@@ -1,25 +1,24 @@
-/* eslint-disable camelcase */
-const redisConnect = require('../../utility/redis');
-const { Group_register } = require('../../models');
+const redisConnect = require('../../utility/redis')
+const { Group_register } = require('../../models')
 
 const fetchOnlineGroupUserIds = (socket, io) => async (groupId) => {
-  const onlineUserIds = (await redisConnect.hkeys('userSocketHash')).map((idString) => parseInt(idString, 10));
+    const onlineUserIds = (await redisConnect.hkeys('userSocketHash')).map((idString) => parseInt(idString, 10))
 
-  const groupRegisters = await Group_register.findAll(
-    {
-      where: {
-        group_id: groupId,
-        user_id: onlineUserIds
-      },
-      attributes: ['userId'],
-      nest: true,
-      raw: true
-    }
-  );
+    const groupRegisters = await Group_register.findAll(
+        {
+            where: {
+                group_id: groupId,
+                user_id: onlineUserIds
+            },
+            attributes: ['userId'],
+            nest: true,
+            raw: true
+        }
+    )
 
-  const onlineGroupUserIds = groupRegisters.map((register) => register.userId);
+    const onlineGroupUserIds = groupRegisters.map((register) => register.userId)
 
-  io.to(socket.id).emit('getOnlineGroupUserIds', onlineGroupUserIds);
-};
+    io.to(socket.id).emit('getOnlineGroupUserIds', onlineGroupUserIds)
+}
 
-module.exports = fetchOnlineGroupUserIds;
+module.exports = fetchOnlineGroupUserIds
