@@ -1,11 +1,11 @@
-const multer = require('multer');
+const multer = require('multer')
 
-const storage = multer.memoryStorage();
+const storage = multer.memoryStorage()
 
 const upload = multer({
-  dest: 'temp/',
-  storage
-});
-const cpUpload = upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]);
+    dest: 'temp/',
+    storage
+})
+const cpUpload = upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }])
 
-module.exports = cpUpload;
+module.exports = cpUpload
