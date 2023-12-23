@@ -1,16 +1,14 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable global-require */
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+    require('dotenv').config()
 }
 
-const AWS = require('aws-sdk');
+const AWS = require('aws-sdk')
 
-const { AWS_S3_ACCESSKEY, AWS_S3_SECRET_ACCESS_KEY } = process.env;
+const { AWS_S3_ACCESSKEY, AWS_S3_SECRET_ACCESS_KEY } = process.env
 
 const s3 = new AWS.S3({
-  accessKeyId: AWS_S3_ACCESSKEY,
-  secretAccessKey: AWS_S3_SECRET_ACCESS_KEY
-});
+    accessKeyId: AWS_S3_ACCESSKEY,
+    secretAccessKey: AWS_S3_SECRET_ACCESS_KEY
+})
 
-module.exports = s3;
+module.exports = s3
