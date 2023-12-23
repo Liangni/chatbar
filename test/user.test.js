@@ -26,7 +26,7 @@ describe('login requests', () => {
             expect(response.status).toBe(200)
         })
 
-        it('should login successfully', async() => {
+        test('should login successfully', async() => {
             // 送出 request POST /users/login
             const response = await request(app)
                 .post('/users/login')
@@ -38,7 +38,7 @@ describe('login requests', () => {
         })
 
         // 測試：登入失敗是否會回到 /pages/login 頁面
-        it('should fail to login and redirect to /pages/login', async () => {
+        test('should fail to login and redirect to /pages/login', async () => {
             const response = await request(app)
                 .post('/users/login')
                 .send('')
