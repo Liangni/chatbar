@@ -12,7 +12,7 @@ userRouter.post(
         'local',
         {
             // 以下兩行前後分離可拿掉
-            failureRedirect: 'pages/users/login',
+            failureRedirect: '/pages/login',
             failureFlash: true // 失敗時傳送flash message
             // 如用JWT驗證(不用cookie-based驗證)，不需要Passport建立session，要設定session: false
         }

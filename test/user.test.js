@@ -6,12 +6,11 @@ const models = require('../models')
 
 // 使用者相關功能測試
 // 1. 可以登入
-// 2. 可以登出
-// 3. 可以註冊
+// 2. 可以註冊
 
 // 登入功能測試
 describe('login requests', () => {
-    describe('if user want to signin', () => {
+    describe('if user want to login', () => {
         beforeAll(async () => {
             // 在測試資料庫新增一個 user
             await models.User.create({
@@ -21,9 +20,32 @@ describe('login requests', () => {
             })
         })
 
+        // 確認可以顯示 GET /pages/login 的頁面
         test('should render login page', async () => {
             const response = await request(app).get('/pages/login')
             expect(response.status).toBe(200)
+        })
+
+        it('should login successfully', async() => {
+            // 送出 request POST /users/login
+            const response = await request(app)
+                .post('/users/login')
+                .send('account=User1&password=User1')
+                .set('Accept', 'application/json')
+            
+            expect(response.status).toBe(302)
+            expect(response.header.location).toBe('/pages/groupChats')
+        })
+
+        // 測試：登入失敗是否會回到 /pages/login 頁面
+        it('should fail to login and redirect to /pages/login', async () => {
+            const response = await request(app)
+                .post('/users/login')
+                .send('')
+                .set('Accept', 'application/json')
+
+            expect(response.status).toBe(302)
+            expect(response.header.location).toBe('/pages/login')
         })
 
         afterAll(async() => {
