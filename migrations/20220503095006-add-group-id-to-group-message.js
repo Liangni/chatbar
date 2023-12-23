@@ -1,18 +1,18 @@
-'use strict';
+'use strict'
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('Group_messages', 'group_id', {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Group_chats',
-        key: 'id'
-      }
-    })
-  },
+    up: async (queryInterface, Sequelize) => {
+        await queryInterface.addColumn('Group_messages', 'group_id', {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Group_chats',
+                key: 'id'
+            }
+        })
+    },
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('Group_messages', 'group_id')
-  }
-};
+    down: async (queryInterface) => {
+        await queryInterface.removeColumn('Group_messages', 'group_id')
+    }
+}
