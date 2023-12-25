@@ -1,6 +1,10 @@
 const request = require('supertest')
 
 const app = require('../app')
+const models = require('../models')
+const authHelpers = require('../helpers/auth-helpers')
+
+jest.mock('../helpers/auth-helpers')
 
 // 1. 當 user 沒有登入時，進到 /pages/groupChats 頁面會被導到登入頁
 // 2. 當 user 登入時，可以進到 /pages/groupChats 的頁面
@@ -19,6 +23,50 @@ describe('groupchat request', () => {
                 expect(response.header.location).toBe('/pages/login')
             })
         })
-        
+
+        // 當 user 登入時，可以進到 /pages/groupChats 的頁面
+        describe('user log in', () => {
+            beforeAll(async () => {
+            // 模擬登入資料
+                authHelpers.ensureAuthenticated.mockReturnValue(true)
+                authHelpers.getUser.mockReturnValue(
+                    { 
+                        id: 1, 
+                        RegisteredGroups: [
+                            {
+                                id: 1,
+                                name: 'User1 的 groupChat',
+                                userId: 1
+                            }
+                        ] 
+                    }
+                )
+
+                // 在測試資料庫中，新增 mock 資料
+                await models.User.create({ id: 1 })
+                await models.Group_chat.create({ userId: 1, name: 'User1 的 groupChat'})
+                await models.Group_register.create({ groupId: 1, userId: 1 })
+            })
+
+
+            test('should render /pages/groupchats page', async () => {
+                const response = await request(app)
+                    .get('/pages/groupChats')
+                    .set('Accept', 'text/html')
+
+                expect(response.status).toBe(200)
+                expect(response.text).toContain('User1 的 groupChat')
+            })
+
+            afterAll(async () => {
+                jest.restoreAllMocks()
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+                await models.User.destroy({ where: {}, truncate: true, force: true })
+                await models.Group_chat.destroy({ where: {}, truncate: true, force: true })
+                await models.Group_register.destroy({ where: {}, truncate: true, force: true })
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+            })
+        })
     })
+
 })
