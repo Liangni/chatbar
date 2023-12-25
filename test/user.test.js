@@ -73,7 +73,7 @@ describe('register request', () => {
         })
 
         test('should register successfully', async() => {
-            const birthday = new Date(1990, 0, 1)
+            const birthday = new Date(1990, 10, 1)
             const isoFormattedBirthday = birthday.toISOString()
 
             const response = await request(app)
