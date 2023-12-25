@@ -106,5 +106,30 @@ describe('groupchat request', () => {
             })
         })
 
+        describe('when fail without login', () => {
+            beforeAll(async () => {
+                // 沒有登入資料
+            })
+
+            test('POST /groupChats', async () => {
+                // 送出 request POST /groupChats，會失敗
+                const response = await request(app)
+                    .post('/groupChats')
+                    .send('name=groupChat1')
+                    .set('Accept', 'application/json')
+
+                expect(response.status).toBe(302)
+            })
+
+            test('should not create groupchat', async () => {
+                const groupChat = await models.Group_chat.findOne()
+                expect(groupChat).toBeNull()
+            })
+
+            afterAll(async () => {
+                // 不需清除資料
+            })
+        })
+
     })
 })
