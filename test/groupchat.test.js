@@ -59,7 +59,7 @@ describe('groupchat request', () => {
             })
 
             afterAll(async () => {
-                jest.restoreAllMocks()
+                jest.resetAllMocks()
                 await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
                 await models.User.destroy({ where: {}, truncate: true, force: true })
                 await models.Group_chat.destroy({ where: {}, truncate: true, force: true })
@@ -82,6 +82,7 @@ describe('groupchat request', () => {
             })
 
             test('POST /groupChats', async () => {
+                // 送出 request POST /groupChats
                 const response = await request(app)
                     .post('/groupChats')
                     .send('name=groupChat1')
@@ -96,7 +97,7 @@ describe('groupchat request', () => {
             })
 
             afterAll(async () => {
-                jest.restoreAllMocks()
+                jest.resetAllMocks()
                 await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
                 await models.User.destroy({ where: {}, truncate: true, force: true })
                 await models.Group_chat.destroy({ where: {}, truncate: true, force: true })
