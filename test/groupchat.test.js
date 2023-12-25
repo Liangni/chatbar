@@ -203,5 +203,42 @@ describe('groupchat request', () => {
                 await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
             })
         })
+
+        // 可以退出群組
+        describe('DELETE /groupChats/:id/groupRegisters', () => {
+            beforeAll(async () => {
+                // 模擬登入資料
+                authHelpers.ensureAuthenticated.mockReturnValue(true)
+                authHelpers.getUser.mockReturnValue({ id: 1 })
+            
+                // 在測試資料庫中，新增 mock 資料
+                await models.User.create({ id: 1 })
+                await models.Group_chat.create({ userId: 1, name: 'User1 的 groupChat'})
+                await models.Group_register.create({ groupId: 1, userId: 1 })
+            })
+        
+            test('DELETE /groupChats/1/groupRegisters', async () => {
+                // 送出 request POST /groupChats
+                const response = await request(app)
+                    .delete('/groupChats/1/groupRegisters')
+                    .set('Accept', 'application/json')
+        
+                expect(response.status).toBe(302)
+            })
+        
+            test('should destroy current user groupchat register', async () => {
+                const groupRegister = await models.Group_register.findOne({ where: { userId: 1 } })
+                expect(groupRegister).toBeNull()
+            })
+        
+            afterAll(async () => {
+                jest.resetAllMocks()
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+                await models.User.destroy({ where: {}, truncate: true, force: true })
+                await models.Group_chat.destroy({ where: {}, truncate: true, force: true })
+                await models.Group_register.destroy({ where: {}, truncate: true, force: true })
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+            })
+        })
     })
 })
