@@ -90,8 +90,8 @@ describe('groupchat request', () => {
                 expect(response.status).toBe(302)
             })
 
-            test('Should create current user groupchat', async () => {
-                const groupChat = models.Group_chat.findOne({ where: { userId: 1 } })
+            test('should create current user groupchat', async () => {
+                const groupChat = await models.Group_chat.findOne({ where: { userId: 1 } })
                 expect(groupChat).not.toBeNull()
             })
 
@@ -162,6 +162,5 @@ describe('groupchat request', () => {
                 await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
             })
         })
-
     })
 })
