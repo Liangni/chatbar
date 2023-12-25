@@ -69,4 +69,41 @@ describe('groupchat request', () => {
         })
     })
 
+    describe('groupchat', () => {
+        describe('post groupchat', () => {
+            beforeAll(async () => {
+                // 模擬登入資料
+                authHelpers.ensureAuthenticated.mockReturnValue(true)
+                authHelpers.getUser.mockReturnValue({ id: 1 }
+                )
+    
+                // 在測試資料庫中，新增 mock 資料
+                await models.User.create({ id: 1 })
+            })
+
+            test('POST /groupChats', async () => {
+                const response = await request(app)
+                    .post('/groupChats')
+                    .send('name=groupChat1')
+                    .set('Accept', 'application/json')
+
+                expect(response.status).toBe(302)
+            })
+
+            test('Should create current user groupchat', async () => {
+                const groupChat = models.Group_chat.findOne({ where: { userId: 1 } })
+                expect(groupChat).not.toBeNull()
+            })
+
+            afterAll(async () => {
+                jest.restoreAllMocks()
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+                await models.User.destroy({ where: {}, truncate: true, force: true })
+                await models.Group_chat.destroy({ where: {}, truncate: true, force: true })
+                await models.Group_register.destroy({ where: {}, truncate: true, force: true })
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+            })
+        })
+
+    })
 })
