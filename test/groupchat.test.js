@@ -74,8 +74,7 @@ describe('groupchat request', () => {
             beforeAll(async () => {
                 // 模擬登入資料
                 authHelpers.ensureAuthenticated.mockReturnValue(true)
-                authHelpers.getUser.mockReturnValue({ id: 1 }
-                )
+                authHelpers.getUser.mockReturnValue({ id: 1 })
     
                 // 在測試資料庫中，新增 mock 資料
                 await models.User.create({ id: 1 })
@@ -128,6 +127,39 @@ describe('groupchat request', () => {
 
             afterAll(async () => {
                 // 不需清除資料
+            })
+        })
+
+        // 測試當 groupchat 名稱為空字串，新增 groupchat 會失敗
+        describe('when fail without validation', () => {
+            beforeAll(async () => {
+                // 模擬登入資料
+                authHelpers.ensureAuthenticated.mockReturnValue(true)
+                authHelpers.getUser.mockReturnValue({ id: 1 })
+                // 在測試資料庫中，新增 mock 資料
+                await models.User.create({ id: 1 })
+            })
+
+            test('POST /groupChats', async () => {
+                // 送出 request POST /groupChats，會失敗
+                const response = await request(app)
+                    .post('/groupChats')
+                    .send('name=')
+                    .set('Accept', 'application/json')
+
+                expect(response.status).toBe(302)
+            })
+
+            test('should not create groupchat', async () => {
+                const groupChat = await models.Group_chat.findOne()
+                expect(groupChat).toBeNull()
+            })
+
+            afterAll(async () => {
+                jest.resetAllMocks()
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+                await models.User.destroy({ where: {}, truncate: true, force: true })
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
             })
         })
 
