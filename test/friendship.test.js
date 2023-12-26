@@ -73,8 +73,10 @@ describe('friendship request', () => {
                 authHelpers.getUser.mockReturnValue({ id: 1 })
     
                 // 在測試資料庫中，新增 mock 資料
-                await models.User.create({ id: 1 })
-                await models.User.create({ id: 2 })
+                await models.User.bulkCreate([
+                    { id: 1, account: 'User1' },
+                    { id: 2, account: 'User2' }
+                ])
             })
 
             test('POST /friendships/users/:id/friendshipInvitations', async () => {
