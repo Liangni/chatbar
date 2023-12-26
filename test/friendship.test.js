@@ -174,6 +174,46 @@ describe('friendship request', () => {
                 })
             })                 
         })
+
+        describe('GET friendshipInvitation senders', () => {
+            beforeAll( async () => {
+                // 模擬登入資料
+                authHelpers.ensureAuthenticated.mockReturnValue(true)
+                authHelpers.getUser.mockReturnValue({ id: 1 })
+
+                // 在測試資料庫中，新增 mock 資料
+                await models.District.create({ id: 1, name: 'test'})
+                await models.Gender.create({ id: 1, name: 'test'})
+                await models.User.bulkCreate([
+                    { id: 1, account: 'User1' },
+                    { id: 2, account: 'User2', birthday: new Date(), districtId: 1, genderId: 1 }
+                ])
+                await models.Friendship_invitation.create({ senderId: 2, recieverId: 1 })
+            })
+
+            test('GET /friendships/friendshipInviations/senders', async() => {
+                const response = await request(app)
+                    .get('/friendships/friendshipInviations/senders')
+                    .set('Accept', 'application/json')
+
+                expect(response.status).toBe(200)
+                expect(response.body.friendshipInvitationSenders).toMatchObject([
+                    {
+                        id: 2,
+                        district: 'test',
+                        gender: 'test'
+                    }
+                ])
+            })
+
+            afterAll(async () => {
+                jest.resetAllMocks()
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+                await models.User.destroy({ where: {}, truncate: true, force: true })
+                await models.Friendship_invitation.destroy({ where: {}, truncate: true, force: true })
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+            })
+        })
     })
 
     describe('friendship', () => {
