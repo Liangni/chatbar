@@ -66,7 +66,7 @@ describe('friendship request', () => {
     })
 
     describe('friendship invitation', () => {
-        describe('POST /users/:id/friendshipInvitations', () => {
+        describe('create friendshipInvitations', () => {
             beforeAll(async () => {
                 // 模擬登入資料
                 authHelpers.ensureAuthenticated.mockReturnValue(true)
@@ -173,13 +173,8 @@ describe('friendship request', () => {
                     await models.Friendship_invitation.destroy({ where: {}, truncate: true, force: true })
                     await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
                 })
-            })
-
-            
-            
+            })                 
         })
-
-
-
     })
+
 })
