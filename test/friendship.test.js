@@ -64,4 +64,41 @@ describe('friendship request', () => {
             })
         })
     })
+
+    describe('friendship invitation', () => {
+        describe('POST /users/:id/friendshipInvitations', () => {
+            beforeAll(async () => {
+                // 模擬登入資料
+                authHelpers.ensureAuthenticated.mockReturnValue(true)
+                authHelpers.getUser.mockReturnValue({ id: 1 })
+    
+                // 在測試資料庫中，新增 mock 資料
+                await models.User.create({ id: 1 })
+                await models.User.create({ id: 2 })
+            })
+
+            test('POST /friendships/users/:id/friendshipInvitations', async () => {
+                // 送出 request POST /groupChats
+                const response = await request(app)
+                    .post('/friendships/users/2/friendshipInvitations')
+                    .set('Accept', 'application/json')
+
+                expect(response.status).toBe(302)
+            })
+
+            test('should create current user friendship invitation', async () => {
+                const friendshipInvitation = await models.Friendship_invitation.findOne({ where: { senderId: 1, recieverId: 2 } })
+                expect(friendshipInvitation).not.toBeNull()
+            })
+
+            afterAll(async () => {
+                jest.resetAllMocks()
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+                await models.User.destroy({ where: {}, truncate: true, force: true })
+                await models.Friendship_invitation.destroy({ where: {}, truncate: true, force: true })
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+            })
+        })
+
+    })
 })
