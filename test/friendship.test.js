@@ -217,5 +217,44 @@ describe('friendship request', () => {
                 await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
             })
         })
+
+        describe('delete friendships', () => {
+            beforeAll(async () => {
+                // 模擬登入資料
+                authHelpers.ensureAuthenticated.mockReturnValue(true)
+                authHelpers.getUser.mockReturnValue({ id: 1 })
+    
+                // 在測試資料庫中，新增 mock 資料
+                await models.User.bulkCreate([
+                    { id: 1, account: 'User1' },
+                    { id: 2, account: 'User2' }
+                ])
+                await models.Friendship.create(
+                    { userId: 1, friendId: 2},
+                    // 加入下面一行避免sequelize試圖在friendId插入null
+                    { fields: ['userId', 'friendId'] })
+            })
+
+            test('DELETE /friendships/users/:id/friendship', async () => {
+                const response = await request(app)
+                    .delete('/friendships/users/2/friendships')
+                    .set('Accept', 'application/json')
+
+                expect(response.status).toBe(302)
+            })
+
+            test('should delete current user friendship', async () => {
+                const friendship = await models.Friendship.findOne({ where: { userId: 1, friendId: 2 } })
+                expect(friendship).toBeNull()
+            })
+
+            afterAll(async () => {
+                jest.resetAllMocks()
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+                await models.User.destroy({ where: {}, truncate: true, force: true })
+                await models.Friendship.destroy({ where: {}, truncate: true, force: true })
+                await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+            })
+        })
     })
 })
