@@ -200,15 +200,19 @@ describe('friendship request', () => {
             })
 
             test('should create current user friendship', async () => {
-                const friendshipInvitation = await models.Friendship.findOne({ where: { userId: 1, friendId: 2 } })
-                expect(friendshipInvitation).not.toBeNull()
+                const friendship = await models.Friendship.findOne({ where: { userId: 1, friendId: 2 } })
+                expect(friendship).not.toBeNull()
+            })
+
+            test('should destroy current user friendship invitation', async () => {
+                const friendshipInvitation = await models.Friendship_invitation.findOne({ where: { senderId: 2, recieverId: 1 } })
+                expect(friendshipInvitation).toBeNull()
             })
 
             afterAll(async () => {
                 jest.resetAllMocks()
                 await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
                 await models.User.destroy({ where: {}, truncate: true, force: true })
-                await models.Friendship_invitation.destroy({ where: {}, truncate: true, force: true })
                 await models.Friendship.destroy({ where: {}, truncate: true, force: true })
                 await models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
             })
